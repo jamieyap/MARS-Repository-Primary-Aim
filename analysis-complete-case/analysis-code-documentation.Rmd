@@ -1,0 +1,107 @@
+---
+title: "Analysis Code Documentation"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(MRTAnalysis)
+```
+
+# Overview
+
+In this document, we provide documentation on the data processing steps we took to utilize code in the `MRTAnalysis` package to data from the MARS MRT. One of the main differences between the structure of the synthetic dataset for binary outcome that comes with the `MRTAnalysis` package is that in the synthetic dataset, the value for the proximal outcome exists regardless of whether an individual was eligible for micro-randomization at a particular decision point, but this is not the case for data from the MARS study. This is because **by design**, EMAs were only administered if micro-randomization occurred and the proximal outcome was assessed in EMAs. In a similar vein, if a time-varying covariate was assessed via EMAs, then the time-varying covariate can only be assessed if micro-randomization occurred.
+
+More specifically, here is an illustrative example of the difference in the data structures. When creating this example, we used the synthetic dataset in the `MRTAnalysis` package (top) and a slightly modified version of the synthetic dataset (bottom).
+
+```{r}
+# data_binary is a synthetic dataset that is included in the MRTAnalysis package
+# Display the first 10 rows of the synthetic dataset in the MRTAnalysis package
+head(data_binary, 10)
+```
+
+```{r}
+# This modified copy is an illustrative example of the main difference in
+# data structure between the synthetic dataset and data from the MARS study
+data_binary_modified <- data_binary
+data_binary_modified$Y <- if_else(data_binary_modified$avail == 0, NA, data_binary_modified$Y)
+data_binary_modified$time_var1 <- if_else(data_binary_modified$avail == 0, NA, data_binary_modified$time_var1)
+data_binary_modified$time_var2 <- if_else(data_binary_modified$avail == 0, NA, data_binary_modified$time_var2)
+data_binary_modified$A <- if_else(data_binary_modified$avail == 0, NA, data_binary_modified$A)
+data_binary_modified$rand_prob <- if_else(data_binary_modified$avail == 0, NA, data_binary_modified$rand_prob)
+# Display the first 10 rows of a modified copy of the synthetic dataset
+head(data_binary_modified, 10)
+```
+
+When an individual was not eligible for micro-randomization at a particular decision point, the `emee` function in `MRTAnalysis` expects the value of other variables included in any of its arguments to have a non-missing value even if the row will not be used to estimate the treatment effect. Therefore, we performed data pre-processing steps described next to enable data from the MARS study to be compatible for use with functions in the `MRTAnalysis` package.
+
+# Data Pre-Processing Steps
+
+```{r}
+# This is the data frame that is the output of the very last step of our data pipeline
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
+```
+
+Data pre-processing steps used:
+
+* Before starting, ensure that eligibility for micro-randomization is dummy coded so that 1 denotes eligible for micro-randomization and 0 denotes not eligible for micro-randomization.
+* Whenever an individual is not eligible for micro-randomization at a particular decision point, we replace NA values with some numeric value (could be -1, -99, 0, 9, or 100; it does not really matter) for all the variables which were assessed in EMA; we also do this for the treatment indicator and time variables.
+* **Applicable only when eprforming complete case analysis:** since setting eligibility for micro-randomization to 0 is mathematically equivalent to dropping an observation, we set eligibility to zero whenever micro-randomization happened, but primary proximal outcome was not observed. We also do this if our analysis calls for including other variables (e.g., moderators assessed in EMA).
+
+```{r}
+# Bare bones example to illustrate data pre-processing steps for complete case analysis
+dat_for_analysis <- dat_primary_aim %>% 
+  # This line executes the data pre-processing step that applies to 
+  # complete case analysis but not multiply imputed analysis
+  # In effect, this excludes rows which have a micro-randomization but a 
+  # missing value in the proximal outcome from estimation of treatment effects
+  # If performng a multiply imputed data analysis, there is no need for the next line
+  mutate(eligibility = replace(eligibility, (!is.na(coinflip)) & (is.na(Y)), 0)) %>% 
+  # The `emee` function in `MRTAnalysis` expects the value of other variables 
+  # included in any of its arguments to have a non-missing value even if the 
+  # row will not be used to estimate the treatment effect
+  mutate(Y = replace(Y, eligibility == 0, -1)) %>% 
+  mutate(coinflip = replace(coinflip, eligibility == 0, -1)) %>%
+  mutate(days_between_v1_and_coinflip_local = replace(days_between_v1_and_coinflip_local, eligibility == 0, -1))
+
+# The variable in the argument 'id' has to be numeric
+# mars_id and participant_id both capture each participant's unique ID:
+# mars_id is formatted as a string prefixed by "mars_" followed by a number 
+# while participant_id is formatted as a numeric value (just the number part
+# of mars_id)
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ days_between_v1_and_coinflip_local,  
+  control_formula = ~ days_between_v1_and_coinflip_local, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+

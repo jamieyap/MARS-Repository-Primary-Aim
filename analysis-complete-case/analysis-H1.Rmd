@@ -1,0 +1,219 @@
+---
+title: "MARS MRT: H1 and Exploratory Analyses on Moderated Effect of Time"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(MRTAnalysis)
+```
+
+```{r}
+# This is the data frame that is the output of the very last step of our data pipeline
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- dat_primary_aim %>%
+  mutate(is_include_main = if_else((decision_point >= 7) & (decision_point <= 54), 1, 0),    # Drop the first 6 and last 6 decision points
+         is_include_sensitivity = 1)                                                         # Keep all decision points
+```
+
+**H1 Main Analysis** excludes first and last days of the 10-day MRT while **H1 Sensitivity Analysis** includes all days of the 10-day MRT. In **Exploratory Analysis on Moderated Effect of Time**, we investigate whether the effect of prompt (versus no prompt) varies by day in study, where day in study is modeled in a linear or quadratic manner.
+
+# H1 Main Analysis 
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  filter(is_include_main == 1) %>%
+  select(participant_id, decision_point, eligibility, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+```
+
+```{r}
+my_list <- list(Y = -1,
+                coinflip = -1,
+                hour_coinflip_local = -1, 
+                days_between_v1_and_coinflip_local = -1,
+                any_response_2qs = -1, 
+                any_recent_eligible_dp = -1, 
+                engagement_most_recent_eligible = -1,
+                age = -1, 
+                is_female = -1, 
+                is_latino = -1, 
+                is_not_latino_and_black = -1, 
+                is_not_latino_and_other = -1, 
+                baseline_tobacco_history = -1, 
+                has_partner = -1, 
+                income_val = -1)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ 1,  
+  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+# Exploratory Analysis (Linear Effect of Time)
+
+```{r}
+fit2 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ days_between_v1_and_coinflip_local,  
+  control_formula = ~ days_between_v1_and_coinflip_local + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit2, show_control_fit = TRUE)
+```
+
+# Exploratory Analysis (Quadratic Effect of Time)
+
+```{r}
+fit3 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local),  
+  control_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit3, show_control_fit = TRUE)
+```
+
+# H1 Sensitivity Analysis
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  filter(is_include_sensitivity == 1) %>%
+  select(participant_id, decision_point, eligibility, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+```
+
+```{r}
+my_list <- list(Y = 0,
+                coinflip = 0,
+                hour_coinflip_local = 0, 
+                days_between_v1_and_coinflip_local = 0,
+                any_response_2qs = 0, 
+                any_recent_eligible_dp = 0, 
+                engagement_most_recent_eligible = 0,
+                age = 0, 
+                is_female = 0, 
+                is_latino = 0, 
+                is_not_latino_and_black = 0, 
+                is_not_latino_and_other = 0, 
+                baseline_tobacco_history = 0, 
+                has_partner = 0, 
+                income_val = 0)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ 1,  
+  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+

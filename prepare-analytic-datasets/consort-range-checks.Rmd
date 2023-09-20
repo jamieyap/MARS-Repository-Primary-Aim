@@ -1,0 +1,314 @@
+---
+title: "Range Checks"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+source("prepare-analytic-datasets/functions-for-analytical-dataset-creation.R")
+```
+
+```{r}
+# These datasets contain data from only those sequences which began
+# within the 10-day MRT period.
+dat_matched_to_decision_points <- readRDS(file = file.path(path_manipulated_data, "dat_matched_to_decision_points.rds"))
+dat_mars_time_varying_noise_reduction_vars <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_noise_reduction_vars.rds"))
+dat_mars_time_varying_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_moderators.rds"))
+# The following participants were excluded from all analyses:
+# - Pilot participants
+# - Among participants who have any data from sequences which began within the
+#   10-day MRT period, those participants who did not complete
+#   at least 3 EMA between the 2nd and 9th day inclusive.
+mars_ids_excluded_from_all_analytic_datasets <- readRDS(file = file.path(path_manipulated_data, "mars_ids_excluded_from_all_analytic_datasets.rds"))
+```
+
+```{r}
+# First, drop data from participants which we will not be using in any further
+# analysis.
+dat_matched_to_decision_points <- dat_matched_to_decision_points %>% filter(!(mars_id %in% mars_ids_excluded_from_all_analytic_datasets))
+dat_matched_to_decision_points <- dat_matched_to_decision_points %>% 
+  select(mars_id, decision_point, olson, A, block_number,
+         ts_2qs_triggered_mountain, ts_status_survey_2qs_mountain,
+         ts_coinflip_mountain, ts_ema_triggered_mountain, ts_status_survey_ema_mountain) %>%
+  mutate(plot_no_group = 1)   # This variable was created to assist in plotting when we do not need to display summary statistics by group
+```
+
+```{r}
+# Merge datasets
+dat_mars_analysis <- left_join(x = dat_mars_time_varying_moderators, 
+                               y = dat_mars_time_varying_noise_reduction_vars,
+                               by = join_by(mars_id == mars_id,
+                                            decision_point == decision_point))
+dat_mars_analysis <- left_join(x = dat_mars_analysis, 
+                               y = dat_matched_to_decision_points,
+                               by = join_by(mars_id == mars_id,
+                                            decision_point == decision_point))
+```
+
+```{r}
+# Next, drop sequences which occur on the first day or last day of the MRT
+dat_mars_analysis <- dat_mars_analysis %>% filter((decision_point >= 7) & (decision_point <= 54))
+```
+
+```{r}
+n_participants <- length(unique(dat_mars_analysis[["mars_id"]]))
+n_blocks <- nrow(dat_mars_analysis)
+n_rand <- sum(!is.na(dat_mars_analysis[["ts_coinflip_mountain"]]))
+```
+
+We used `r n_participants` participants and `r n_blocks` person-blocks to conduct checks described in this document. These `r n_blocks` person-blocks had `r n_rand` micro-randomizations, i.e., participants were eligible for micro-randomization in about 81% of the `r n_blocks` person-blocks.
+
+```{r}
+dat_mars_analysis[["ts_2qs_triggered_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_2qs_triggered_mountain")
+dat_mars_analysis[["ts_status_survey_2qs_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_status_survey_2qs_mountain")
+dat_mars_analysis[["ts_coinflip_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_coinflip_mountain")
+dat_mars_analysis[["ts_ema_triggered_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_ema_triggered_mountain")
+dat_mars_analysis[["ts_status_survey_ema_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_status_survey_ema_mountain")
+```
+
+```{r}
+dat_mars_analysis <- dat_mars_analysis %>% filter(!is.na(ts_2qs_triggered_mountain))
+```
+
+```{r}
+list_quants <- list()
+```
+
+# Check: Minutes elapsed between when brief survey was administered and when brief survey was completed
+
+```{r}
+# Note that you need to take only the subset of the data for which brief survey 
+# was completed prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(status_survey_2qs_collapsed == "fully_completed") %>% filter(status_survey_2qs_collapsed == "fully_completed") %>% filter(!is.na(ts_status_survey_2qs_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_2qs_triggered_local"]] %--% dat_for_calculation[["ts_status_survey_2qs_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(Q1 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0,5)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q1.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when brief survey was administered and when micro-randomization occurred
+
+```{r}
+# Note that you need to take only the subset of the data for which micro-randomization
+# occurred prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_coinflip_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_2qs_triggered_local"]] %--% dat_for_calculation[["ts_coinflip_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(Q2 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+ 
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0,140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q2.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when brief survey was administered and when EMA was administered
+
+```{r}
+# Note that you need to take only the subset of the data for which micro-randomization
+# occurred prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_ema_triggered_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_2qs_triggered_local"]] %--% dat_for_calculation[["ts_ema_triggered_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(Q3 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+ 
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q3.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when EMA was administered and when EMA was completed
+
+```{r}
+# Note that you need to take only the subset of the data for which micro-randomization
+# occurred prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_ema_triggered_local)) %>% filter(status_survey_ema_collapsed == "fully_completed") %>% filter(!is.na(ts_status_survey_ema_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_ema_triggered_local"]] %--% dat_for_calculation[["ts_status_survey_ema_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(Q4 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+ 
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q4.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when brief survey was completed and micro-randomization
+
+```{r}
+# Note that you need to take only the subset of the data for which brief survey 
+# was completed prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(status_survey_2qs_collapsed == "fully_completed") %>% filter(status_survey_2qs_collapsed == "fully_completed") %>% filter(!is.na(ts_status_survey_2qs_local)) %>% filter(!is.na(ts_coinflip_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_status_survey_2qs_local"]] %--% dat_for_calculation[["ts_coinflip_local"]])/60  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(R1 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 60), breaks = seq(0,60,20), labels = seq(0,60,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "R1.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when micro-randomization occurred and when EMA was completed
+
+```{r}
+# Note that you need to take only the subset of the data for which micro-randomization
+# occurred prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_ema_triggered_local)) %>% filter(status_survey_ema_collapsed == "fully_completed") %>% filter(!is.na(ts_status_survey_ema_local)) %>% filter(!is.na(ts_coinflip_local))
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_coinflip_local"]] %--% dat_for_calculation[["ts_status_survey_ema_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(R2 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+ 
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 160), breaks = seq(0,160,20), labels = seq(0,160,20)) + scale_x_continuous("", labels = NULL, breaks = NULL) + geom_abline(slope = 0, intercept = 140, color = "red", linewidth = 1)
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "R2.png"), height = 10, width = 3, units = "in")
+```
+
+```{r}
+dat_quants <- bind_cols(list_quants)
+row.names(dat_quants) <- c("Minimum", "25th-Percentile", "50th-Percentile", "75th-Percentile", "Maximum")
+write.csv(dat_quants, file.path("prepare-analytic-datasets", "plots", "checks_quantiles_minutes_elapsed.csv"), row.names = TRUE)
+```
+
+# Checks: Empirical randomization probabilities
+
+```{r}
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_coinflip_local))
+
+dat_summary <- dat_for_calculation %>%
+  summarise(n_none = sum(A == "none"),
+            n_low_effort = sum(A == "low_effort"),
+            n_mars = sum(A == "mars"),
+            n_total_rand = n()) %>%
+  mutate(prop_none = n_none/n_total_rand,
+         prop_low_effort = n_low_effort/n_total_rand,
+         prop_mars = n_mars/n_total_rand) %>%
+  mutate(n_total_prop = prop_none + prop_low_effort + prop_mars) %>%
+  mutate(prop_none_LB95 = prop_none - qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none),
+         prop_none_UB95 = prop_none + qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none)) %>%
+  mutate(prop_low_effort_LB95 = prop_low_effort - qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort),
+         prop_low_effort_UB95 = prop_low_effort + qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort)) %>%
+  mutate(prop_mars_LB95 = prop_mars - qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars),
+         prop_mars_UB95 = prop_mars + qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars))
+
+dat_randprob_95ci <- data.frame(treatment = c("none", "low effort", "high effort", "total"),
+                                count_randomizations = c(dat_summary[["n_none"]], dat_summary[["n_low_effort"]], dat_summary[["n_mars"]], dat_summary[["n_total_rand"]]),
+                                est_prob = c(dat_summary[["prop_none"]], dat_summary[["prop_low_effort"]], dat_summary[["prop_mars"]], dat_summary[["n_total_prop"]]),
+                                LB95 = c(dat_summary[["prop_none_LB95"]], dat_summary[["prop_low_effort_LB95"]], dat_summary[["prop_mars_LB95"]], NA),
+                                UB95 = c(dat_summary[["prop_none_UB95"]], dat_summary[["prop_low_effort_UB95"]], dat_summary[["prop_mars_UB95"]], NA))
+```
+
+```{r}
+options(knitr.kable.NA = '')
+dat_randprob_95ci %>% kable(., digits = 3)
+```
+
+```{r}
+dat_summary_reshaped <- data.frame(A = c("none", "low effort prompt", "high effort prompt"),
+                                   est = c(dat_summary$prop_none, dat_summary$prop_low_effort, dat_summary$prop_mars),
+                                   LB95 = c(dat_summary$prop_none_LB95,dat_summary$prop_low_effort_LB95,dat_summary$prop_mars_LB95),
+                                   UB95 = c(dat_summary$prop_none_UB95,dat_summary$prop_low_effort_UB95,dat_summary$prop_mars_UB95))
+
+g <- ggplot(data = dat_summary_reshaped, aes(x = A, y = est, ymin = LB95, ymax = UB95, group = A))
+g + geom_errorbar(width = 0.10) + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_discrete(name = "Randomization assignment")
+
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand.png"), height = 10, width = 3, units = "in")
+```
+
+```{r}
+dat_summary <- dat_for_calculation %>%
+  group_by(block_number) %>%
+  summarise(n_none = sum(A == "none"),
+            n_low_effort = sum(A == "low_effort"),
+            n_mars = sum(A == "mars"),
+            n_total_rand = n()) %>%
+  mutate(prop_none = n_none/n_total_rand,
+         prop_low_effort = n_low_effort/n_total_rand,
+         prop_mars = n_mars/n_total_rand) %>%
+  mutate(n_total_prop = prop_none + prop_low_effort + prop_mars) %>%
+  mutate(prop_none_LB95 = prop_none - qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none),
+         prop_none_UB95 = prop_none + qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none)) %>%
+  mutate(prop_low_effort_LB95 = prop_low_effort - qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort),
+         prop_low_effort_UB95 = prop_low_effort + qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort)) %>%
+  mutate(prop_mars_LB95 = prop_mars - qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars),
+         prop_mars_UB95 = prop_mars + qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars))
+
+dat_randprob_95ci <- data.frame(treatment = c(rep("none", 6), rep("low effort", 6), rep("high effort", 6), rep("total", 6)),
+                                block = rep(0:5, times = 4),
+                                count_randomizations = c(dat_summary[["n_none"]], dat_summary[["n_low_effort"]], dat_summary[["n_mars"]], dat_summary[["n_total_rand"]]),
+                                est_prob = c(dat_summary[["prop_none"]], dat_summary[["prop_low_effort"]], dat_summary[["prop_mars"]], dat_summary[["n_total_prop"]]),
+                                LB95 = c(dat_summary[["prop_none_LB95"]], dat_summary[["prop_low_effort_LB95"]], dat_summary[["prop_mars_LB95"]], rep(NA, 6)),
+                                UB95 = c(dat_summary[["prop_none_UB95"]], dat_summary[["prop_low_effort_UB95"]], dat_summary[["prop_mars_UB95"]], rep(NA, 6)))
+```
+
+```{r}
+options(knitr.kable.NA = '')
+dat_randprob_95ci %>% kable(., digits = 3)
+```
+
+```{r}
+dat_summary <- dat_summary %>% mutate(block_number = block_number + 1)
+dat1 <- dat_summary %>% filter(block_number == 1)
+dat2 <- dat_summary %>% filter(block_number == 2)
+dat3 <- dat_summary %>% filter(block_number == 3)
+dat4 <- dat_summary %>% filter(block_number == 4)
+dat5 <- dat_summary %>% filter(block_number == 5)
+dat6 <- dat_summary %>% filter(block_number == 6)
+dat_all_blocks <- rbind(dat1, dat2, dat3, dat4, dat5, dat6)
+```
+
+```{r}
+g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_none, group = block_number, ymin = prop_none_LB95, ymax = prop_none_UB95))
+g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
+
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_no_prompt_by_block.png"), height = 10, width = 3, units = "in")
+```
+
+```{r}
+g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_low_effort, group = block_number, ymin = prop_low_effort_LB95, ymax = prop_low_effort_UB95))
+g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
+
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_low_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
+```
+
+```{r}
+g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_mars, group = block_number, ymin = prop_mars_LB95, ymax = prop_mars_UB95))
+g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
+
+ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_high_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
+```
+
