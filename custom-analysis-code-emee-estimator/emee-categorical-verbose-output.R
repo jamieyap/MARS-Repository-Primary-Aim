@@ -1,3 +1,8 @@
+################################################################################
+# The code in this script is a wrapper for code originally in the MRTAnalysis
+# R package
+################################################################################
+
 convert_to_emee_fit_object <- function(current_fit, EMEE_final, id_string){
   output <- list(current_fit)
   names(output) <- c("fit")

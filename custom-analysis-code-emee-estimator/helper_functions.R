@@ -1,3 +1,7 @@
+################################################################################
+# Code below this line was received from Tianchen Qian
+################################################################################
+
 library(rootSolve)
 
 get_alpha_beta_from_multiroot_result <- function(root, p, q, num_trt)

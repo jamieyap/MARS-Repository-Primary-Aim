@@ -55,6 +55,299 @@ dat_for_analysis <- dat_primary_aim %>%
          age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
 
+```{r}
+# We will set up the dataset so that in analysis, we may have the following comparisons:
+#   * high effort versus low effort
+#   * none versus low effort
+dat_for_analysis <- dat_for_analysis %>%
+  mutate(treatment_cate = case_when(
+    is_low_effort == 1 ~ 0,  # Important: the value of zero in treatment_cate is used to indicate the reference category to be used
+    is_high_effort == 1 ~ 1, # This allows us to make the comparison: high effort prompt versus low effort prompt
+    coinflip == 0 ~ 2,       # This allows us to make the comparison: no prompt versus low effort prompt
+    .default = NULL)) %>%
+  mutate(rand_prob = case_when(
+    treatment_cate == 0 ~ 0.25,
+    treatment_cate == 1 ~ 0.25,
+    treatment_cate == 2 ~ 0.50,
+    .default = NULL))
+
+# rand_prob_A0 is the randomization probability corresponding to the reference category (whatever was coded to take on a value of 0 in treatment_cate)
+dat_for_analysis[["rand_prob_A0"]] <- dat_for_analysis %>% filter(treatment_cate == 0) %>% .[["rand_prob"]] %>% unique(.)
+```
+
+```{r}
+# Note that this data preparation step differs from what we would typically do when we used the MRTAnalysis package
+# When we used the MRTAnalysis package, we would not drop rows in which a participant was ineligible for micro-randomization
+# However, when we use the custom data analysis functions called in this document, we actually drop those rows corresponding to blocks in which a participant was ineligible for micro-randomization
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+```
+
+```{r}
+# Note that this code snippet is specific to complete case analysis
+# i.e., we would not do this if we were doing multiply imputed analysis
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+
+# The next line says: among rows corresponding to blocks in which a participant 
+# was eligible for micro-randomization, drop the row if they had missing data 
+# in any of the variables we specified in logical_vec_cc
+dat_for_analysis_elig <- dat_for_analysis_elig %>% filter(logical_vec_cc)
+```
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  moderator_varname = NULL,
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.25, 0.25, 0.50),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "No Prompt (versus Low Effort)")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+knitr::kable(dat_causal)
+```
+
+```{r}
+fit1_causal <- fit1_results$causal_excursion_effect
+exp_fit1_results <- data.frame(exp_beta = exp(fit1_causal[,"Estimate"]),
+                               exp_95LCL = exp(fit1_causal[,"95% LCL"]),
+                               exp_95UCL = exp(fit1_causal[,"95% UCL"]))
+row.names(exp_fit1_results) <- c("High Effort (versus Low Effort)", "None (versus Low Effort)")
+exp_fit1_results <- exp_fit1_results %>%
+  mutate(exp_beta = round(exp_beta, 3),
+         exp_95LCL = round(exp_95LCL, 3),
+         exp_95UCL = round(exp_95UCL, 3)) %>%
+  mutate(coefficient = c("beta0", "beta1")) %>%
+  select(coefficient, everything())
+```
+
+```{r}
+knitr::kable(exp_fit1_results, col.names = c("coefficient", "exp(coefficient)", "LCL95", "UCL95"))
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+knitr::kable(dat_control)
+```
+
+# Exploratory Analysis (Linear Effect of Time)
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,  # The same dataset from the analysis above is simple carried over to this analysis
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  moderator_varname = c("days_between_v1_and_coinflip_local"),
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.25, 0.25, 0.50),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus Low Effort) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "No Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "No Prompt (versus Low Effort) x Day in Study")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+knitr::kable(dat_causal)
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+knitr::kable(dat_control)
+```
+
+# Exploratory Analysis (Quadratic Effect of Time)
+
+```{r}
+# The same dataset from the analysis above is simple carried over to this analysis
+# but this time, we create a new variable for the square of day in study since
+# the function emee_categorical_trt_with_Delta does not take in formulas but
+# rather takes in individually specified variables
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(days_between_v1_and_coinflip_local_squared = days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) 
+```
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible", "days_between_v1_and_coinflip_local_squared"),
+  moderator_varname = c("days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared"),
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.25, 0.25, 0.50),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3", "beta4", "beta5"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus Low Effort) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "High Effort Prompt (versus Low Effort) x Day in Study x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "No Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "5", "No Prompt (versus Low Effort) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "6", "No Prompt (versus Low Effort) x Day in Study x Day in Study")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+knitr::kable(dat_causal)
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+knitr::kable(dat_control)
+```
+
 # H2 Sensitivity Analysis
 
 ```{r}
@@ -68,3 +361,134 @@ dat_for_analysis <- dat_primary_aim %>%
          age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
 
+```{r}
+# We will set up the dataset so that in analysis, we may have the following comparisons:
+#   * high effort versus low effort
+#   * none versus low effort
+dat_for_analysis <- dat_for_analysis %>%
+  mutate(treatment_cate = case_when(
+    is_low_effort == 1 ~ 0,  # Important: the value of zero in treatment_cate is used to indicate the reference category to be used
+    is_high_effort == 1 ~ 1, # This allows us to make the comparison: high effort prompt versus low effort prompt
+    coinflip == 0 ~ 2,       # This allows us to make the comparison: no prompt versus low effort prompt
+    .default = NULL)) %>%
+  mutate(rand_prob = case_when(
+    treatment_cate == 0 ~ 0.25,
+    treatment_cate == 1 ~ 0.25,
+    treatment_cate == 2 ~ 0.50,
+    .default = NULL))
+
+# rand_prob_A0 is the randomization probability corresponding to the reference category (whatever was coded to take on a value of 0 in treatment_cate)
+dat_for_analysis[["rand_prob_A0"]] <- dat_for_analysis %>% filter(treatment_cate == 0) %>% .[["rand_prob"]] %>% unique(.)
+```
+
+```{r}
+# Note that this data preparation step differs from what we would typically do when we used the MRTAnalysis package
+# When we used the MRTAnalysis package, we would not drop rows in which a participant was ineligible for micro-randomization
+# However, when we use the custom data analysis functions called in this document, we actually drop those rows corresponding to blocks in which a participant was ineligible for micro-randomization
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+```
+
+```{r}
+# Note that this code snippet is specific to complete case analysis
+# i.e., we would not do this if we were doing multiply imputed analysis
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+
+# The next line says: among rows corresponding to blocks in which a participant 
+# was eligible for micro-randomization, drop the row if they had missing data 
+# in any of the variables we specified in logical_vec_cc
+dat_for_analysis_elig <- dat_for_analysis_elig %>% filter(logical_vec_cc)
+```
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  moderator_varname = NULL,
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.25, 0.25, 0.50),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus Low Effort)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "No Prompt (versus Low Effort)")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+knitr::kable(dat_causal)
+```
+
+```{r}
+fit1_causal <- fit1_results$causal_excursion_effect
+exp_fit1_results <- data.frame(exp_beta = exp(fit1_causal[,"Estimate"]),
+                               exp_95LCL = exp(fit1_causal[,"95% LCL"]),
+                               exp_95UCL = exp(fit1_causal[,"95% UCL"]))
+row.names(exp_fit1_results) <- c("High Effort (versus Low Effort)", "None (versus Low Effort)")
+exp_fit1_results <- exp_fit1_results %>%
+  mutate(exp_beta = round(exp_beta, 3),
+         exp_95LCL = round(exp_95LCL, 3),
+         exp_95UCL = round(exp_95UCL, 3)) %>%
+  mutate(coefficient = c("beta0", "beta1")) %>%
+  select(coefficient, everything())
+```
+
+```{r}
+knitr::kable(exp_fit1_results, col.names = c("coefficient", "exp(coefficient)", "LCL95", "UCL95"))
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+knitr::kable(dat_control)
+```
