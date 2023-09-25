@@ -32,7 +32,7 @@ dat_analysis <- dat_analysis %>%
   mutate(is_female = if_else(gender_category == "female", 1, 0)) %>%
   # Partner status
   # * has no partner is the larger group and is thus the reference category
-  mutate(has_partner = if_else(partner_status_category %in% c("married", "living with significant other"), 1, 0)) %>%  
+  mutate(has_partner = if_else((partner_status_category == "married") | (partner_status_category == "living with significant other"), 1, 0)) %>%  
   # Race/ethnicity
   # * Very Important: remember that the reference category specified by collaborators for race/ethnicity is the "not latino and white" category
   # * Turns out, not latino and white and latino categories tie as the largest categories among the four categories
