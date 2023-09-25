@@ -66,9 +66,12 @@ dat_primary_aim <- dat_primary_aim %>%
 
 ```{r}
 dat_primary_aim <- dat_primary_aim %>%
+  group_by(mars_id) %>%
   mutate(eligibility_lead1 = lead(eligibility)) %>%
+  mutate(eligibility_lead1 = replace(eligibility_lead1, decision_point == 60, 0)) %>%
   mutate(substance_is_any_nicotine_lead1 = lead(substance_is_any_nicotine)) %>%
-  mutate(eligibility_overall_next_dp = if_else(eligibility == 1 & eligibility_lead1 == 1, 1, 0))
+  mutate(eligibility_overall_next_dp = if_else(eligibility == 1 & eligibility_lead1 == 1, 1, 0)) %>%
+  ungroup(.)
 ```
 
 ```{r, echo = FALSE}

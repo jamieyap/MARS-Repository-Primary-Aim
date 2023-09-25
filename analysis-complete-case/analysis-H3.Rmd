@@ -62,6 +62,7 @@ dat_primary_aim <- dat_primary_aim %>%
 
 ```{r}
 dat_primary_aim <- dat_primary_aim %>%
+  group_by(mars_id) %>%
   mutate(eligibility_lag1 = lag(eligibility)) %>%
   mutate(ashamed_lag1 = lag(ashamed), 
          guilty_lag1 = lag(guilty), 
@@ -74,8 +75,10 @@ dat_primary_aim <- dat_primary_aim %>%
          substance_is_marijuana_or_cannabis_lag1 = lag(substance_is_marijuana_or_cannabis),
          cigarette_counts_lag1 = lag(cigarette_counts), 
          alcohol_counts_lag1 = lag(alcohol_counts)) %>%
+  mutate(eligibility_lag1 = replace(eligibility_lag1, decision_point == 1, 0)) %>%
   mutate(eligibility_overall_past_dp = if_else(eligibility == 1 & eligibility_lag1 == 1, 1, 0),
-         eligibility_overall_past_24h = if_else(eligibility == 1 & counts_rand_past24hrs >= 1, 1, 0))
+         eligibility_overall_past_24h = if_else(eligibility == 1 & counts_rand_past24hrs >= 1, 1, 0)) %>%
+  ungroup(.)
 ```
 
 ```{r}
