@@ -30,7 +30,6 @@ library(knitr)
 library(tidyverse)
 library(MRTAnalysis)
 ```
-
 Let $X_t$ denote the observed value of any of the constructs listed below at decision point $t$, $I_t$ denote an indicator for whether decision point $t$ was eligible for micro-randomization, and $n_t$ denote the total number of eligible decision points within the past 24 hours prior to $t$ (not including $t$ itself). We consider three ways to operationalize constructs listed below:
 
 -   **(value at prior decision point)** value in the decision point prior to the current decision point, i.e., $X_{t-1}$ given that $I_{t-1}=1$
@@ -77,7 +76,7 @@ dat_primary_aim <- dat_primary_aim %>%
          alcohol_counts_lag1 = lag(alcohol_counts)) %>%
   mutate(eligibility_lag1 = replace(eligibility_lag1, decision_point == 1, 0)) %>%
   mutate(eligibility_overall_past_dp = if_else(eligibility == 1 & eligibility_lag1 == 1, 1, 0),
-         eligibility_overall_past_24h = if_else(eligibility == 1 & counts_rand_past24hrs >= 1, 1, 0)) %>%
+         eligibility_overall_past_24h = if_else(eligibility == 1 & counts_rand_past24hrs > 0, 1, 0)) %>%
   ungroup(.)
 ```
 
@@ -127,7 +126,75 @@ my_list <- list(Y = -1,
                 substance_is_alcohol_sum_past24hrs = -1)
 ```
 
-# Operationalization 1
+```{r}
+use_these_moderators <- c("ashamed_lag1",
+                          "guilty_lag1",
+                          "happy_lag1",
+                          "stressor_is_any_lag1",
+                          "src_scored_lag1",
+                          "substance_is_any_lag1",
+                          "substance_is_any_nicotine_lag1",
+                          "substance_is_alcohol_lag1",
+                          "substance_is_marijuana_or_cannabis_lag1",
+                          "cigarette_counts_lag1",
+                          "alcohol_counts_lag1")
+
+logical_vec_cc <- dat_primary_aim %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_primary_aim %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_dp == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig_overall_past_dp = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig_overall_past_dp = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig_overall_past_dp = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
+use_these_moderators <- c("ashamed_lag1",
+                          "guilty_lag1",
+                          "happy_lag1",
+                          "stressor_is_any_lag1",
+                          "src_scored_lag1",
+                          "substance_is_any_lag1",
+                          "substance_is_any_nicotine_lag1",
+                          "substance_is_alcohol_lag1",
+                          "substance_is_marijuana_or_cannabis_lag1",
+                          "cigarette_counts_lag1",
+                          "alcohol_counts_lag1")
+
+logical_vec_cc <- dat_primary_aim %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_primary_aim %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_24h == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig_overall_past_dp = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig_overall_past_24h = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig_overall_past_24h = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+# Time-varying moderators: Operationalization 1
 
 ## Ashamed
 
@@ -759,7 +826,7 @@ summary(fit1, show_control_fit = TRUE)
 
 
 
-# Operationalization 2
+# Time-varying moderators: Operationalization 2
 
 ## Ashamed
 

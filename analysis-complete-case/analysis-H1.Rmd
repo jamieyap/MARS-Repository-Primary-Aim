@@ -71,6 +71,27 @@ my_list <- list(Y = -1,
 ```
 
 ```{r}
+logical_vec_cc <- dat_for_analysis %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
 dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
 dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
 ```
@@ -158,21 +179,42 @@ dat_for_analysis <- dat_primary_aim %>%
 ```
 
 ```{r}
-my_list <- list(Y = 0,
-                coinflip = 0,
-                hour_coinflip_local = 0, 
-                days_between_v1_and_coinflip_local = 0,
-                any_response_2qs = 0, 
-                any_recent_eligible_dp = 0, 
-                engagement_most_recent_eligible = 0,
-                age = 0, 
-                is_female = 0, 
-                is_latino = 0, 
-                is_not_latino_and_black = 0, 
-                is_not_latino_and_other = 0, 
-                baseline_tobacco_history = 0, 
-                has_partner = 0, 
-                income_val = 0)
+my_list <- list(Y = -1,
+                coinflip = -1,
+                hour_coinflip_local = -1, 
+                days_between_v1_and_coinflip_local = -1,
+                any_response_2qs = -1, 
+                any_recent_eligible_dp = -1, 
+                engagement_most_recent_eligible = -1,
+                age = -1, 
+                is_female = -1, 
+                is_latino = -1, 
+                is_not_latino_and_black = -1, 
+                is_not_latino_and_other = -1, 
+                baseline_tobacco_history = -1, 
+                has_partner = -1, 
+                income_val = -1)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
 ```
 
 ```{r}
@@ -215,5 +257,4 @@ fit1 <- emee(
 
 summary(fit1, show_control_fit = TRUE)
 ```
-
 

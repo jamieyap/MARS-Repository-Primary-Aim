@@ -46,8 +46,12 @@ for(i in 1:n_ids){
       UB <- dat_current_participant[j,"ts_coinflip_local"]
       LB <- dat_current_participant[j,"ts_coinflip_past24hrs_local"]
       all_rand_datetimes <- dat_current_participant[["ts_coinflip_local"]]
-      is_rand_within_past24hrs <- (all_rand_datetimes >= LB) & (all_rand_datetimes < UB)
-      is_rand_within_past24hrs <- replace(is_rand_within_past24hrs, is.na(is_rand_within_past24hrs), FALSE)
+      # Output of this particular line will be either 
+      # TRUE, FALSE, or NA (NA happens when there is no timestamp to be checked)
+      is_rand_within_past24hrs <- (all_rand_datetimes >= LB) & (all_rand_datetimes < UB)   
+      # Continuing from comment in the previous line, if there is no timestamp 
+      # to be checked, there was no micro-randomization that time; so we replace NA's to FALSE in this particular line
+      is_rand_within_past24hrs <- replace(is_rand_within_past24hrs, is.na(is_rand_within_past24hrs), FALSE)  
       # Count number of micro-randomizations in the past 24 hours
       n_rand_within_past24hrs <- sum(is_rand_within_past24hrs)
       dat_current_participant[j,"counts_rand_past24hrs"] <- n_rand_within_past24hrs

@@ -251,6 +251,13 @@ source("prepare-analytic-datasets/create-time-varying-moderator-variable-dataset
 rm(list = ls())
 
 # Input:
+#   v1_baseline_quest.rds
+# Output:
+#   dat_mars_baseline_moderators.rds
+source("prepare-analytic-datasets/create-static-moderator-variable-dataset.R")  
+rm(list = ls())
+
+# Input:
 #   dat_matched_to_decision_points.rds
 #   mars_ids_excluded_from_all_analytic_datasets.rds
 #   dat_mars_basic.rds

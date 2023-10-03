@@ -1,5 +1,5 @@
 ---
-title: "Range Checks"
+title: "CONSORT: Range Checks"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: 
   html_document:
@@ -175,6 +175,8 @@ dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_sta
 quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
 list_quants <- append(list_quants, list(R1 = quants))
 quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+
+quantile(dat_for_calculation[["elapsed_mins"]], c(0, 0.25, 0.50, 0.75, seq(0.90, 1, 0.01))) 
 
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 60), breaks = seq(0,60,20), labels = seq(0,60,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
