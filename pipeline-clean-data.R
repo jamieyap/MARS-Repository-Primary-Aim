@@ -268,10 +268,29 @@ source("prepare-analytic-datasets/create-time-varying-noise-reduction-variables-
 rm(list = ls())
 
 # Input:
+#   dat_matched_to_decision_points.rds
+#   mars_ids_excluded_from_all_analytic_datasets.rds
+#   dat_master_ema_questions.rds
+#   dat_master_ema_response_options.rds
+# Output:
+#   parsed_cigarette_smoking_times.rds
+source("prepare-analytic-datasets/indicator-for-proximal-cigarette-smoking/parse-cigarette-smoking-times.R")  
+rm(list = ls())
+
+# Input:
+#   parsed_cigarette_smoking_times.rds
+# Output:
+#   dat_mars_proximal_cigarette_smoking_with_metadata.rds
+#   dat_mars_proximal_cigarette_smoking.rds
+source("prepare-analytic-datasets/indicator-for-proximal-cigarette-smoking/implement-decision-rule.R")  
+rm(list = ls())
+
+# Input:
 #   dat_mars_basic.rds
 #   dat_mars_derived_time_vars.rds
 #   dat_mars_time_varying_moderators.rds
 #   dat_mars_time_varying_noise_reduction_vars.rds
+#   dat_mars_proximal_cigarette_smoking.rds
 # Output:
 #   dat_primary_aim.rds
 source("prepare-analytic-datasets/create-primary-aims-paper-analysis-dataset.R")

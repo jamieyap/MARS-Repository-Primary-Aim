@@ -233,7 +233,9 @@ lookup <- c(substance_is_none = "Q19_response_cleaned_none",
             substance_is_any_nicotine = "Q19_response_cleaned_any_nicotine",
             substance_is_any = "Q19_response_cleaned_any",
             cigarette_counts = "Q20_response_cleaned",
-            alcohol_counts = "Q30_response_cleaned")
+            alcohol_counts = "Q30_response_cleaned",
+            cigarette_counts_categorical = "Q20_response_cleaned_categorical",
+            alcohol_counts_categorical = "Q30_response_cleaned_categorical")
 
 dat_analysis <- dat_analysis %>%
   mutate(Q19_response_cleaned_none = 1*grepl(pattern = "None", x = Q19_response, fixed = TRUE),
@@ -273,6 +275,14 @@ dat_analysis <- dat_analysis %>%
          .default = NULL)) %>%
   mutate(Q20_response_cleaned = replace(Q20_response_cleaned, Q19_response_cleaned_cigarettes == 0, 0))
 
+dat_analysis <- dat_analysis %>%
+  mutate(Q20_response_cleaned_categorical = case_when(
+    (Q20_response_cleaned == 0) ~ "no",
+    (Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1) ~ "yes - less than one or one",
+    (Q20_response_cleaned >= 2) ~ "yes - two or more",
+    .default = NULL
+  ))
+
 dat_analysis <- dat_analysis %>% 
   mutate(Q30_response_cleaned = case_when(
          Q30_response == "0 (I did not drink)" ~ 0,
@@ -290,6 +300,14 @@ dat_analysis <- dat_analysis %>%
          Q30_response == "More than 10" ~ 11,
          .default = NULL)) %>%
   mutate(Q30_response_cleaned = replace(Q30_response_cleaned, Q19_response_cleaned_alcohol == 0, 0))
+
+dat_analysis <- dat_analysis %>%
+  mutate(Q30_response_cleaned_categorical = case_when(
+    (Q30_response_cleaned == 0) ~ "no",
+    (Q30_response_cleaned > 0) & (Q30_response_cleaned <= 1) ~ "yes - less than one or one",
+    (Q30_response_cleaned >= 2) ~ "yes - two or more",
+    .default = NULL
+  ))
 
 dat_analysis <- rename(dat_analysis, all_of(lookup))
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))

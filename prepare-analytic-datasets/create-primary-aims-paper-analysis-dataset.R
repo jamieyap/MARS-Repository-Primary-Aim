@@ -10,6 +10,7 @@ dat_mars_time_varying_noise_reduction_vars <- readRDS(file = file.path(path_mani
 dat_mars_time_varying_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_moderators.rds"))
 dat_mars_coded_demogs <- readRDS(file = file.path(path_manipulated_data, "dat_mars_coded_demogs.rds"))
 dat_mars_baseline_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_baseline_moderators.rds"))
+dat_mars_proximal_cigarette_smoking <- readRDS(file = file.path(path_manipulated_data, "smoking-lapse-indicators-pipeline-data", "dat_mars_proximal_cigarette_smoking.rds"))
 
 ###############################################################################
 # This data frame contains variables for testing primary, secondary, and
@@ -27,6 +28,11 @@ dat_primary_aim <- left_join(x = dat_primary_aim,
 
 dat_primary_aim <- left_join(x = dat_primary_aim, 
                              y = dat_mars_time_varying_moderators, 
+                             by = join_by(mars_id == mars_id,
+                                          decision_point == decision_point))
+
+dat_primary_aim <- left_join(x = dat_primary_aim, 
+                             y = dat_mars_proximal_cigarette_smoking, 
                              by = join_by(mars_id == mars_id,
                                           decision_point == decision_point))
 

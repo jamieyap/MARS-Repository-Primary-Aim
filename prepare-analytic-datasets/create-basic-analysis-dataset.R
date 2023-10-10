@@ -42,7 +42,7 @@ dat_mars_analysis <- dat_mars_analysis %>%
 # Select the most basic columns needed for data analysis
 ################################################################################
 dat_mars_analysis <- dat_mars_analysis %>%
-  select(mars_id, participant_id, decision_point,
+  select(mars_id, participant_id, cluster_id, decision_point,
          eligibility, coinflip, is_high_effort, is_low_effort, Y)
 
 # Save output
