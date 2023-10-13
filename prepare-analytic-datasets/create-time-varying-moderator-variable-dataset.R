@@ -34,7 +34,7 @@ n_ids <- length(all_ids)
 keep_these_columns_for_analysis <- list()
 
 ################################################################################
-# Collapse EMA completion status into three
+# Collapse EMA completion status into a few levels
 ################################################################################
 tmp <- dat_analysis %>% select(all_of(ends_with("_response")))
 tmp <- !is.na(tmp)
@@ -42,9 +42,11 @@ total_ema_items_with_response <- apply(tmp, 1, sum)
 dat_analysis[["total_ema_items_with_response"]] <- total_ema_items_with_response
 dat_analysis <- dat_analysis %>%
   mutate(status_survey_ema_collapsed = case_when(
-    status_survey_ema == "completed" ~ "fully_completed",
-    status_survey_ema != "completed" & total_ema_items_with_response > 0 ~ "partially_completed",
-    status_survey_ema != "completed" & total_ema_items_with_response == 0 ~ "no_response",
+    (!is.na(status_survey_ema)) & (status_survey_ema == "completed") ~ "fully_completed",
+    (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response > 0) ~ "partially_completed",         # Includes EMAs labelled as timed out by the software.
+    (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # Includes EMAs labelled either as missed or cancelled by the software.
+    (is.na(status_survey_ema)) & (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # This amounts to very very few EMAs; these EMAs were triggered by the software, but did not have any recorded status.
+    (is.na(status_survey_ema)) & (is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_and_not_triggered",  # In this case, EMA was not administered at all in the particular block.
     .default = NULL
   ))
 

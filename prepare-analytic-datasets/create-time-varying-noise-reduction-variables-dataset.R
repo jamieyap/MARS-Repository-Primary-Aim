@@ -40,16 +40,19 @@ all_ids <- unique(dat_analysis[["mars_id"]])
 n_ids <- length(all_ids)
 
 ################################################################################
-# Collapse brief completion status into three
+# Collapse brief completion status into a few levels
 ################################################################################
 dat_analysis <- dat_analysis %>%
   mutate(is_missing_cig_avail = if_else(is.na(cig_available), 1, 0),
          is_missing_neg_affect = if_else(is.na(negative_affect), 1, 0)) %>%
-  mutate(total_2qs_items_with_response = abs(1-is_missing_cig_avail) + abs(1-is_missing_neg_affect)) %>%
+  mutate(total_2qs_items_with_response = abs(1-is_missing_cig_avail) + abs(1-is_missing_neg_affect))
+
+dat_analysis <- dat_analysis %>%
   mutate(status_survey_2qs_collapsed = case_when(
     total_2qs_items_with_response == 2 ~ "fully_completed",
-    total_2qs_items_with_response == 1 ~ "partially_completed",  # Turns out, there are no 2qs that fall into the partially completed category; either they are fully completed or no response to any item was provided
-    total_2qs_items_with_response == 0 ~ "no_response",
+    total_2qs_items_with_response == 1 ~ "partially_completed",  # Turns out, there are no 2qs that fall into the partially completed category; either they are fully completed or no response to any item was provided.
+    (total_2qs_items_with_response == 0) & (!is.na(ts_2qs_triggered_mountain)) ~ "no_response_but_triggered",
+    (total_2qs_items_with_response == 0) & (is.na(ts_2qs_triggered_mountain)) ~ "no_response_and_not_triggered",
     .default = NULL
   ))
 
