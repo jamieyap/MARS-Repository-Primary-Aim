@@ -36,19 +36,8 @@ keep_these_columns_for_analysis <- list()
 ################################################################################
 # Collapse EMA completion status into a few levels
 ################################################################################
-tmp <- dat_analysis %>% select(all_of(ends_with("_response")))
-tmp <- !is.na(tmp)
-total_ema_items_with_response <- apply(tmp, 1, sum)
-dat_analysis[["total_ema_items_with_response"]] <- total_ema_items_with_response
-dat_analysis <- dat_analysis %>%
-  mutate(status_survey_ema_collapsed = case_when(
-    (!is.na(status_survey_ema)) & (status_survey_ema == "completed") ~ "fully_completed",
-    (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response > 0) ~ "partially_completed",         # Includes EMAs labelled as timed out by the software.
-    (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # Includes EMAs labelled either as missed or cancelled by the software.
-    (is.na(status_survey_ema)) & (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # This amounts to very very few EMAs; these EMAs were triggered by the software, but did not have any recorded status.
-    (is.na(status_survey_ema)) & (is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_and_not_triggered",  # In this case, EMA was not administered at all in the particular block.
-    .default = NULL
-  ))
+dat_analysis[["total_ema_items_with_response"]] <- count_total_items_with_response_ema(cleaned_data_frame = dat_analysis)
+dat_analysis[["status_survey_ema_collapsed"]] <- collapse_survey_ema_status(cleaned_data_frame = dat_analysis)
 
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(c("status_survey_ema_collapsed", "total_ema_items_with_response")))
 
@@ -239,43 +228,8 @@ lookup <- c(substance_is_none = "Q19_response_cleaned_none",
             cigarette_counts_categorical = "Q20_response_cleaned_categorical",
             alcohol_counts_categorical = "Q30_response_cleaned_categorical")
 
-dat_analysis <- dat_analysis %>%
-  mutate(Q19_response_cleaned_none = 1*grepl(pattern = "None", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_cigarettes = 1*grepl(pattern = "Cigarettes", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_alcohol = 1*grepl(pattern = "Alcohol", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_vape_juul_or_ecigarettes = 1*grepl(pattern = "Vape pen, JUUL, or e-cigarettes", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_cigars_cigarillos_or_little_cigars = 1*grepl(pattern = "Cigars, cigarillos, or little cigars", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco = 1*grepl(pattern = "Smokeless tobacco/snus/dissolvable tobacco", x = Q19_response, fixed = TRUE),
-         Q19_response_cleaned_marijuana_or_cannabis = 1*grepl(pattern = "Marijuana/Cannabis", x = Q19_response, fixed = TRUE)) %>%
-  mutate(Q19_response_cleaned_none = replace(Q19_response_cleaned_none, is.na(Q19_response), NA),
-         Q19_response_cleaned_cigarettes = replace(Q19_response_cleaned_cigarettes, is.na(Q19_response), NA),
-         Q19_response_cleaned_alcohol = replace(Q19_response_cleaned_alcohol, is.na(Q19_response), NA),
-         Q19_response_cleaned_vape_juul_or_ecigarettes = replace(Q19_response_cleaned_vape_juul_or_ecigarettes, is.na(Q19_response), NA),
-         Q19_response_cleaned_cigars_cigarillos_or_little_cigars = replace(Q19_response_cleaned_cigars_cigarillos_or_little_cigars, is.na(Q19_response), NA),
-         Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco = replace(Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco, is.na(Q19_response), NA),
-         Q19_response_cleaned_marijuana_or_cannabis = replace(Q19_response_cleaned_marijuana_or_cannabis, is.na(Q19_response), NA))
-
-dat_analysis <- dat_analysis %>%
-  mutate(Q19_response_cleaned_any_nicotine = if_else(Q19_response_cleaned_cigarettes + Q19_response_cleaned_vape_juul_or_ecigarettes + Q19_response_cleaned_cigars_cigarillos_or_little_cigars + Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco >= 1, 1, 0)) %>%
-  mutate(Q19_response_cleaned_any = abs(Q19_response_cleaned_none - 1)) 
-
-dat_analysis <- dat_analysis %>% 
-  mutate(Q20_response_cleaned = case_when(
-         Q20_response == "0 (I did not smoke)" ~ 0,
-         Q20_response == "Less than 1" ~ 0.5,
-         Q20_response == "1" ~ 1,
-         Q20_response == "2" ~ 2,
-         Q20_response == "3" ~ 3,
-         Q20_response == "4" ~ 4,
-         Q20_response == "5" ~ 5,
-         Q20_response == "6" ~ 6,
-         Q20_response == "7" ~ 7,
-         Q20_response == "8" ~ 8,
-         Q20_response == "9" ~ 9,
-         Q20_response == "10" ~ 10,
-         Q20_response == "More than 10" ~ 11,
-         .default = NULL)) %>%
-  mutate(Q20_response_cleaned = replace(Q20_response_cleaned, Q19_response_cleaned_cigarettes == 0, 0))
+dat_analysis <- clean_response_substance_use_multiple_select(dat_analysis)
+dat_analysis[["Q20_response_cleaned"]] <- clean_response_cigarette_counts(dat_analysis)
 
 dat_analysis <- dat_analysis %>%
   mutate(Q20_response_cleaned_categorical = case_when(

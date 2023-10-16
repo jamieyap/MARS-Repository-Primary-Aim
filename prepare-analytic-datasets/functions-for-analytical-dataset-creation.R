@@ -38,6 +38,138 @@ construct_primary_proximal_outcome <- function(cleaned_data_frame, q1_var_name, 
   return(primary_proximal_outcome_value)
 }
 
+count_total_items_with_response_ema <- function(cleaned_data_frame){
+  
+  tmp <- cleaned_data_frame %>% select(all_of(ends_with("_response")))
+  tmp <- !is.na(tmp)
+  total_ema_items_with_response <- apply(tmp, 1, sum)
+  cleaned_data_frame[["total_ema_items_with_response"]] <- total_ema_items_with_response
+  
+  return(cleaned_data_frame[["total_ema_items_with_response"]])
+}
 
+collapse_survey_ema_status <- function(cleaned_data_frame){
+  
+  tmp <- cleaned_data_frame %>% select(all_of(ends_with("_response")))
+  tmp <- !is.na(tmp)
+  total_ema_items_with_response <- apply(tmp, 1, sum)
+  cleaned_data_frame[["total_ema_items_with_response"]] <- total_ema_items_with_response
+  cleaned_data_frame <- cleaned_data_frame %>%
+    mutate(status_survey_ema_collapsed = case_when(
+      (!is.na(status_survey_ema)) & (status_survey_ema == "completed") ~ "fully_completed",
+      (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response > 0) ~ "partially_completed",         # Includes EMAs labelled as timed out by the software.
+      (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # Includes EMAs labelled either as missed or cancelled by the software.
+      (is.na(status_survey_ema)) & (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # This amounts to very very few EMAs; these EMAs were triggered by the software, but did not have any recorded status.
+      (is.na(status_survey_ema)) & (is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_and_not_triggered",  # In this case, EMA was not administered at all in the particular block.
+      .default = NULL
+    ))
+  
+  return(cleaned_data_frame[["status_survey_ema_collapsed"]])
+}
 
+count_total_items_with_response_2qs <- function(cleaned_data_frame){
+  
+  cleaned_data_frame <- cleaned_data_frame %>%
+    mutate(is_missing_cig_avail = if_else(is.na(cig_available), 1, 0),
+           is_missing_neg_affect = if_else(is.na(negative_affect), 1, 0)) %>%
+    mutate(total_2qs_items_with_response = abs(1-is_missing_cig_avail) + abs(1-is_missing_neg_affect))
+  
+  return(cleaned_data_frame[["total_2qs_items_with_response"]])
+}
+
+collapse_survey_2qs_status <- function(cleaned_data_frame){
+  
+  cleaned_data_frame <- cleaned_data_frame %>%
+    mutate(is_missing_cig_avail = if_else(is.na(cig_available), 1, 0),
+           is_missing_neg_affect = if_else(is.na(negative_affect), 1, 0)) %>%
+    mutate(total_2qs_items_with_response = abs(1-is_missing_cig_avail) + abs(1-is_missing_neg_affect))
+  
+  cleaned_data_frame <- cleaned_data_frame %>%
+    mutate(status_survey_2qs_collapsed = case_when(
+      total_2qs_items_with_response == 2 ~ "fully_completed",
+      total_2qs_items_with_response == 1 ~ "partially_completed",  # Turns out, there are no 2qs that fall into the partially completed category; either they are fully completed or no response to any item was provided.
+      (total_2qs_items_with_response == 0) & (!is.na(ts_2qs_triggered_mountain)) ~ "no_response_but_triggered",
+      (total_2qs_items_with_response == 0) & (is.na(ts_2qs_triggered_mountain)) ~ "no_response_and_not_triggered",
+      .default = NULL
+    ))
+  
+  return(cleaned_data_frame[["status_survey_2qs_collapsed"]])
+}
+
+clean_response_substance_use_multiple_select <- function(cleaned_data_frame){
+  
+  cleaned_data_frame <- cleaned_data_frame %>%
+    mutate(Q19_response_cleaned_none = 1*grepl(pattern = "None", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_cigarettes = 1*grepl(pattern = "Cigarettes", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_alcohol = 1*grepl(pattern = "Alcohol", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_vape_juul_or_ecigarettes = 1*grepl(pattern = "Vape pen, JUUL, or e-cigarettes", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_cigars_cigarillos_or_little_cigars = 1*grepl(pattern = "Cigars, cigarillos, or little cigars", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco = 1*grepl(pattern = "Smokeless tobacco/snus/dissolvable tobacco", x = Q19_response, fixed = TRUE),
+           Q19_response_cleaned_marijuana_or_cannabis = 1*grepl(pattern = "Marijuana/Cannabis", x = Q19_response, fixed = TRUE)) %>%
+    mutate(Q19_response_cleaned_none = replace(Q19_response_cleaned_none, is.na(Q19_response), NA),
+           Q19_response_cleaned_cigarettes = replace(Q19_response_cleaned_cigarettes, is.na(Q19_response), NA),
+           Q19_response_cleaned_alcohol = replace(Q19_response_cleaned_alcohol, is.na(Q19_response), NA),
+           Q19_response_cleaned_vape_juul_or_ecigarettes = replace(Q19_response_cleaned_vape_juul_or_ecigarettes, is.na(Q19_response), NA),
+           Q19_response_cleaned_cigars_cigarillos_or_little_cigars = replace(Q19_response_cleaned_cigars_cigarillos_or_little_cigars, is.na(Q19_response), NA),
+           Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco = replace(Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco, is.na(Q19_response), NA),
+           Q19_response_cleaned_marijuana_or_cannabis = replace(Q19_response_cleaned_marijuana_or_cannabis, is.na(Q19_response), NA)) %>%
+    mutate(Q19_response_cleaned_any_nicotine = if_else(Q19_response_cleaned_cigarettes + Q19_response_cleaned_vape_juul_or_ecigarettes + Q19_response_cleaned_cigars_cigarillos_or_little_cigars + Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco >= 1, 1, 0)) %>%
+    mutate(Q19_response_cleaned_any = abs(Q19_response_cleaned_none - 1)) 
+  
+  return(cleaned_data_frame)
+}
+
+clean_response_cigarette_counts <- function(cleaned_data_frame){
+  
+  cleaned_data_frame <- clean_response_substance_use_multiple_select(cleaned_data_frame)
+  
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(Q20_response_cleaned = case_when(
+      Q20_response == "0 (I did not smoke)" ~ 0,
+      Q20_response == "Less than 1" ~ 0.5,
+      Q20_response == "1" ~ 1,
+      Q20_response == "2" ~ 2,
+      Q20_response == "3" ~ 3,
+      Q20_response == "4" ~ 4,
+      Q20_response == "5" ~ 5,
+      Q20_response == "6" ~ 6,
+      Q20_response == "7" ~ 7,
+      Q20_response == "8" ~ 8,
+      Q20_response == "9" ~ 9,
+      Q20_response == "10" ~ 10,
+      Q20_response == "More than 10" ~ 11,
+      .default = NULL))
+  
+  # In this code, set the value of Q20_response_cleaned to zero 
+  # if the value of Q19_response_cleaned_cigarettes is zero.
+  #
+  # This step covers two cases below:
+  #   * when the participant responded to Q19 but reported to not use any substances
+  #   * when the participant responded to Q19 but reported to use some substance other than cigarettes
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(Q20_response_cleaned = replace(Q20_response_cleaned, Q19_response_cleaned_cigarettes == 0, 0))
+  
+  return(cleaned_data_frame[["Q20_response_cleaned"]])
+}
+
+identify_item_version_cigarette_when_smoked <- function(cleaned_data_frame){
+  
+  cleaned_data_frame[["Q20_response_cleaned"]] <- clean_response_cigarette_counts(cleaned_data_frame)
+  cleaned_data_frame[["status_survey_ema_collapsed"]] <- collapse_survey_ema_status(cleaned_data_frame)
+  
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(item_version = case_when(
+      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q21_response)) ~ "early",
+      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q48_response)) ~ "late",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q23_response)) ~ "early",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q22_response)) ~ "early",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q49_response)) ~ "late",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q50_response)) ~ "late",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned == 0) ~ "prior_item_has_response_and_skipped",
+      (is.na(Q20_response_cleaned)) & (status_survey_ema_collapsed == "partially_completed") ~ "prior_item_has_no_response",
+      .default = NA
+    ))
+  
+  return(cleaned_data_frame[["item_version"]])
+}
 

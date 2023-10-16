@@ -195,6 +195,15 @@ source("prepare-analytic-datasets/screen-for-analytical-dataset-inclusion.R")
 rm(list = ls())
 
 ###############################################################################
+# Record when CORE pipeline is completed
+###############################################################################
+.end_time_pipe <- Sys.time()
+
+.total_time_pipe <- difftime(time1 = .end_time_pipe, time2 = .start_time_pipe, units = "mins")
+
+print(.total_time_pipe)
+
+###############################################################################
 # Derive analytical datasets
 # 
 # Note:
@@ -204,6 +213,8 @@ rm(list = ls())
 #   mars_ids_excluded_from_all_analytic_datasets.rds
 #   were excluded.
 ###############################################################################
+
+rm(list = ls())
 
 # Input:
 #   dat_matched_to_decision_points.rds
