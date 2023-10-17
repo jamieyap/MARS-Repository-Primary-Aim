@@ -171,6 +171,7 @@ second(dat_analysis[["cigs_many_last_datetime_local"]]) <- second(dat_analysis[[
 ################################################################################
 
 lookup <- c(olson = "olson",
+            ts_coinflip_mountain = "ts_coinflip_mountain",
             ts_coinflip_local = "ts_coinflip_local",
             status_survey_ema = "status_survey_ema",
             status_survey_ema_collapsed = "status_survey_ema_collapsed",
