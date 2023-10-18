@@ -33,7 +33,7 @@ dat_analysis[["days_between_quit_and_coinflip_local"]] <- int_length((dat_analys
 # Save variables
 ################################################################################
 dat_analysis <- dat_analysis %>%
-  select(mars_id, decision_point, 
+  select(mars_id, decision_point, olson, ts_coinflip_mountain,
          ts_coinflip_local,
          hour_coinflip_local, days_between_v1_and_coinflip_local, 
          is_postquit_local, days_between_quit_and_coinflip_local)

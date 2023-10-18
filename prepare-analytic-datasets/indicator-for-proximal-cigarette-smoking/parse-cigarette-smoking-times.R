@@ -203,5 +203,5 @@ dat_analysis <- rename(dat_analysis, all_of(lookup))
 
 dat_analysis <- dat_analysis %>% select(mars_id, decision_point, all_of(names(lookup)))
 
-saveRDS(dat_analysis, file = file.path(path_manipulated_data, "smoking-lapse-indicators-pipeline-data", "parsed_cigarette_smoking_times.rds"))
+saveRDS(dat_analysis, file = file.path(path_proximal_smoking_pipeline_data, "parsed_cigarette_smoking_times.rds"))
 

@@ -105,6 +105,6 @@ dat_analysis <- bind_rows(list_all_dat)
 dat_analysis_with_metadata <- dat_analysis
 dat_analysis <- dat_analysis %>% select(mars_id, decision_point, substance_is_cigarettes_new, substance_is_cigarettes_new_sum_past24hrs)
 
-saveRDS(dat_analysis_with_metadata, file = file.path(path_manipulated_data, "smoking-lapse-indicators-pipeline-data", "dat_mars_proximal_cigarette_smoking_with_metadata.rds"))
-saveRDS(dat_analysis, file = file.path(path_manipulated_data, "smoking-lapse-indicators-pipeline-data", "dat_mars_proximal_cigarette_smoking.rds"))
+saveRDS(dat_analysis_with_metadata, file = file.path(path_proximal_smoking_pipeline_data, "dat_mars_proximal_cigarette_smoking_with_metadata.rds"))
+saveRDS(dat_analysis, file = file.path(path_proximal_smoking_pipeline_data, "dat_mars_proximal_cigarette_smoking.rds"))
 
