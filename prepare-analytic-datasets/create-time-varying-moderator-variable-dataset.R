@@ -36,8 +36,8 @@ keep_these_columns_for_analysis <- list()
 ################################################################################
 # Collapse EMA completion status into a few levels
 ################################################################################
-dat_analysis[["total_ema_items_with_response"]] <- count_total_items_with_response_ema(cleaned_data_frame = dat_analysis)
 dat_analysis[["status_survey_ema_collapsed"]] <- collapse_survey_ema_status(cleaned_data_frame = dat_analysis)
+dat_analysis[["total_ema_items_with_response"]] <- count_total_items_with_response_ema(cleaned_data_frame = dat_analysis)
 
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(c("status_survey_ema_collapsed", "total_ema_items_with_response")))
 

@@ -42,9 +42,9 @@ n_ids <- length(all_ids)
 ################################################################################
 # Collapse brief completion status into a few levels
 ################################################################################
-dat_analysis[["total_2qs_items_with_response"]] <- count_total_items_with_response_2qs(cleaned_data_frame = dat_analysis)
 dat_analysis[["status_survey_2qs_collapsed"]] <- collapse_survey_2qs_status(cleaned_data_frame = dat_analysis)
-dat_analysis <- dat_analysis %>% select(mars_id, decision_point, status_survey_2qs_collapsed, total_2qs_items_with_response)
+dat_analysis[["total_2qs_items_with_response"]] <- count_total_items_with_response_2qs(cleaned_data_frame = dat_analysis)
+dat_analysis <- dat_analysis %>% select(mars_id, decision_point, status_survey_2qs_collapsed, total_2qs_items_with_response, cig_available, negative_affect)
 
 ################################################################################
 # We will create two variables: an indicator for whether the brief survey was
@@ -108,7 +108,8 @@ dat_analysis <- bind_rows(list_all_dat)
 ################################################################################
 dat_analysis <- dat_analysis %>%
   select(mars_id, decision_point,
-         status_survey_2qs_collapsed, total_2qs_items_with_response, any_response_2qs,
+         status_survey_2qs_collapsed, total_2qs_items_with_response, 
+         any_response_2qs, cig_available, negative_affect,
          any_recent_eligible_dp, engagement_most_recent_eligible,
          coinflip_most_recent_eligible, hours_elapsed_since_most_recent_eligible)
 

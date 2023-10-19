@@ -50,17 +50,15 @@ count_total_items_with_response_ema <- function(cleaned_data_frame){
 
 collapse_survey_ema_status <- function(cleaned_data_frame){
   
-  tmp <- cleaned_data_frame %>% select(all_of(ends_with("_response")))
-  tmp <- !is.na(tmp)
-  total_ema_items_with_response <- apply(tmp, 1, sum)
-  cleaned_data_frame[["total_ema_items_with_response"]] <- total_ema_items_with_response
+  cleaned_data_frame[["total_ema_items_with_response"]] <- NA_real_
+  cleaned_data_frame[["total_ema_items_with_response"]] <- count_total_items_with_response_ema(cleaned_data_frame)
+  
   cleaned_data_frame <- cleaned_data_frame %>%
     mutate(status_survey_ema_collapsed = case_when(
-      (!is.na(status_survey_ema)) & (status_survey_ema == "completed") ~ "fully_completed",
-      (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response > 0) ~ "partially_completed",         # Includes EMAs labelled as timed out by the software.
-      (!is.na(status_survey_ema)) & (status_survey_ema != "completed") & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # Includes EMAs labelled either as missed or cancelled by the software.
-      (is.na(status_survey_ema)) & (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_but_triggered",  # This amounts to very very few EMAs; these EMAs were triggered by the software, but did not have any recorded status.
-      (is.na(status_survey_ema)) & (is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) ~ "no_response_and_not_triggered",  # In this case, EMA was not administered at all in the particular block.
+      (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response > 0) & (status_survey_ema == "completed") ~ "fully_completed",
+      (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response > 0) & (status_survey_ema != "completed") ~ "partially_completed",    
+      (!is.na(ts_ema_triggered_mountain)) & (total_ema_items_with_response == 0) & (status_survey_ema != "completed") ~ "no_response_but_triggered",
+      is.na(ts_ema_triggered_mountain) ~ "no_response_and_not_triggered",
       .default = NULL
     ))
   
@@ -79,10 +77,8 @@ count_total_items_with_response_2qs <- function(cleaned_data_frame){
 
 collapse_survey_2qs_status <- function(cleaned_data_frame){
   
-  cleaned_data_frame <- cleaned_data_frame %>%
-    mutate(is_missing_cig_avail = if_else(is.na(cig_available), 1, 0),
-           is_missing_neg_affect = if_else(is.na(negative_affect), 1, 0)) %>%
-    mutate(total_2qs_items_with_response = abs(1-is_missing_cig_avail) + abs(1-is_missing_neg_affect))
+  cleaned_data_frame[["total_2qs_items_with_response"]] <- NA_real_
+  cleaned_data_frame[["total_2qs_items_with_response"]] <- count_total_items_with_response_2qs(cleaned_data_frame)
   
   cleaned_data_frame <- cleaned_data_frame %>%
     mutate(status_survey_2qs_collapsed = case_when(
