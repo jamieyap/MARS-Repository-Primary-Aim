@@ -55,7 +55,13 @@ dat_analysis <- left_join(x = dat_mars_basic, y = dat_analysis, by = join_by(mar
 dat_analysis <- left_join(x = dat_analysis, y = dat_mars_derived_time_vars, by = join_by(mars_id == mars_id, decision_point == decision_point))
 dat_analysis <- left_join(x = dat_analysis, y = scanned_decision_points_within_range %>% select(-eligibility), by = join_by(mars_id == mars_id, decision_point == decision_point))
 
-dat_analysis[["any_response_2qs"]] <- if_else(dat_analysis[["status_survey_2qs_collapsed"]] != "no_response", 1, 0)
+dat_analysis[["any_response_2qs"]] <- case_when(
+  dat_analysis[["status_survey_2qs_collapsed"]] == "fully_completed" ~ 1,
+  dat_analysis[["status_survey_2qs_collapsed"]] == "no_response_but_triggered" ~ 0,
+  dat_analysis[["status_survey_2qs_collapsed"]] == "no_response_and_not_triggered" ~ NA_real_,
+  .default = NULL
+)
+
 dat_analysis[["any_recent_eligible_dp"]] <- if_else(!is.na(dat_analysis[["decision_points_most_recent_eligible"]]), 1, 0)
 dat_analysis[["engagement_most_recent_eligible"]] <- NA_real_
 dat_analysis[["coinflip_most_recent_eligible"]] <- NA_real_
