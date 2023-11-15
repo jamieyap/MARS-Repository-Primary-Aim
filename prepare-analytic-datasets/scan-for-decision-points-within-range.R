@@ -31,7 +31,7 @@ n_ids <- length(all_ids)
 dat_analysis[["ts_coinflip_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_analysis, datetime_mountain_name = "ts_coinflip_mountain")
 dat_analysis[["ts_coinflip_past24hrs_local"]] <- dat_analysis[["ts_coinflip_local"]] - hours(24)
 
-dat_analysis[["counts_rand_past24hrs"]] <- NA
+dat_analysis[["counts_rand_past24hrs"]] <- -1  # if not eligible for micro-randomization, the value of counts_rand_past24hrs is -1
 dat_analysis[["decision_points_past24hrs"]] <- rep(list(decision_points_within_range = NULL), nrow(dat_analysis))
 dat_analysis[["datetimes_coinflip_past24hrs_local"]] <- rep(list(datetimes_within_range = ymd_hms("", tz = "UTC")), nrow(dat_analysis))
 
