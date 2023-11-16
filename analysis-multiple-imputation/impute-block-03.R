@@ -35,9 +35,16 @@ this_data_file <- paste("dat_wide_completed_block", current_dp_value - 1, ".rds"
 dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, this_data_file))
 dat_timevarying_wide <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_timevarying_wide.rds"))
 
-dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(participant_id, ends_with(suffix))
-dat_wide <- left_join(x = dat_wide_from_prior_step, y = dat_timevarying_wide_current_dp, by = join_by(participant_id == participant_id))
+dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(replicate_id, participant_id, ends_with(suffix))
+dat_wide <- left_join(x = dat_wide_from_prior_step, y = dat_timevarying_wide_current_dp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
 dat_wide_init <- dat_wide
+
+################################################################################
+# How many replicates do we have?
+################################################################################
+all_replicate_ids <- unique(dat_wide[["replicate_id"]])
+maximum_replicate_id <- max(all_replicate_ids)
+minimum_replicate_id <- min(all_replicate_ids)
 
 ###############################################################################
 # Step 0. Update completed dataset -- most recent eligible decision point
@@ -46,12 +53,29 @@ variable_name_relevance_indicator <- paste("any_recent_eligible_dp", suffix, sep
 variable_name_matched_decision_point <- paste("matched_recent", suffix, sep = "")
 variable_name_new <- paste("engagement_most_recent_eligible", suffix, sep = "")
 
-for(this_participant in 1:nrow(dat_wide)){
-  if(dat_wide[this_participant, variable_name_relevance_indicator] == 1){
-    matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
-    matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
-    matched_value <- as.numeric(matched_value) - 1
-    dat_wide[this_participant, variable_name_new] <- matched_value
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, variable_name_relevance_indicator] == 1){
+        matched_dp <- dat_current[this_participant, variable_name_matched_decision_point]
+        matched_value <- dat_current[this_participant, paste("Y_dp", matched_dp, sep = "")]
+        matched_value <- as.numeric(matched_value) - 1
+        dat_current[this_participant, variable_name_new] <- matched_value
+      }
+    }
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, variable_name_relevance_indicator] == 1){
+      matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
+      matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
+      matched_value <- as.numeric(matched_value) - 1
+      dat_wide[this_participant, variable_name_new] <- matched_value
+    }
   }
 }
 
@@ -61,42 +85,92 @@ for(this_participant in 1:nrow(dat_wide)){
 this_variable <- "Y"
 this_indicator <- "eligibility"
 
-# This loop checks all decision points prior to the current decision point
-for(k in 1:(current_dp_value - 1)){
-  variable_name_original <- paste(this_variable, "_dp", k, sep = "")
-  variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
-  
-  # Recall that the original variable is a factor with two levels: 0 and 1
-  # Thus, when applying as.numeric() the resulting variable takes on values 1 and 2
-  # So, we subtract by 1 so that the resulting variable takes on values of 0 and 1
-  dat_wide[[variable_name_transformed]] <- as.numeric(dat_wide[[variable_name_original]]) - 1
-  
-  # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
-  dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
-}
-
-variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
-variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
-variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
-variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
-
-dat_wide[[variable_name_past24hrs]] <- -1
-
-for(this_participant in 1:nrow(dat_wide)){
-  if(dat_wide[this_participant, variable_name_indicator_now] == 1){
-    if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
-      # What are all the eligible decision points in the past 24 hours prior to the current decision point
-      matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
-      all_indices_past24hrs <- matched_dp:(current_dp_value-1)
-      all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
+    
+    # This loop checks all decision points prior to the current decision point
+    for(k in 1:(current_dp_value - 1)){
+      variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+      variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
       
-      # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
-      all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+      # Recall that the original variable is a factor with two levels: 0 and 1
+      # Thus, when applying as.numeric() the resulting variable takes on values 1 and 2
+      # So, we subtract by 1 so that the resulting variable takes on values of 0 and 1
+      dat_current[[variable_name_transformed]] <- as.numeric(dat_current[[variable_name_original]]) - 1
       
-      # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
-      all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
-      resulting_value <- sum(all_summands)
-      dat_wide[this_participant, variable_name_past24hrs] <- resulting_value
+      # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+      dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
+    }
+    
+    variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+    variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+    variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+    variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+    
+    dat_current[[variable_name_past24hrs]] <- -1
+    
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, variable_name_indicator_now] == 1){
+        if(dat_current[this_participant, variable_name_indicator_past24hrs] == 1){
+          # What are all the eligible decision points in the past 24 hours prior to the current decision point
+          matched_dp <- dat_current[this_participant, variable_name_matched_decision_point]
+          all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+          all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+          
+          # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+          all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+          
+          # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+          all_summands <- dat_current[this_participant, all_names_history_eligibility] * dat_current[this_participant, all_names_history_this_variable]
+          resulting_value <- sum(all_summands)
+          dat_current[this_participant, variable_name_past24hrs] <- resulting_value
+        }
+      }
+    }
+
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  # This loop checks all decision points prior to the current decision point
+  for(k in 1:(current_dp_value - 1)){
+    variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+    variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
+    
+    # Recall that the original variable is a factor with two levels: 0 and 1
+    # Thus, when applying as.numeric() the resulting variable takes on values 1 and 2
+    # So, we subtract by 1 so that the resulting variable takes on values of 0 and 1
+    dat_wide[[variable_name_transformed]] <- as.numeric(dat_wide[[variable_name_original]]) - 1
+    
+    # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+    dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
+  }
+  
+  variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+  variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+  variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+  variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+  
+  dat_wide[[variable_name_past24hrs]] <- -1
+  
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, variable_name_indicator_now] == 1){
+      if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
+        # What are all the eligible decision points in the past 24 hours prior to the current decision point
+        matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
+        all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+        all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+        
+        # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+        all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+        
+        # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+        all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
+        resulting_value <- sum(all_summands)
+        dat_wide[this_participant, variable_name_past24hrs] <- resulting_value
+      }
     }
   }
 }
@@ -107,39 +181,86 @@ for(this_participant in 1:nrow(dat_wide)){
 this_variable <- "cigarette_counts"
 this_indicator <- "eligibility"
 
-# This loop checks all decision points prior to the current decision point
-for(k in 1:(current_dp_value - 1)){
-  variable_name_original <- paste(this_variable, "_dp", k, sep = "")
-  variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
-  
-  dat_wide[[variable_name_transformed]] <- dat_wide[[variable_name_original]]
-  
-  # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
-  dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
-}
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
 
-variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
-variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
-variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
-variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
-
-dat_wide[[variable_name_past24hrs]] <- -1
-
-for(this_participant in 1:nrow(dat_wide)){
-  if(dat_wide[this_participant, variable_name_indicator_now] == 1){
-    if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
-      # What are all the eligible decision points in the past 24 hours prior to the current decision point
-      matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
-      all_indices_past24hrs <- matched_dp:(current_dp_value-1)
-      all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+    # This loop checks all decision points prior to the current decision point
+    for(k in 1:(current_dp_value - 1)){
+      variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+      variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
       
-      # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
-      all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+      dat_current[[variable_name_transformed]] <- dat_current[[variable_name_original]]
       
-      # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
-      all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
-      resulting_value <- sum(all_summands)
-      dat_wide[this_participant, variable_name_past24hrs] <- resulting_value
+      # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+      dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
+    }
+    
+    variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+    variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+    variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+    variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+    
+    dat_current[[variable_name_past24hrs]] <- -1
+    
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, variable_name_indicator_now] == 1){
+        if(dat_current[this_participant, variable_name_indicator_past24hrs] == 1){
+          # What are all the eligible decision points in the past 24 hours prior to the current decision point
+          matched_dp <- dat_current[this_participant, variable_name_matched_decision_point]
+          all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+          all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+          
+          # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+          all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+          
+          # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+          all_summands <- dat_current[this_participant, all_names_history_eligibility] * dat_current[this_participant, all_names_history_this_variable]
+          resulting_value <- sum(all_summands)
+          dat_current[this_participant, variable_name_past24hrs] <- resulting_value
+        }
+      }
+    }
+    
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  # This loop checks all decision points prior to the current decision point
+  for(k in 1:(current_dp_value - 1)){
+    variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+    variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
+    
+    dat_wide[[variable_name_transformed]] <- dat_wide[[variable_name_original]]
+    
+    # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+    dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
+  }
+  
+  variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+  variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+  variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+  variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+  
+  dat_wide[[variable_name_past24hrs]] <- -1
+  
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, variable_name_indicator_now] == 1){
+      if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
+        # What are all the eligible decision points in the past 24 hours prior to the current decision point
+        matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
+        all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+        all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+        
+        # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+        all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+        
+        # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+        all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
+        resulting_value <- sum(all_summands)
+        dat_wide[this_participant, variable_name_past24hrs] <- resulting_value
+      }
     }
   }
 }
@@ -151,41 +272,88 @@ for(this_participant in 1:nrow(dat_wide)){
 this_variable <- "src_scored"
 this_indicator <- "eligibility"
 
-# This loop checks all decision points prior to the current decision point
-for(k in 1:(current_dp_value - 1)){
-  variable_name_original <- paste(this_variable, "_dp", k, sep = "")
-  variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
-  
-  dat_wide[[variable_name_transformed]] <- dat_wide[[variable_name_original]]
-  
-  # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
-  dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
-}
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
 
-variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
-variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
-variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
-variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
-
-dat_wide[[variable_name_past24hrs]] <- -1
-
-for(this_participant in 1:nrow(dat_wide)){
-  if(dat_wide[this_participant, variable_name_indicator_now] == 1){
-    if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
-      # What are all the eligible decision points in the past 24 hours prior to the current decision point
-      matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
-      all_indices_past24hrs <- matched_dp:(current_dp_value-1)
-      all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+    # This loop checks all decision points prior to the current decision point
+    for(k in 1:(current_dp_value - 1)){
+      variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+      variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
       
-      # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
-      all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+      dat_current[[variable_name_transformed]] <- dat_current[[variable_name_original]]
       
-      # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
-      all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
-      resulting_value <- sum(all_summands)
-      dat_wide[this_participant, variable_name_past24hrs] <- resulting_value/dat_wide[this_participant, paste("counts_rand_past24hrs", suffix, sep = "")]
+      # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+      dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
     }
+    
+    variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
+    variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+    variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+    variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+    
+    dat_current[[variable_name_past24hrs]] <- -1
+    
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, variable_name_indicator_now] == 1){
+        if(dat_current[this_participant, variable_name_indicator_past24hrs] == 1){
+          # What are all the eligible decision points in the past 24 hours prior to the current decision point
+          matched_dp <- dat_current[this_participant, variable_name_matched_decision_point]
+          all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+          all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+          
+          # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+          all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+          
+          # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+          all_summands <- dat_current[this_participant, all_names_history_eligibility] * dat_current[this_participant, all_names_history_this_variable]
+          resulting_value <- sum(all_summands)
+          dat_current[this_participant, variable_name_past24hrs] <- resulting_value/dat_current[this_participant, paste("counts_rand_past24hrs", suffix, sep = "")]
+        }
+      }
+    } 
+    
+    list_dat_all <- append(list_dat_all, list(dat_current))
   }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  # This loop checks all decision points prior to the current decision point
+  for(k in 1:(current_dp_value - 1)){
+    variable_name_original <- paste(this_variable, "_dp", k, sep = "")
+    variable_name_transformed <- paste(this_variable, "_dp", k, "_numeric_version", sep = "")
+    
+    dat_wide[[variable_name_transformed]] <- dat_wide[[variable_name_original]]
+    
+    # If not eligible, replace NA by -1 to facilitate ease of computation in the step below.
+    dat_wide[[variable_name_transformed]] <- replace(dat_wide[[variable_name_transformed]], dat_wide[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
+  }
+  
+  variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
+  variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
+  variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
+  variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
+  
+  dat_wide[[variable_name_past24hrs]] <- -1
+  
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, variable_name_indicator_now] == 1){
+      if(dat_wide[this_participant, variable_name_indicator_past24hrs] == 1){
+        # What are all the eligible decision points in the past 24 hours prior to the current decision point
+        matched_dp <- dat_wide[this_participant, variable_name_matched_decision_point]
+        all_indices_past24hrs <- matched_dp:(current_dp_value-1)
+        all_names_history_eligibility <- paste(this_indicator, "_dp", all_indices_past24hrs, sep = "")
+        
+        # What are all the values of this_variable at all the eligible decision points in the past 24 hours prior to the current decision point
+        all_names_history_this_variable <- paste(this_variable, "_dp", all_indices_past24hrs, "_numeric_version", sep = "")
+        
+        # Take the sum of the value of this_variable among all eligible decision points in the past 24 hours prior to the current decision point
+        all_summands <- dat_wide[this_participant, all_names_history_eligibility] * dat_wide[this_participant, all_names_history_this_variable]
+        resulting_value <- sum(all_summands)
+        dat_wide[this_participant, variable_name_past24hrs] <- resulting_value/dat_wide[this_participant, paste("counts_rand_past24hrs", suffix, sep = "")]
+      }
+    }
+  } 
 }
 
 ###############################################################################
@@ -290,8 +458,8 @@ if(n_participants_meet_sparse_restrictions_current_dp > 0){
   n_to_not_impute <- sum(idx_no_impute)
   
   if(n_to_impute > 0){
-    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(participant_id, all_of(this_outcome))
-    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(participant_id == participant_id))
+    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(replicate_id, participant_id, all_of(this_outcome))
+    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
     rows_meet_restriction[[LHS]] <- if_else(is.na(rows_meet_restriction[[LHS]]), rows_meet_restriction[[this_outcome]], rows_meet_restriction[[LHS]])
     rows_meet_restriction_completed <- rows_meet_restriction %>% select(-any_of(this_outcome))
     list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
@@ -358,8 +526,8 @@ if(n_participants_meet_sparse_restrictions_current_dp > 0){
   n_to_not_impute <- sum(idx_no_impute)
   
   if(n_to_impute > 0){
-    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(participant_id, all_of(this_outcome))
-    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(participant_id == participant_id))
+    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(replicate_id, participant_id, all_of(this_outcome))
+    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
     rows_meet_restriction[[LHS]] <- if_else(is.na(rows_meet_restriction[[LHS]]), rows_meet_restriction[[this_outcome]], rows_meet_restriction[[LHS]])
     rows_meet_restriction_completed <- rows_meet_restriction %>% select(-any_of(this_outcome))
     list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
@@ -425,8 +593,8 @@ if(n_participants_meet_sparse_restrictions_current_dp > 0){
   n_to_not_impute <- sum(idx_no_impute)
   
   if(n_to_impute > 0){
-    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(participant_id, all_of(this_outcome))
-    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(participant_id == participant_id))
+    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(replicate_id, participant_id, all_of(this_outcome))
+    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
     rows_meet_restriction[[LHS]] <- if_else(is.na(rows_meet_restriction[[LHS]]), rows_meet_restriction[[this_outcome]], rows_meet_restriction[[LHS]])
     rows_meet_restriction_completed <- rows_meet_restriction %>% select(-any_of(this_outcome))
     list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
@@ -493,8 +661,8 @@ if(n_participants_meet_sparse_restrictions_current_dp > 0){
   n_to_not_impute <- sum(idx_no_impute)
   
   if(n_to_impute > 0){
-    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(participant_id, all_of(this_outcome))
-    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(participant_id == participant_id))
+    tmp <- dat_completed_sparse_restrictions_current_dp %>% select(replicate_id, participant_id, all_of(this_outcome))
+    rows_meet_restriction <- left_join(x = rows_meet_restriction, y = tmp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
     rows_meet_restriction[[LHS]] <- if_else(is.na(rows_meet_restriction[[LHS]]), rows_meet_restriction[[this_outcome]], rows_meet_restriction[[LHS]])
     rows_meet_restriction_completed <- rows_meet_restriction %>% select(-any_of(this_outcome))
     list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))

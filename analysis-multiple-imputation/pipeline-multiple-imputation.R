@@ -3,6 +3,9 @@ rm(list = ls())
 source(file = file.path("analysis-multiple-imputation", "create-vars-for-mi.R"))
 rm(list = ls())
 
+source(file = file.path("analysis-multiple-imputation", "create-replicated-dataset.R"))
+rm(list = ls())
+
 source(file = file.path("analysis-multiple-imputation", "create-wide-format-dataset-for-mi.R"))
 rm(list = ls())
 

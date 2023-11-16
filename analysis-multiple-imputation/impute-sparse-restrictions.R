@@ -8,8 +8,8 @@ rm(list = ls())
 ###############################################################################
 # Simulation parameters for generating the current completed dataset
 ###############################################################################
-mi_dataset_num <- .__par_mi_number
-use_maxit_value <- .__par_maxit_value
+mi_dataset_num <- 1#.__par_mi_number
+use_maxit_value <- 100#.__par_maxit_value
 
 ###############################################################################
 # Load packages and datasets
@@ -18,7 +18,11 @@ source("paths.R")
 library(tidyverse)
 library(mice)
 
-dat_long <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_long.rds")) 
+dat_long <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_primary_aim_replicated.rds"))
+
+dat_long[["Y"]] <- as_factor(dat_long[["Y"]])
+dat_long[["quick_survey_response"]] <- as_factor(dat_long[["quick_survey_response"]])
+dat_long[["has_partner"]] <- as_factor(dat_long[["has_partner"]])
 
 ###############################################################################
 # Imputation for participant-decision points which are currently eligible
@@ -32,7 +36,7 @@ dat_for_imputation <- dat_long %>%
   filter(decision_point >= 3) %>%
   filter(eligibility == 1) %>%
   filter(elig24hrs == 0) %>%
-  select(participant_id, decision_point,
+  select(replicate_id, participant_id, decision_point,
          is_high_effort, is_low_effort,
          quick_survey_response, Y, cigarette_counts, src_scored,
          all_of(these_columns))

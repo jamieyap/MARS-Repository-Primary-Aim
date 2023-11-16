@@ -20,20 +20,44 @@ library(mice)
 
 dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_block1.rds"))
 dat_timevarying_wide <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_timevarying_wide.rds"))
-dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(participant_id, ends_with("_dp2"))
+dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(replicate_id, participant_id, ends_with("_dp2"))
 
-dat_wide <- left_join(x = dat_wide_from_prior_step, y = dat_timevarying_wide_current_dp, by = join_by(participant_id == participant_id))
+dat_wide <- left_join(x = dat_wide_from_prior_step, y = dat_timevarying_wide_current_dp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
 dat_wide_init <- dat_wide
+
+################################################################################
+# How many replicates do we have?
+################################################################################
+all_replicate_ids <- unique(dat_wide[["replicate_id"]])
+maximum_replicate_id <- max(all_replicate_ids)
+minimum_replicate_id <- min(all_replicate_ids)
 
 ###############################################################################
 # Step 0. Update completed dataset
 ###############################################################################
-for(this_participant in 1:nrow(dat_wide)){
-  if(dat_wide[this_participant, "any_recent_eligible_dp_dp2"] == 1){
-    matched_dp <- dat_wide[this_participant, "matched_recent_dp2"]
-    matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
-    matched_value <- as.numeric(matched_value) - 1
-    dat_wide[this_participant, "engagement_most_recent_eligible_dp2"] <- matched_value
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, "any_recent_eligible_dp_dp2"] == 1){
+        matched_dp <- dat_current[this_participant, "matched_recent_dp2"]
+        matched_value <- dat_current[this_participant, paste("Y_dp", matched_dp, sep = "")]
+        matched_value <- as.numeric(matched_value) - 1
+        dat_current[this_participant, "engagement_most_recent_eligible_dp2"] <- matched_value
+      }
+    }
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, "any_recent_eligible_dp_dp2"] == 1){
+      matched_dp <- dat_wide[this_participant, "matched_recent_dp2"]
+      matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
+      matched_value <- as.numeric(matched_value) - 1
+      dat_wide[this_participant, "engagement_most_recent_eligible_dp2"] <- matched_value
+    }
   }
 }
 

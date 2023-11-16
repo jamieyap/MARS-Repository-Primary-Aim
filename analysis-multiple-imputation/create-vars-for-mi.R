@@ -28,8 +28,6 @@ dat_analysis <- dat_analysis %>%
     .default = NULL
   ))
 
-dat_analysis[["quick_survey_response"]] <- as_factor(dat_analysis[["quick_survey_response"]])
-
 lookup <- c(quick_survey_response = "quick_survey_response")
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
