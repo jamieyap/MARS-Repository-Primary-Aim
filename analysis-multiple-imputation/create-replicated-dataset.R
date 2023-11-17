@@ -35,7 +35,7 @@ dat_primary_aim <- dat_primary_aim %>% mutate(replicate_id = 0) %>% select(repli
 list_dat_all <- list()
 list_dat_all <- append(list_dat_all, list(dat_primary_aim))
 
-total_replicates <- 10
+total_replicates <- 2000
 if(total_replicates > 0){
   for(idx in 1:total_replicates){
     dat_replicate <- dat_primary_aim %>% mutate(replicate_id = idx)
