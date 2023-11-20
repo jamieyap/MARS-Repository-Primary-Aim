@@ -1,11 +1,21 @@
+###############################################################################
+# Input arguments to this script
+###############################################################################
+source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
+
 rm(list = ls())
 
+###############################################################################
+# Simulation parameters
+###############################################################################
+total_replicates <- .__par_total_replicates
+
+################################################################################
+# Load packages and datasets
+################################################################################
 source("paths.R")
 library(tidyverse)
 
-################################################################################
-# Load datasets
-################################################################################
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
 
 ################################################################################
@@ -32,18 +42,17 @@ dat_primary_aim <- left_join(x = dat_primary_aim, y = dat_mars_mi_time_varying_c
 ################################################################################
 dat_primary_aim <- dat_primary_aim %>% mutate(replicate_id = 0) %>% select(replicate_id, everything())
 
-list_dat_all <- list()
-list_dat_all <- append(list_dat_all, list(dat_primary_aim))
-
-total_replicates <- 2000
 if(total_replicates > 0){
+  list_dat_all <- list()
+  list_dat_all <- append(list_dat_all, list(dat_primary_aim))
+  
   for(idx in 1:total_replicates){
     dat_replicate <- dat_primary_aim %>% mutate(replicate_id = idx)
     list_dat_all <- append(list_dat_all, list(dat_replicate))
   }
+  
+  dat_primary_aim <- bind_rows(list_dat_all)
 }
-
-dat_primary_aim <- bind_rows(list_dat_all)
 
 ################################################################################
 # Save

@@ -14,7 +14,7 @@ rm(list = ls())
 ################################################################################
 rm(list = ls())
 
-.__total_imputed_datasets <- 30
+.__total_imputed_datasets <- 10
 .__maximum_march_forward <- 60
 
 ################################################################################
@@ -45,13 +45,31 @@ for(.idx_outer in 1:.__total_imputed_datasets){
   
   print(paste("MI dataset no.: ", .__par_mi_number, " Handle sparse restrictions -- prepare for decision point no. 3 onward", sep = ""))
   
-  for(.idx_inner in 3:.__maximum_march_forward){
-    .__par_decision_point_now <- .idx_inner
-    
-    source(file = file.path("analysis-multiple-imputation", "impute-block-03.R"))
-    rm(list = ls())
-    
-    print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+  if(.__maximum_march_forward >= 3){
+    for(.idx_inner in 3:58){
+      .__par_decision_point_now <- .idx_inner
+      
+      source(file = file.path("analysis-multiple-imputation", "impute-block-03.R"))
+      rm(list = ls())
+      
+      print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+    }
+    for(.idx_inner in 59){
+      .__par_decision_point_now <- .idx_inner
+      
+      source(file = file.path("analysis-multiple-imputation", "impute-block-04.R"))
+      rm(list = ls())
+      
+      print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+    }
+    for(.idx_inner in 60){
+      .__par_decision_point_now <- .idx_inner
+      
+      source(file = file.path("analysis-multiple-imputation", "impute-block-03.R"))
+      rm(list = ls())
+      
+      print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+    }
   }
 }
 

@@ -129,7 +129,7 @@ if(maximum_replicate_id > 0){
         }
       }
     }
-
+    
     list_dat_all <- append(list_dat_all, list(dat_current))
   }
   dat_wide <- bind_rows(list_dat_all)
@@ -185,7 +185,7 @@ if(maximum_replicate_id > 0){
   list_dat_all <- list()
   for(idx in minimum_replicate_id:maximum_replicate_id){
     dat_current <- dat_wide %>% filter(replicate_id == idx)
-
+    
     # This loop checks all decision points prior to the current decision point
     for(k in 1:(current_dp_value - 1)){
       variable_name_original <- paste(this_variable, "_dp", k, sep = "")
@@ -276,7 +276,7 @@ if(maximum_replicate_id > 0){
   list_dat_all <- list()
   for(idx in minimum_replicate_id:maximum_replicate_id){
     dat_current <- dat_wide %>% filter(replicate_id == idx)
-
+    
     # This loop checks all decision points prior to the current decision point
     for(k in 1:(current_dp_value - 1)){
       variable_name_original <- paste(this_variable, "_dp", k, sep = "")
@@ -501,8 +501,7 @@ RHS <- paste("ffmq_nonjudge",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("Y_sum_past24hrs", suffix, sep = ""),
              paste("engagement_most_recent_eligible", suffix, sep = ""),
-             paste("is_low_effort", suffix, sep = ""),
-             paste("is_high_effort", suffix, sep = ""),
+             paste("coinflip", suffix, sep = ""),
              paste("cigarette_counts", suffix, sep = ""),
              paste("src_scored", suffix, sep = ""),
              sep = " + ")
@@ -517,8 +516,7 @@ RHS <- paste("ffmq_nonjudge",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("quick_survey_response_sum_past24hrs", suffix, sep = ""), 
              paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
-             paste("is_low_effort", suffix, sep = ""),
-             paste("is_high_effort", suffix, sep = ""),
+             paste("coinflip", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("src_scored", suffix, sep = ""),
              sep = " + ")
@@ -530,8 +528,7 @@ RHS <- paste("ffmq_nonjudge",
              "srq_mean",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("src_scored_mean_past24hrs", suffix, sep = ""),
-             paste("is_low_effort", suffix, sep = ""),
-             paste("is_high_effort", suffix, sep = ""),
+             paste("coinflip", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("cigarette_counts", suffix, sep = ""),
              sep = " + ")

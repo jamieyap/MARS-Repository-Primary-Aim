@@ -52,6 +52,8 @@ LHS <- "Y"
 RHS <- paste("is_high_effort",
              "is_low_effort",
              "quick_survey_response",
+             "cigarette_counts",
+             "src_scored",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
@@ -60,6 +62,7 @@ RHS <- paste("is_high_effort",
              "is_low_effort",
              "quick_survey_response",
              "Y",
+             "src_scored",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 

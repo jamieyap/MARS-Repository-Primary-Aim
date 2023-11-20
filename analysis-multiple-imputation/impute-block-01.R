@@ -56,7 +56,7 @@ rows_violate_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_
 
 imp <- mice(data = rows_meet_restriction, 
             m = 1, 
-            maxit = use_maxit_value,
+            maxit = 1,
             formulas =  my_list)
 
 rows_meet_restriction_completed <- complete(imp, 1) 
@@ -67,12 +67,14 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 
 ###############################################################################
 # Step 2. Impute primary proximal outcome (engagement in 
-# self-regulatory strategies)
+# self-regulatory strategies) and other variables assessed in EMA
 ###############################################################################
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + srq_mean + ffmq_nonjudge"))
+my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + cigarette_counts_dp1 + src_scored_dp1"))
+my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + src_scored_dp1 + quick_survey_response_dp1 + baseline_tobacco_history + income_val"))
+my_list[["src_scored_dp1"]] <- as.formula(paste("src_scored_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + cigarette_counts_dp1"))
 
 # Specifying the correct restriction is key to imputing MRT data.
 # At the first decision point ever of the trial, we do not really have any
@@ -101,59 +103,7 @@ rows_meet_restriction_completed <- complete(imp, 1)
 dat_wide_completed <- rbind(rows_meet_restriction_completed, rows_violate_restriction)
 dat_wide_completed <- arrange(dat_wide_completed, by = "participant_id")
 
-saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "imp_obj_Y_dp1.rds"))
-
-###############################################################################
-# Step 2. Impute cigarette counts
-###############################################################################
-dat_wide <- dat_wide_completed
-
-my_list <- list()
-my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + baseline_tobacco_history + income_val + ffmq_nonjudge + quick_survey_response_dp1"))
-
-restriction_meet_string <- "eligibility_dp1 == 1"
-restriction_violate_string <- "eligibility_dp1 == 0"
-
-rows_meet_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_meet_string))
-rows_violate_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_violate_string))
-
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            formulas =  my_list)
-
-rows_meet_restriction_completed <- complete(imp, 1) 
-
-dat_wide_completed <- rbind(rows_meet_restriction_completed, rows_violate_restriction)
-dat_wide_completed <- arrange(dat_wide_completed, by = "participant_id")
-
-saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "imp_obj_cigarette_counts_dp1.rds"))
-
-###############################################################################
-# Step 3. Impute self-regulatory capacity
-###############################################################################
-dat_wide <- dat_wide_completed
-
-my_list <- list()
-my_list[["src_scored_dp1"]] <- as.formula(paste("src_scored_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + cigarette_counts_dp1 + srq_mean"))
-
-restriction_meet_string <- "eligibility_dp1 == 1"
-restriction_violate_string <- "eligibility_dp1 == 0"
-
-rows_meet_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_meet_string))
-rows_violate_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_violate_string))
-
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            formulas =  my_list)
-
-rows_meet_restriction_completed <- complete(imp, 1) 
-
-dat_wide_completed <- rbind(rows_meet_restriction_completed, rows_violate_restriction)
-dat_wide_completed <- arrange(dat_wide_completed, by = "participant_id")
-
-saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "imp_obj_src_scored_dp1.rds"))
+saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "imp_obj_ema_response_dp1.rds"))
 
 ###############################################################################
 # Save
