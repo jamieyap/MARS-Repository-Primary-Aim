@@ -80,6 +80,11 @@ prepare_data_for_plotting <- function(variable_name, data_before_imputation, dat
 var_to_check <- "Y_dp1"
 dat_for_plotting <- prepare_data_for_plotting(variable_name = var_to_check, data_before_imputation = dat_wide_init, data_after_imputation = dat_wide_completed, eligibility_indicator = "eligibility_dp1")
 
+n_missing <- dat_for_plotting %>% 
+  filter(is_observed != "observed") %>%
+  nrow(.)
+n_observed <- nrow(dat_for_plotting) - n_missing
+
 dat_yes <- dat_for_plotting %>%
   group_by(is_observed) %>%
   mutate(prop = sum(.data[[var_to_check]] == 1)/n()) %>%
@@ -99,7 +104,9 @@ dat_no[[var_to_check]] <- 0
 dat_for_plotting <- rbind(dat_yes, dat_no)
 dat_for_plotting[[var_to_check]] <- as_factor(dat_for_plotting[[var_to_check]])
 
-g_out <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]])) +
+g <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]]))
+g <- g + ggtitle(label = paste("No. participants with missing value: ", n_missing, "\nNo. of participants with observed value: ", n_observed))
+g_out <- g +
   geom_col(position = position_dodge(), width = 0.5) +
   geom_text(aes(label = paste(round(100 * prop), "%")), position = position_dodge(.5), vjust = -.2) +
   labs(x = NULL, y = "proportion") +
@@ -123,6 +130,18 @@ subgroup_names <- c(
 
 dat_for_plotting <- prepare_data_for_plotting(variable_name = var_to_check, data_before_imputation = dat_wide_init, data_after_imputation = dat_wide_completed, eligibility_indicator = "eligibility_dp1", subgroup_indicator = use_subgroup_indicator)
 
+dat_for_plotting_prompt <- dat_for_plotting[dat_for_plotting[[use_subgroup_indicator]] == 1, ]
+n_missing_prompt <- dat_for_plotting_prompt %>% 
+  filter(is_observed != "observed") %>%
+  nrow(.)
+n_observed_prompt <- nrow(dat_for_plotting_prompt) - n_missing_prompt
+
+dat_for_plotting_no_prompt <- dat_for_plotting[dat_for_plotting[[use_subgroup_indicator]] == 0, ]
+n_missing_no_prompt <- dat_for_plotting_no_prompt %>% 
+  filter(is_observed != "observed") %>%
+  nrow(.)
+n_observed_no_prompt <- nrow(dat_for_plotting_no_prompt) - n_missing_no_prompt
+
 dat_yes <- dat_for_plotting %>%
   group_by(is_observed, .data[[use_subgroup_indicator]]) %>%
   mutate(prop = sum(.data[[var_to_check]] == 1)/n()) %>%
@@ -142,7 +161,10 @@ dat_no[[var_to_check]] <- 0
 dat_for_plotting <- rbind(dat_yes, dat_no)
 dat_for_plotting[[var_to_check]] <- as_factor(dat_for_plotting[[var_to_check]])
 
-g_out <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]])) +
+g <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]]))
+g <- g + ggtitle(label = paste("Among participants assigned to prompt, no. with missing value: ", n_missing_prompt, ", no. with observed value: ", n_observed_prompt,
+                               "\nAmong participants assigned to no prompt, no. with missing value: ", n_missing_no_prompt, ", no. with observed value: ", n_observed_no_prompt))
+g_out <- g +
   geom_col(position = position_dodge(), width = 0.5) +
   geom_text(aes(label = paste(round(100 * prop), "%")), position = position_dodge(.5), vjust = -.2) +
   labs(x = NULL, y = "proportion") +
@@ -151,7 +173,7 @@ g_out <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[v
 
 ggsave(filename = file.path(this_location, "Y_dp1_by_trt.png"),
        plot = g_out,
-       height = 10, width = 5, units = "in")
+       height = 10, width = 10, units = "in")
 
 ###############################################################################
 # quick_survey_response_dp1 -- overall
@@ -159,6 +181,10 @@ ggsave(filename = file.path(this_location, "Y_dp1_by_trt.png"),
 
 var_to_check <- "quick_survey_response_dp1"
 dat_for_plotting <- prepare_data_for_plotting(variable_name = var_to_check, data_before_imputation = dat_wide_init, data_after_imputation = dat_wide_completed, eligibility_indicator = "eligibility_dp1")
+n_missing <- dat_for_plotting %>% 
+  filter(is_observed != "observed") %>%
+  nrow(.)
+n_observed <- nrow(dat_for_plotting) - n_missing
 
 dat_1 <- dat_for_plotting %>%
   group_by(is_observed) %>%
@@ -179,7 +205,9 @@ dat_2[[var_to_check]] <- 0
 dat_for_plotting <- rbind(dat_1, dat_2)
 dat_for_plotting[[var_to_check]] <- as_factor(dat_for_plotting[[var_to_check]])
 
-g_out <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]])) +
+g <- ggplot(dat_for_plotting, aes(x = is_observed, y = prop, fill = .data[[var_to_check]]))
+g <- g + ggtitle(label = paste("No. participants with missing value: ", n_missing, "\nNo. of participants with observed value: ", n_observed))
+g_out <- g +
   geom_col(position = position_dodge(), width = 0.5) +
   geom_text(aes(label = paste(round(100 * prop), "%")), position = position_dodge(.5), vjust = -.2) +
   labs(x = NULL, y = "proportion") +
@@ -195,13 +223,17 @@ ggsave(filename = file.path(this_location, "quick_survey_response_dp1.png"),
 
 var_to_check <- "cigarette_counts_dp1"
 dat_for_plotting <- prepare_data_for_plotting(variable_name = var_to_check, data_before_imputation = dat_wide_init, data_after_imputation = dat_wide_completed, eligibility_indicator = "eligibility_dp1")
+n_missing <- dat_for_plotting %>% 
+  filter(is_observed != "observed") %>%
+  nrow(.)
+n_observed <- nrow(dat_for_plotting) - n_missing
 
 use_min_limits <- 0
 use_max_limits <- 12
 use_breaks <- seq(0,12,1)
 g <- ggplot(dat_for_plotting, aes(x = dat_for_plotting[["is_observed"]], y = dat_for_plotting[[var_to_check]]), group = "is_observed")
+g <- g + ggtitle(label = paste("No. participants with missing value: ", n_missing, "\nNo. of participants with observed value: ", n_observed))
 g_out <- g + geom_violin(color = "pink", fill = "pink") + stat_boxplot(geom ='errorbar', width = 0.25, coef=NULL, linewidth = 2) + geom_boxplot(width = 0.25, coef = NULL, size = 2) + labs(x = NULL, y = var_to_check) + scale_y_continuous(limits = c(use_min_limits, use_max_limits), breaks = use_breaks)
-
 
 ggsave(filename = file.path(this_location, "cigarette_counts_dp1.png"), 
        plot = g_out,
@@ -218,8 +250,11 @@ use_min_limits <- 0
 use_max_limits <- 5
 use_breaks <- seq(0,5,1)
 g <- ggplot(dat_for_plotting, aes(x = dat_for_plotting[["is_observed"]], y = dat_for_plotting[[var_to_check]]), group = "is_observed")
+g <- g + ggtitle(label = paste("No. participants with missing value: ", n_missing, "\nNo. of participants with observed value: ", n_observed))
 g_out <- g + geom_violin(color = "pink", fill = "pink") + stat_boxplot(geom ='errorbar', width = 0.25, coef=NULL, linewidth = 2) + geom_boxplot(width = 0.25, coef = NULL, size = 2) + labs(x = NULL, y = var_to_check) + scale_y_continuous(limits = c(use_min_limits, use_max_limits), breaks = use_breaks)
 
 ggsave(filename = file.path(this_location, "src_scored_dp1.png"), 
        plot = g_out,
        height = 10, width = 5, units = "in")
+
+

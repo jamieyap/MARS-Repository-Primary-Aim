@@ -90,6 +90,12 @@ for(.idx_outer in 1:.__total_imputed_datasets){
   
   source(file = file.path("analysis-multiple-imputation", "diagnostics-block-02.R"))
   rm(list = ls())
+}
+
+rm(list = ls())
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
   
   for(.idx_inner in 3:.__maximum_march_forward){
     .__par_decision_point_now <- .idx_inner
