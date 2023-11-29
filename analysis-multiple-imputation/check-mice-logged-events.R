@@ -5,6 +5,23 @@
 .__maximum_march_forward <- 60
 
 ###############################################################################
+# Check logged events: baseline
+###############################################################################
+rm(list = ls())
+
+source("paths.R")
+library(tidyverse)
+library(mice)
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  mi_dataset_num <- .idx_outer
+  
+  imp <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_", "baseline", ".rds", sep = "")))
+  
+  print(imp$loggedEvents)
+}
+
+###############################################################################
 # Check logged events: quick_survey_response
 ###############################################################################
 rm(list = ls())
