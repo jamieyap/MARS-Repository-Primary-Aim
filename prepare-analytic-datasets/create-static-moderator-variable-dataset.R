@@ -7,6 +7,13 @@ library(tidyverse)
 # Load datasets
 ################################################################################
 v1_baseline_quest <- readRDS(file = file.path(path_static_moderators_data, "v1_baseline_quest.rds"))
+mars_ids_excluded_from_all_analytic_datasets <- readRDS(file = file.path(path_manipulated_data, "mars_ids_excluded_from_all_analytic_datasets.rds"))
+
+################################################################################
+# First, drop data from participants which we will not be using in any further
+# analysis.
+################################################################################
+v1_baseline_quest <- v1_baseline_quest %>% filter(!(mars_id %in% mars_ids_excluded_from_all_analytic_datasets))
 
 ################################################################################
 # Select only the columns you need

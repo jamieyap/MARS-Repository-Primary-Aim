@@ -303,6 +303,11 @@ dat_decisions_atypical_sequences[["sequence_cat"]] <- if_else(grepl(pattern = "a
 
 dat_decisions_atypical_sequences <- dat_decisions_atypical_sequences %>% arrange(sequence_cat)
 
+# Match participant ID to each row in dat_decision_atypical_sequences
+these_stitched_sequence_ids <- dat_decisions_atypical_sequences[["stitched_sequence_id"]]
+dat_lookup_stitched_sequence_ids <- dat_all_burst %>% filter(stitched_sequence_id %in% these_stitched_sequence_ids) %>% select(mars_id, stitched_sequence_id)
+dat_decisions_atypical_sequences <- left_join(x = dat_decisions_atypical_sequences, y = dat_lookup_stitched_sequence_ids, by = join_by(stitched_sequence_id == stitched_sequence_id))
+dat_decisions_atypical_sequences <- dat_decisions_atypical_sequences %>% select(mars_id, everything())
 
 #############################################################################
 # Prepare output
@@ -310,4 +315,9 @@ dat_decisions_atypical_sequences <- dat_decisions_atypical_sequences %>% arrange
 dat_output <- dat_all_burst %>% 
   select(-tracking_id_treatment_assignments, -tracking_id_ema) %>% 
   select(stitched_sequence_id, group_id, everything())
+
+dat_output_without_pilot_participants <- dat_output %>%
+  filter(mars_id != "mars_1") %>%
+  filter(mars_id != "mars_2") %>%
+  filter(mars_id != "mars_3")
 

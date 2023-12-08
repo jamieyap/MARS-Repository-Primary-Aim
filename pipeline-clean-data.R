@@ -121,7 +121,8 @@ rm(list = ls())
 #   dat_all_with_matched_treatment_assignments.rds
 #   dat_all_with_matched_status_ema.rds
 # Output:
-#   dat_all_burst.rds
+#   dat_all_burst_with_pilot.rds -- note that this data frame contains data from the 3 pilot participants
+#   dat_all_burst.rds -- note that this data frame DOES NOT have pilot participant data
 #   dat_decisions_atypical_sequence.rds
 source("stitch-together-block-level-data.R")
 rm(list = ls())
@@ -188,8 +189,8 @@ rm(list = ls())
 # Input:
 #   dat_matched_to_decision_points.rds
 # Output:
-#   mars_ids_pilot.rds
 #   mars_ids_did_not_meet_ema_completion_criteria.rds
+#   mars_ids_pilot.rds -- ID's corresponding to beta testing/pilot participants
 #   mars_ids_excluded_from_all_analytic_datasets.rds
 source("prepare-analytic-datasets/screen-for-analytical-dataset-inclusion.R")
 rm(list = ls())
@@ -226,6 +227,7 @@ rm(list = ls())
 
 # Input:
 #   dat_demogs.rds
+#   mars_ids_excluded_from_all_analytic_datasets.rds
 # Output:
 #   dat_mars_coded_demogs.rds
 #   dat_summary_missing_demogs.rds
@@ -263,6 +265,7 @@ rm(list = ls())
 
 # Input:
 #   v1_baseline_quest.rds
+#   mars_ids_excluded_from_all_analytic_datasets.rds
 # Output:
 #   dat_mars_baseline_moderators.rds
 source("prepare-analytic-datasets/create-static-moderator-variable-dataset.R")  
