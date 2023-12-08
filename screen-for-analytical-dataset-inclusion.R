@@ -19,8 +19,8 @@ mars_ids_did_not_meet_ema_completion_criteria <- dat_summary_for_exclusion %>% .
 
 # Create a variable containing all ID's which will be excluded from 
 # all analytic datasets
-mars_id_pilot <- c("mars_1", "mars_2", "mars_3")
-mars_ids_excluded_from_all_analytic_datasets <- c(mars_id_pilot,
+mars_ids_pilot <- c("mars_1", "mars_2", "mars_3")
+mars_ids_excluded_from_all_analytic_datasets <- c(mars_ids_pilot,
                                                   mars_ids_did_not_have_mhealth_data_within_mrt_period,
                                                   mars_ids_did_not_meet_ema_completion_criteria)
 
