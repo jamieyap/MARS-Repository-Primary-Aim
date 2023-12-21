@@ -8,8 +8,8 @@ rm(list = ls())
 ###############################################################################
 # Simulation parameters for generating the current completed dataset
 ###############################################################################
-mi_dataset_num <- 1 #.__par_mi_number
-use_maxit_value <- 20 #.__par_maxit_value
+mi_dataset_num <- .__par_mi_number
+use_maxit_value <- .__par_maxit_value
 
 ###############################################################################
 # Load packages and datasets

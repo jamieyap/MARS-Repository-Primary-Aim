@@ -8,6 +8,6 @@
 #   impute-block-04.R
 #   impute-block-05.R
 
-.__par_maxit_value_baseline <- 100
-.__par_maxit_value <- 20
-.__par_total_replicates <- 0
+.__par_maxit_value_baseline <- 10
+.__par_maxit_value <- 30
+.__par_total_replicates <- 1
