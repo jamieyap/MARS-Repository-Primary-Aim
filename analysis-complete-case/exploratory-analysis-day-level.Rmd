@@ -1,0 +1,1073 @@
+---
+title: "MARS MRT: Day-Level Analyses"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(tvem)
+```
+
+# Description of set up
+
+## Variables included in the time-varying effect models (Tan, et al., 2012)
+
+* $\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j}\right)$ denotes total number of cigarettes smoked reported by participant $i$ in EMAs on day $j$
+
+* $\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j+1}\right)$ denotes total number of cigarettes smoked reported by participant $i$ in EMAs on day $j+1$
+
+* $\text{NO. OF TIMES ENGAGED}_{i} \left(t_{i,j}\right)$ denotes total number of times engagement in self-regulatory strategies was reported by participant $i$ in EMAs on day $j$
+
+* $\text{NO. OF PROMPTS}_{i} \left(t_{i,j-1}\right)$ denotes total number of times participant $i$ was assigned to **prompt** (any kind) on day $j-1$
+
+* $\text{NO. OF HIGH EFFORT PROMPTS}_{i} \left(t_{i,j-1}\right)$ denotes total number of times participant $i$ was assigned to **high effort prompt** on day $j-1$
+
+* $\text{NO. OF LOW EFFORT PROMPTS}_{i} \left(t_{i,j-1}\right)$ denotes total number of times participant $i$ was assigned to **low effort prompt** on day $j-1$
+
+## Defining time
+
+* $t_{i,j}$ denotes the "time" at which day $j$ of person $i$ occurred. 
+  - In this write-up, "time" is operationalized as day in study: that is, $t_{i,j} = j$ and $j = 2,3,4,5,6,7,8,9$.
+  - **Definition of TVEM "origin time" for all models:** The 2nd day ($j=2$) which corresponds to the first day after the first clinic visit.
+
+## References
+
+Tan, X., Shiyko, M. P., Li, R., Li, Y., and Dierker, L. (2012). A time-varying effect model for intensive longitudinal data. Psychological methods, 17(1), 61.
+
+```{r}
+# This is the data frame that is the output of the very last step of our data pipeline
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, cluster_id, decision_point, 
+         Y, cigarette_counts, eligibility, coinflip, is_high_effort, is_low_effort) %>%
+  mutate(coinflip = replace(coinflip, eligibility == 0, 0),
+         is_high_effort = replace(is_high_effort, eligibility == 0, 0)) %>%
+  group_by(participant_id, cluster_id) %>%
+  summarise(n_elig = sum(eligibility),
+            n_any_prompt = sum(coinflip),
+            n_high_effort_prompt = sum(is_high_effort),
+            n_low_effort_prompt = sum(is_low_effort),
+            n_obs_engaged = sum(!is.na(Y)),
+            n_obs_cigs = sum(!is.na(cigarette_counts)),
+            n_engaged = sum(Y, na.rm = TRUE),
+            n_cigs = sum(cigarette_counts, na.rm = TRUE)) %>%
+  mutate(n_cigs_lag1 = lag(n_cigs),
+         n_elig_lag1 = lag(n_elig),
+         n_obs_cigs_lag1 = lag(n_obs_cigs),
+         n_engaged_lag1 = lag(n_engaged)) %>%
+  mutate(n_any_prompt_lag1 = lag(n_any_prompt),
+         n_high_effort_prompt_lag1 = lag(n_high_effort_prompt),
+         n_low_effort_prompt_lag1 = lag(n_low_effort_prompt)) %>%
+  mutate(n_engaged_lag1_by_n_any_prompt = n_engaged_lag1 * n_any_prompt,
+         n_engaged_lag1_by_n_high_effort_prompt = n_engaged_lag1 * n_high_effort_prompt) %>%
+  mutate(n_elig_lag2 = lag(n_elig, 2),
+         n_obs_cigs_lag2 = lag(n_obs_cigs, 2),
+         n_engaged_lag2 = lag(n_engaged, 2)) %>%
+  mutate(n_engaged_lag2_by_n_any_prompt_lag1 = n_engaged_lag2 * n_any_prompt_lag1,
+         n_engaged_lag2_by_n_high_effort_prompt_lag1 = n_engaged_lag2 * n_high_effort_prompt_lag1) %>%
+  mutate(n_obs_cigs_lead1 = lead(n_obs_cigs),
+         n_cigs_lead1 = lead(n_cigs),
+         n_elig_lead1 = lead(n_elig)) %>%
+  filter(cluster_id >= 2 & cluster_id <= 9)
+```
+
+# Intercept-only TVEM
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem_0 <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+
+plot(model_tvem_0)
+```
+
+
+
+$$
+\text{NO. OF TIMES ENGAGED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_engaged ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem_0 <- tvem(data=dat_tvem,
+                     formula=n_engaged ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+
+plot(model_tvem_0)
+```
+
+
+$$
+\text{NO. OF PROMPTS}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_any_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem_0 <- tvem(data=dat_tvem,
+                     formula=n_any_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+
+plot(model_tvem_0)
+```
+
+$$
+\text{NO. OF HIGH EFFORT PROMPTS}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_high_effort_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem_0 <- tvem(data=dat_tvem,
+                     formula=n_high_effort_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+
+plot(model_tvem_0)
+```
+
+$$
+\text{NO. OF LOW EFFORT PROMPTS}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_low_effort_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem_0 <- tvem(data=dat_tvem,
+                     formula=n_low_effort_prompt ~ 1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+
+plot(model_tvem_0)
+```
+
+# No. of cigarettes smoked on current day as outcome
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_engaged,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_engaged,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j-1} \right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_engaged + n_cigs_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_engaged,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF PROMPTS} \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_any_prompt,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_any_prompt,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF PROMPTS} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_any_prompt_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_any_prompt_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF PROMPTS} \left(t_{i,j-1}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF CIGARETTES SMOKED} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_any_prompt_lag1 + n_cigs_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_any_prompt_lag1 + n_cigs_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF HIGH EFFORT PROMPTS} \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_high_effort_prompt,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_high_effort_prompt,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF HIGH EFFORT PROMPTS} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_high_effort_prompt_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_high_effort_prompt_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF HIGH EFFORT PROMPTS} \left(t_{i,j-1}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF CIGARETTES SMOKED} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_high_effort_prompt_lag1 + n_cigs_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_high_effort_prompt_lag1 + n_cigs_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF LOW EFFORT PROMPTS} \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter(n_elig > 0) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_low_effort_prompt,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_low_effort_prompt,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF LOW EFFORT PROMPTS} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by(n_elig == n_obs_cigs) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter(n_elig == n_obs_cigs)
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_low_effort_prompt_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_low_effort_prompt_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF LOW EFFORT PROMPTS} \left(t_{i,j-1}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF CIGARETTES SMOKED} \left(t_{i,j-1}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lag1 > 0)) %>%
+  group_by((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lag1 > 0)) %>% filter((n_elig == n_obs_cigs) & (n_elig_lag1 == n_obs_cigs_lag1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs ~ n_low_effort_prompt_lag1 + n_cigs_lag1,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs ~ n_low_effort_prompt_lag1 + n_cigs_lag1,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+# No. of cigarettes smoked on next day as outcome
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j+1} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lead1 > 0)) %>%
+  group_by((n_elig == n_obs_engaged) & (n_elig_lead1 == n_obs_cigs_lead1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% filter((n_elig == n_obs_engaged) & (n_elig_lead1 == n_obs_cigs_lead1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs_lead1 ~ n_engaged,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs_lead1 ~ n_engaged + n_cigs,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
+$$
+\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j+1} \right) = \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right)
+$$
+
+```{r, echo = TRUE}
+dat_summary_observed <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lead1 > 0)) %>%
+  group_by((n_elig == n_obs_engaged) & (n_elig_lead1 == n_obs_cigs_lead1)) %>%
+  summarise(total = n())
+
+dat_summary_observed
+```
+
+```{r}
+dat_tvem <- dat_for_analysis %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% filter((n_elig == n_obs_engaged) & (n_elig_lead1 == n_obs_cigs_lead1))
+
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:4){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_cigs_lead1 ~ n_engaged + n_cigs,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     family = gaussian(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_cigs_lead1 ~ n_engaged + n_cigs,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   family = gaussian(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+
