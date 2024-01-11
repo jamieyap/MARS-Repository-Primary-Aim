@@ -1,0 +1,4 @@
+"","Estimate","95% LCL","95% UCL","StdErr","t_value","df","p-value"
+"(Intercept)"," 0.311","-0.101"," 0.723"," 0.207"," 1.503","81.000"," 0.137"
+"days_between_v1_and_coinflip_local","-0.077","-0.247"," 0.092"," 0.085","-0.909","81.000"," 0.366"
+"I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)"," 0.006","-0.010"," 0.022"," 0.008"," 0.751","81.000"," 0.455"
