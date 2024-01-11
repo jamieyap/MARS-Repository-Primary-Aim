@@ -1,0 +1,7 @@
+"","coefficient","estimate","LCL95","UCL95","SE","HotellingT","p"
+"High Effort Prompt (versus Low Effort)","beta0"," 0.410","-0.140","0.961","0.277"," 1.483","0.142"
+"High Effort Prompt (versus Low Effort) x Day in Study","beta1","-0.101","-0.352","0.149","0.126","-0.804","0.424"
+"High Effort Prompt (versus Low Effort) x Day in Study x Day in Study","beta2"," 0.009","-0.015","0.032","0.012"," 0.736","0.464"
+"No Prompt (versus Low Effort)","beta3","-0.072","-0.586","0.442","0.259","-0.279","0.781"
+"No Prompt (versus Low Effort) x Day in Study","beta4"," 0.015","-0.213","0.244","0.115"," 0.135","0.893"
+"No Prompt (versus Low Effort) x Day in Study x Day in Study","beta5","-0.001","-0.023","0.021","0.011","-0.081","0.936"
