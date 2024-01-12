@@ -26,7 +26,7 @@ rm(list = ls())
 for(.idx_outer in 1:.__total_imputed_datasets){
   .__par_mi_number <- .idx_outer
   
-  source(file = file.path("analysis-multiple-imputation", "impute-baseline.R"))
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-baseline.R"))
   print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", "baseline", sep = ""))
   rm(list = ls())
 }
@@ -39,7 +39,7 @@ rm(list = ls())
 for(.idx_outer in 1:.__total_imputed_datasets){
   .__par_mi_number <- .idx_outer
   
-  source(file = file.path("analysis-multiple-imputation", "impute-block-01.R"))
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-01.R"))
   print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", 1, sep = ""))
   rm(list = ls())
 }
@@ -52,7 +52,7 @@ rm(list = ls())
 for(.idx_outer in 1:.__total_imputed_datasets){
   .__par_mi_number <- .idx_outer
   
-  source(file = file.path("analysis-multiple-imputation", "impute-block-02.R"))
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-02.R"))
   print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", 2, sep = ""))
   rm(list = ls())
 }
@@ -72,7 +72,7 @@ rm(list = ls())
 for(.idx_outer in 1:.__total_imputed_datasets){
   .__par_mi_number <- .idx_outer
   
-  source(file = file.path("analysis-multiple-imputation", "impute-sparse-restrictions-c.R"))
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-sparse-restrictions-c.R"))
   print(paste("MI dataset no.: ", .__par_mi_number, " Handle sparse restrictions -- prepare for decision point no. 3 onward", sep = ""))
   rm(list = ls())
 }
@@ -87,7 +87,7 @@ for(.idx_outer in 1:.__total_imputed_datasets){
   for(.idx_inner in 3:58){
     .__par_decision_point_now <- .idx_inner
     
-    source(file = file.path("analysis-multiple-imputation", "impute-block-03-c.R"))
+    source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))
     print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
     rm(list = ls())
   }
@@ -101,7 +101,7 @@ for(.idx_outer in 1:.__total_imputed_datasets){
   for(.idx_inner in 59){
     .__par_decision_point_now <- .idx_inner
     
-    source(file = file.path("analysis-multiple-imputation", "impute-block-04-c.R"))
+    source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-04-c.R"))
     print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
     rm(list = ls())
   }
@@ -115,7 +115,7 @@ for(.idx_outer in 1:.__total_imputed_datasets){
   for(.idx_inner in 60){
     .__par_decision_point_now <- .idx_inner
     
-    source(file = file.path("analysis-multiple-imputation", "impute-block-05-c.R"))
+    source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-05-c.R"))
     print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
     rm(list = ls())
   }
@@ -127,18 +127,18 @@ for(.idx_outer in 1:.__total_imputed_datasets){
 
 rm(list = ls())
 
-source(file = file.path("analysis-multiple-imputation", "reshape-completed-datasets-from-wide-to-long.R"))
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
+  
+  source(file = file.path("analysis-multiple-imputation", "reshape-completed-datasets-from-wide-to-long.R"))
+  print(paste("MI dataset no.: ", .__par_mi_number, sep = ""))
+  rm(list = ls())
+}
 
 ################################################################################
 # Perform analysis on each imputed dataset
 ################################################################################
 
 rm(list = ls())
-
-
-
-
-
-
 
 

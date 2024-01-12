@@ -35,7 +35,7 @@ dat_wide_init <- dat_wide
 # for them at this step, the mice package will not impute them
 ###############################################################################
 my_list <- list()
-my_list[["quick_survey_response_dp1"]] <- as.formula(paste("quick_survey_response_dp1 ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + ffmq_nonjudge"))
+my_list[["quick_survey_response_dp1"]] <- as.formula(paste("quick_survey_response_dp1 ~ baseline_tobacco_history + is_female + income_val + mdes_pos_mean + mdes_neg_mean + gratitude"))
 
 # Specifying the correct restriction is key to imputing MRT data.
 # At the first decision point ever of the trial, we do not really have any
@@ -72,9 +72,9 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + cigarette_counts_dp1 + src_scored_dp1"))
-my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + src_scored_dp1 + quick_survey_response_dp1 + baseline_tobacco_history + income_val"))
-my_list[["src_scored_dp1"]] <- as.formula(paste("src_scored_dp1 ~ is_low_effort_dp1 + is_high_effort_dp1 + Y_dp1 + cigarette_counts_dp1"))
+my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp1 + src_scored_dp1 + is_low_effort_dp1 + is_high_effort_dp1"))
+my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ baseline_tobacco_history + srq_mean + income_val + Y_dp1 + src_scored_dp1 + quick_survey_response_dp1"))
+my_list[["src_scored_dp1"]] <- as.formula(paste("src_scored_dp1 ~ baseline_tobacco_history + srq_mean + Y_dp1 + cigarette_counts_dp1"))
 
 # Specifying the correct restriction is key to imputing MRT data.
 # At the first decision point ever of the trial, we do not really have any
@@ -108,6 +108,6 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 ###############################################################################
 # Save
 ###############################################################################
-saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_init_block1.rds"))
-saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_block1.rds"))
+saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_init_dp1.rds"))
+saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_dp1.rds"))
 

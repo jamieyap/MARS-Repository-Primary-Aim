@@ -18,14 +18,11 @@ maximum_replicate_id <- max(all_replicate_ids)
 # Variables assessed at baseline which have missing values and hence will be
 # imputed
 ################################################################################
-these_vars <- c("baseline_tobacco_history", 
-                "has_partner", 
+these_vars <- c("has_partner", 
                 "income_val",
                 "srq_mean",        # self-regulation: higher scores indicate higher self-regulation abilities
                 "mdes_pos_mean",   # mdes: higher scores indicate more intense positive emotions
                 "mdes_neg_mean",   # mdes: higher scores indicate more intense negative emotions
-                "maas_total",      # mindfulness: higher scores indicate higher mindfulness
-                "ffmq_nonjudge",   # mindfulness: higher scores indicate higher non-judging of inner experiences
                 "gratitude")       # gratitude: higher scores indicate higher gratitude
 
 dat_baseline_wide <- dat_primary_aim %>%
@@ -54,7 +51,8 @@ if(maximum_replicate_id > 0){
 ################################################################################
 dat_control_wide <- dat_primary_aim %>%
   select(replicate_id, participant_id, 
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other) %>%
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other,
+         baseline_tobacco_history) %>%
   arrange(replicate_id, participant_id) %>% unique(.)
 
 ################################################################################

@@ -18,7 +18,7 @@ source("paths.R")
 library(tidyverse)
 library(mice)
 
-dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_block1.rds"))
+dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_dp1.rds"))
 dat_timevarying_wide <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_timevarying_wide.rds"))
 dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(replicate_id, participant_id, ends_with("_dp2"))
 
@@ -71,7 +71,7 @@ if(maximum_replicate_id > 0){
 # for them at this step, the mice package will not impute them
 ###############################################################################
 my_list <- list()
-my_list[["quick_survey_response_dp2"]] <- as.formula(paste("quick_survey_response_dp2 ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + ffmq_nonjudge"))
+my_list[["quick_survey_response_dp2"]] <- as.formula(paste("quick_survey_response_dp2 ~ baseline_tobacco_history + is_female + income_val + mdes_pos_mean + mdes_neg_mean + gratitude"))
 
 restriction_meet_string <- "eligibility_dp2 == 1"
 restriction_violate_string <- "eligibility_dp2 == 0"
@@ -97,9 +97,9 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ is_low_effort_dp2 + is_high_effort_dp2 + any_recent_eligible_dp_dp2 + engagement_most_recent_eligible_dp2 + cigarette_counts_dp2 + src_scored_dp2"))
-my_list[["cigarette_counts_dp2"]] <- as.formula(paste("cigarette_counts_dp2 ~ is_low_effort_dp2 + is_high_effort_dp2 + Y_dp2 + src_scored_dp2 + quick_survey_response_dp2 + baseline_tobacco_history + income_val"))
-my_list[["src_scored_dp2"]] <- as.formula(paste("src_scored_dp2 ~ is_low_effort_dp2 + is_high_effort_dp2 + Y_dp2 + cigarette_counts_dp2"))
+my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp2 + src_scored_dp2 + is_low_effort_dp2 + is_high_effort_dp2 + any_recent_eligible_dp_dp2 + engagement_most_recent_eligible_dp2"))
+my_list[["cigarette_counts_dp2"]] <- as.formula(paste("cigarette_counts_dp2 ~ baseline_tobacco_history + srq_mean + income_val + Y_dp2 + src_scored_dp2 + quick_survey_response_dp2"))
+my_list[["src_scored_dp2"]] <- as.formula(paste("src_scored_dp2 ~ baseline_tobacco_history + srq_mean + Y_dp2 + cigarette_counts_dp2"))
 
 restriction_meet_string <- "eligibility_dp2 == 1"
 restriction_violate_string <- "eligibility_dp2 == 0"
@@ -122,6 +122,6 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 ###############################################################################
 # Save
 ###############################################################################
-saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_init_block2.rds"))
-saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_block2.rds"))
+saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_init_dp2.rds"))
+saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_dp2.rds"))
 

@@ -46,14 +46,13 @@ if(isFALSE(is_dir_exist)){
 # Specify a regression model for each variable individually
 ###############################################################################
 my_list <- list()
+
 my_list[["has_partner"]] <- as.formula(paste("has_partner ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + income_val"))
 my_list[["income_val"]] <- as.formula(paste("income_val ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + has_partner"))
-my_list[["srq_mean"]] <- as.formula(paste("srq_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + mdes_pos_mean + mdes_neg_mean + maas_total + ffmq_nonjudge + gratitude"))
-my_list[["mdes_pos_mean"]] <- as.formula(paste("mdes_pos_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_neg_mean + maas_total + ffmq_nonjudge + gratitude"))
-my_list[["mdes_neg_mean"]] <- as.formula(paste("mdes_neg_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + maas_total + ffmq_nonjudge + gratitude"))
-my_list[["maas_total"]] <- as.formula(paste("maas_total ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + mdes_neg_mean + ffmq_nonjudge + gratitude"))
-my_list[["ffmq_nonjudge"]] <- as.formula(paste("ffmq_nonjudge ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + mdes_neg_mean + maas_total + gratitude"))
-my_list[["gratitude"]] <- as.formula(paste("gratitude ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + mdes_neg_mean + maas_total + ffmq_nonjudge"))
+my_list[["srq_mean"]] <- as.formula(paste("srq_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + mdes_pos_mean + mdes_neg_mean + gratitude"))
+my_list[["mdes_pos_mean"]] <- as.formula(paste("mdes_pos_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_neg_mean + gratitude"))
+my_list[["mdes_neg_mean"]] <- as.formula(paste("mdes_neg_mean ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + gratitude"))
+my_list[["gratitude"]] <- as.formula(paste("gratitude ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + srq_mean + mdes_pos_mean + mdes_neg_mean"))
 
 imp <- mice(data = dat_wide, 
             m = 1,

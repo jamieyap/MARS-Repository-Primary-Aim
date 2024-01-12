@@ -32,7 +32,7 @@ n_participants_meet_sparse_restrictions_current_dp <- nrow(dat_completed_sparse_
 # -----------------------------------------------------------------------------
 # This is for the other cases
 # -----------------------------------------------------------------------------
-this_data_file <- paste("dat_wide_completed_block", current_dp_value - 1, ".rds", sep = "")
+this_data_file <- paste("dat_wide_completed_dp", current_dp_value - 1, ".rds", sep = "")
 dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, this_data_file))
 dat_timevarying_wide <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_timevarying_wide.rds"))
 
@@ -435,7 +435,7 @@ rows_meet_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_mee
 my_list <- list()
 this_outcome <- "quick_survey_response"
 LHS <- paste(this_outcome, suffix, sep = "")
-RHS <- paste("ffmq_nonjudge", "income_val",
+RHS <- paste("is_female", "income_val", "mdes_pos_mean", "mdes_neg_mean", "gratitude",
              paste("quick_survey_nreported_past24hrs", suffix, sep = ""), 
              paste("quick_survey_response_lag1", suffix, sep = ""), 
              paste("quick_survey_response_sum_past24hrs", suffix, sep = ""),
@@ -514,7 +514,8 @@ my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 this_outcome <- "cigarette_counts"
 LHS <- paste(this_outcome, suffix, sep = "")
-RHS <- paste(paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
+RHS <- paste(paste("Y_nreported_past24hrs", suffix, sep = ""),
+             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
              paste("coinflip", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("src_scored", suffix, sep = ""),
@@ -523,7 +524,8 @@ my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 this_outcome <- "src_scored"
 LHS <- paste(this_outcome, suffix, sep = "")
-RHS <- paste(paste("src_scored_mean_past24hrs", suffix, sep = ""),
+RHS <- paste(paste("Y_nreported_past24hrs", suffix, sep = ""),
+             paste("src_scored_mean_past24hrs", suffix, sep = ""),
              paste("coinflip", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("cigarette_counts", suffix, sep = ""),
@@ -604,7 +606,7 @@ dat_wide_completed <- arrange(dat_wide_completed, by = "participant_id")
 ###############################################################################
 # Save
 ###############################################################################
-saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_wide_init_block", current_dp_value, ".rds", sep = "")))
-saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_wide_completed_block", current_dp_value, ".rds", sep = "")))
+saveRDS(dat_wide_init, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_wide_init_dp", current_dp_value, ".rds", sep = "")))
+saveRDS(dat_wide_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_wide_completed_dp", current_dp_value, ".rds", sep = "")))
 
 

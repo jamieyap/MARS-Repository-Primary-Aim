@@ -40,7 +40,7 @@ cond3 <- "(eligibility == 1 & eligibility_lag1 == 0 & elig24hrs == 0)"
 restriction_meet_string <- paste(cond1, cond2, cond3, sep = " | ")
 dat_for_imputation <- dat_long %>% filter(!!rlang::parse_expr(restriction_meet_string))
 
-these_columns <- c("ffmq_nonjudge", "income_val")
+these_columns <- c("income_val", "is_female", "mdes_pos_mean", "mdes_neg_mean", "gratitude", "baseline_tobacco_history", "srq_mean")
 
 dat_for_imputation <- dat_for_imputation %>%
   select(replicate_id, participant_id, decision_point,
@@ -50,23 +50,29 @@ dat_for_imputation <- dat_for_imputation %>%
 
 my_list <- list()
 LHS <- "quick_survey_response"
-RHS <- paste("ffmq_nonjudge",
+RHS <- paste("baseline_tobacco_history",
+             "is_female",
              "income_val",
+             "mdes_pos_mean",
+             "mdes_neg_mean",
+             "gratitude",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 LHS <- "Y"
-RHS <- paste("is_high_effort",
+RHS <- paste("baseline_tobacco_history",
+             "gratitude",
+             "is_high_effort",
              "is_low_effort",
-             "quick_survey_response",
              "cigarette_counts",
              "src_scored",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 LHS <- "cigarette_counts"
-RHS <- paste("is_high_effort",
-             "is_low_effort",
+RHS <- paste("baseline_tobacco_history",
+             "srq_mean",
+             "income_val",
              "quick_survey_response",
              "Y",
              "src_scored",
@@ -74,9 +80,8 @@ RHS <- paste("is_high_effort",
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 LHS <- "src_scored"
-RHS <- paste("is_high_effort",
-             "is_low_effort",
-             "quick_survey_response",
+RHS <- paste("baseline_tobacco_history",
+             "srq_mean",
              "Y",
              "cigarette_counts",
              sep = " + ")
