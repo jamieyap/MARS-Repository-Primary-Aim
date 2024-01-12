@@ -137,6 +137,20 @@ spec1 <- dat_timevarying_long %>%
 dat_timevarying_wide <- dat_timevarying_long %>% pivot_wider_spec(spec1, id_cols = c("replicate_id", "participant_id"))
 
 ################################################################################
+# What are the variable names in each dataset that will have to eventually be 
+# transformed from wide to long format at a later step in the pipeline?
+################################################################################
+cols_to_drop <- c("replicate_id", "participant_id", "decision_point")
+cols_to_keep_control <- colnames(dat_control_wide)[!(colnames(dat_control_wide) %in% cols_to_drop)]
+cols_to_keep_baseline <- colnames(dat_baseline_wide)[!(colnames(dat_baseline_wide) %in% cols_to_drop)]
+cols_to_keep_timevarying <- colnames(dat_timevarying_long)[!(colnames(dat_timevarying_long) %in% cols_to_drop)]
+
+saveRDS(cols_to_drop, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_drop.rds"))
+saveRDS(cols_to_keep_control, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_control.rds"))
+saveRDS(cols_to_keep_baseline, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_baseline.rds"))
+saveRDS(cols_to_keep_timevarying, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_timevarying.rds"))
+
+################################################################################
 # Save datasets
 ################################################################################
 saveRDS(dat_control_wide, file = file.path(path_multiple_imputation_pipeline_data, "dat_control_wide.rds"))

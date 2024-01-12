@@ -8,6 +8,11 @@
 #   impute-block-04.R
 #   impute-block-05.R
 
-.__par_maxit_value_baseline <- 10
+.__total_imputed_datasets <- 15
+
+.__par_maxit_value_baseline <- 100
 .__par_maxit_value <- 30
 .__par_total_replicates <- 1
+
+
+.__maximum_march_forward <- 60

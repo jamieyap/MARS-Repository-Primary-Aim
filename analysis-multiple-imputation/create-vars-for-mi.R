@@ -193,5 +193,12 @@ dat_analysis <- dat_analysis %>% select(mars_id, decision_point, eligibility, el
 ################################################################################
 # Save data frame
 ################################################################################
+this_location <- path_multiple_imputation_pipeline_data
+is_dir_exist <- file.exists(this_location)
+
+if(isFALSE(is_dir_exist)){
+  dir.create(this_location)
+}
+
 saveRDS(dat_analysis, file = file.path(path_multiple_imputation_pipeline_data, "dat_mars_mi_time_varying_covariates.rds"))
 
