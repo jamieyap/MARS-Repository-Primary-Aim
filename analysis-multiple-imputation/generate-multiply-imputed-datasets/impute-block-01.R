@@ -35,7 +35,7 @@ dat_wide_init <- dat_wide
 # for them at this step, the mice package will not impute them
 ###############################################################################
 my_list <- list()
-my_list[["quick_survey_response_dp1"]] <- as.formula(paste("quick_survey_response_dp1 ~ baseline_tobacco_history + is_female + income_val + mdes_pos_mean + mdes_neg_mean + gratitude"))
+my_list[["quick_survey_response_dp1"]] <- as.formula(paste("quick_survey_response_dp1 ~ baseline_tobacco_history + income_val + has_partner"))
 
 # Specifying the correct restriction is key to imputing MRT data.
 # At the first decision point ever of the trial, we do not really have any

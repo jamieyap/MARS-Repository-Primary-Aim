@@ -33,6 +33,39 @@ maximum_replicate_id <- max(all_replicate_ids)
 minimum_replicate_id <- min(all_replicate_ids)
 
 ###############################################################################
+# Step 0. Update completed dataset -- eligibility for micro-randomization
+# at the prior decision point
+###############################################################################
+dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] <- dat_wide[[paste("eligibility", suffix_lag1, sep = "")]]
+
+###############################################################################
+# Step 0. Update completed dataset -- two-question survey response 
+# at the prior decision point
+###############################################################################
+dat_wide[[paste("quick_survey_response_lag1", suffix, sep = "")]] <- as.numeric(dat_wide[[paste("quick_survey_response", suffix_lag1, sep = "")]]) - 1
+dat_wide[[paste("quick_survey_response_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("quick_survey_response_lag1", suffix, sep = "")]])
+
+###############################################################################
+# Step 0. Update completed dataset -- Y at the prior decision point
+###############################################################################
+dat_wide[[paste("Y_lag1", suffix, sep = "")]] <- as.numeric(dat_wide[[paste("Y", suffix_lag1, sep = "")]]) - 1
+dat_wide[[paste("Y_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("Y_lag1", suffix, sep = "")]])
+
+###############################################################################
+# Step 0. Update completed dataset -- number of cigarettes smoked
+# reported at the prior decision point
+###############################################################################
+dat_wide[[paste("cigarette_counts_lag1", suffix, sep = "")]] <- dat_wide[[paste("cigarette_counts", suffix_lag1, sep = "")]]
+dat_wide[[paste("cigarette_counts_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("cigarette_counts_lag1", suffix, sep = "")]])
+
+###############################################################################
+# Step 0. Update completed dataset -- score of self-regulatory capacity
+# at the prior decision point
+###############################################################################
+dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- dat_wide[[paste("src_scored", suffix_lag1, sep = "")]]
+dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("src_scored_lag1", suffix, sep = "")]])
+
+###############################################################################
 # Step 0. Update completed dataset
 ###############################################################################
 if(maximum_replicate_id > 0){
@@ -97,7 +130,7 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp2 + src_scored_dp2 + is_low_effort_dp2 + is_high_effort_dp2 + any_recent_eligible_dp_dp2 + engagement_most_recent_eligible_dp2"))
+my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp2 + src_scored_dp2 + is_low_effort_dp2 + is_high_effort_dp2"))
 my_list[["cigarette_counts_dp2"]] <- as.formula(paste("cigarette_counts_dp2 ~ baseline_tobacco_history + srq_mean + income_val + Y_dp2 + src_scored_dp2 + quick_survey_response_dp2"))
 my_list[["src_scored_dp2"]] <- as.formula(paste("src_scored_dp2 ~ baseline_tobacco_history + srq_mean + Y_dp2 + cigarette_counts_dp2"))
 

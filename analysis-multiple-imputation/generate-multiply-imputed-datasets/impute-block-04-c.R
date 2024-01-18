@@ -81,6 +81,35 @@ dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- dat_wide[[paste("src_s
 dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("src_scored_lag1", suffix, sep = "")]])
 
 ###############################################################################
+# Step 0. Update completed dataset
+###############################################################################
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+        matched_dp <- dat_current[this_participant, paste("matched_recent", suffix, sep = "")]
+        matched_value <- dat_current[this_participant, paste("Y_dp", matched_dp, sep = "")]
+        matched_value <- as.numeric(matched_value) - 1
+        dat_current[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
+      }
+    }
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+      matched_dp <- dat_wide[this_participant, paste("matched_recent", suffix, sep = "")]
+      matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
+      matched_value <- as.numeric(matched_value) - 1
+      dat_wide[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
+    }
+  }
+}
+
+###############################################################################
 # Step 0. Update completed dataset -- sum of Y in past 24 hours
 ###############################################################################
 this_variable <- "Y"

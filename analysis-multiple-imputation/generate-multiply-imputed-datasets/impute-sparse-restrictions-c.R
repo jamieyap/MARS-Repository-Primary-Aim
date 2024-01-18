@@ -84,7 +84,6 @@ my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
 LHS <- "cigarette_counts"
 RHS <- paste("baseline_tobacco_history",
-             "srq_mean",
              "income_val",
              "quick_survey_response",
              "Y",

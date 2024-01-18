@@ -22,15 +22,7 @@ library(tidyverse)
 library(mice)
 
 # -----------------------------------------------------------------------------
-# This is for the case when eligible at the current decision point but not
-# eligible at any time in the past 24 hours
-# -----------------------------------------------------------------------------
-dat_completed_sparse_restrictions <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_completed_sparse_restrictions.rds"))
-dat_completed_sparse_restrictions_current_dp <- dat_completed_sparse_restrictions %>% filter(decision_point == current_dp_value)
-n_participants_meet_sparse_restrictions_current_dp <- nrow(dat_completed_sparse_restrictions_current_dp)
-
-# -----------------------------------------------------------------------------
-# This is for the other cases
+# Carry over completed data from previous decision point
 # -----------------------------------------------------------------------------
 this_data_file <- paste("dat_wide_completed_dp", current_dp_value - 1, ".rds", sep = "")
 dat_wide_from_prior_step <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, this_data_file))
@@ -39,6 +31,13 @@ dat_timevarying_wide <- readRDS(file = file.path(path_multiple_imputation_pipeli
 dat_timevarying_wide_current_dp <- dat_timevarying_wide %>% select(replicate_id, participant_id, ends_with(suffix))
 dat_wide <- left_join(x = dat_wide_from_prior_step, y = dat_timevarying_wide_current_dp, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
 dat_wide_init <- dat_wide
+
+# -----------------------------------------------------------------------------
+# This is for the less stringent restrictions
+# -----------------------------------------------------------------------------
+dat_completed_sparse_restrictions <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_completed_sparse_restrictions.rds"))
+dat_completed_sparse_restrictions_current_dp <- dat_completed_sparse_restrictions %>% filter(decision_point == current_dp_value)
+n_participants_meet_sparse_restrictions_current_dp <- nrow(dat_completed_sparse_restrictions_current_dp)
 
 ################################################################################
 # How many replicates do we have?
@@ -79,6 +78,35 @@ dat_wide[[paste("cigarette_counts_lag1", suffix, sep = "")]] <- if_else(dat_wide
 ###############################################################################
 dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- dat_wide[[paste("src_scored", suffix_lag1, sep = "")]]
 dat_wide[[paste("src_scored_lag1", suffix, sep = "")]] <- if_else(dat_wide[[paste("eligibility_lag1", suffix, sep = "")]] == 0, -1, dat_wide[[paste("src_scored_lag1", suffix, sep = "")]])
+
+###############################################################################
+# Step 0. Update completed dataset
+###############################################################################
+if(maximum_replicate_id > 0){
+  list_dat_all <- list()
+  for(idx in minimum_replicate_id:maximum_replicate_id){
+    dat_current <- dat_wide %>% filter(replicate_id == idx)
+    for(this_participant in 1:nrow(dat_current)){
+      if(dat_current[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+        matched_dp <- dat_current[this_participant, paste("matched_recent", suffix, sep = "")]
+        matched_value <- dat_current[this_participant, paste("Y_dp", matched_dp, sep = "")]
+        matched_value <- as.numeric(matched_value) - 1
+        dat_current[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
+      }
+    }
+    list_dat_all <- append(list_dat_all, list(dat_current))
+  }
+  dat_wide <- bind_rows(list_dat_all)
+}else{
+  for(this_participant in 1:nrow(dat_wide)){
+    if(dat_wide[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+      matched_dp <- dat_wide[this_participant, paste("matched_recent", suffix, sep = "")]
+      matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
+      matched_value <- as.numeric(matched_value) - 1
+      dat_wide[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
+    }
+  }
+}
 
 ###############################################################################
 # Step 0. Update completed dataset -- sum of Y in past 24 hours
@@ -509,6 +537,9 @@ RHS <- paste("baseline_tobacco_history",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("Y_lag1", suffix, sep = ""),
              paste("Y_sum_past24hrs", suffix, sep = ""),
+             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
+             paste("src_scored_mean_past24hrs", suffix, sep = ""),
+             paste("counts_rand_past24hrs", suffix, sep = ""),
              paste("is_low_effort", suffix, sep = ""),
              paste("is_high_effort", suffix, sep = ""),
              paste("cigarette_counts", suffix, sep = ""),
@@ -519,11 +550,12 @@ my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 this_outcome <- "cigarette_counts"
 LHS <- paste(this_outcome, suffix, sep = "")
 RHS <- paste("baseline_tobacco_history",
-             "srq_mean",
              "income_val",
              paste("Y_nreported_past24hrs", suffix, sep = ""),
              paste("cigarette_counts_lag1", suffix, sep = ""),
              paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
+             paste("Y_sum_past24hrs", suffix, sep = ""),
+             paste("src_scored_mean_past24hrs", suffix, sep = ""),
              paste("is_low_effort", suffix, sep = ""),
              paste("is_high_effort", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
@@ -538,6 +570,8 @@ RHS <- paste("baseline_tobacco_history",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("src_scored_lag1", suffix, sep = ""),
              paste("src_scored_mean_past24hrs", suffix, sep = ""),
+             paste("Y_sum_past24hrs", suffix, sep = ""),
+             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
              paste("is_low_effort", suffix, sep = ""),
              paste("is_high_effort", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
