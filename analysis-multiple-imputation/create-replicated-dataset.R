@@ -17,6 +17,7 @@ source("paths.R")
 library(tidyverse)
 
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
+all_ids <- unique(dat_primary_aim[["mars_id"]])
 
 ################################################################################
 # Load more datasets

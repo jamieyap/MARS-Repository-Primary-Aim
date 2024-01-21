@@ -84,7 +84,55 @@ rm(list = ls())
 for(.idx_outer in 1:.__total_imputed_datasets){
   .__par_mi_number <- .idx_outer
   
-  for(.idx_inner in 3:58){
+  .__par_decision_point_now <- 3
+  
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))
+  print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+  rm(list = ls())
+}
+
+rm(list = ls())
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
+  
+  .__par_decision_point_now <- 4
+  
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))
+  print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+  rm(list = ls())
+}
+
+rm(list = ls())
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
+  
+  .__par_decision_point_now <- 5
+  
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))
+  print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+  rm(list = ls())
+}
+
+rm(list = ls())
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
+  
+  .__par_decision_point_now <- 6
+  
+  source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))
+  print(paste("MI dataset no.: ", .__par_mi_number, " Decision point no.: ", .__par_decision_point_now, sep = ""))
+  rm(list = ls())
+}
+
+rm(list = ls())
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  .__par_mi_number <- .idx_outer
+  
+  for(.idx_inner in 7:58){
     .__par_decision_point_now <- .idx_inner
     
     source(file = file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-block-03-c.R"))

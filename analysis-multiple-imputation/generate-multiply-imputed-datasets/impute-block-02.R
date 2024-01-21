@@ -10,6 +10,9 @@ rm(list = ls())
 ###############################################################################
 mi_dataset_num <- .__par_mi_number
 use_maxit_value <- .__par_maxit_value
+current_dp_value <- 2
+suffix <- paste("_dp" ,  current_dp_value, sep = "")
+suffix_lag1 <- paste("_dp" ,  current_dp_value - 1, sep = "")
 
 ###############################################################################
 # Load packages and datasets
@@ -73,11 +76,11 @@ if(maximum_replicate_id > 0){
   for(idx in minimum_replicate_id:maximum_replicate_id){
     dat_current <- dat_wide %>% filter(replicate_id == idx)
     for(this_participant in 1:nrow(dat_current)){
-      if(dat_current[this_participant, "any_recent_eligible_dp_dp2"] == 1){
-        matched_dp <- dat_current[this_participant, "matched_recent_dp2"]
+      if(dat_current[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+        matched_dp <- dat_current[this_participant, paste("matched_recent", suffix, sep = "")]
         matched_value <- dat_current[this_participant, paste("Y_dp", matched_dp, sep = "")]
         matched_value <- as.numeric(matched_value) - 1
-        dat_current[this_participant, "engagement_most_recent_eligible_dp2"] <- matched_value
+        dat_current[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
       }
     }
     list_dat_all <- append(list_dat_all, list(dat_current))
@@ -85,11 +88,11 @@ if(maximum_replicate_id > 0){
   dat_wide <- bind_rows(list_dat_all)
 }else{
   for(this_participant in 1:nrow(dat_wide)){
-    if(dat_wide[this_participant, "any_recent_eligible_dp_dp2"] == 1){
-      matched_dp <- dat_wide[this_participant, "matched_recent_dp2"]
+    if(dat_wide[this_participant, paste("any_recent_eligible_dp", suffix, sep = "")] == 1){
+      matched_dp <- dat_wide[this_participant, paste("matched_recent", suffix, sep = "")]
       matched_value <- dat_wide[this_participant, paste("Y_dp", matched_dp, sep = "")]
       matched_value <- as.numeric(matched_value) - 1
-      dat_wide[this_participant, "engagement_most_recent_eligible_dp2"] <- matched_value
+      dat_wide[this_participant, paste("engagement_most_recent_eligible", suffix, sep = "")] <- matched_value
     }
   }
 }
@@ -104,7 +107,7 @@ if(maximum_replicate_id > 0){
 # for them at this step, the mice package will not impute them
 ###############################################################################
 my_list <- list()
-my_list[["quick_survey_response_dp2"]] <- as.formula(paste("quick_survey_response_dp2 ~ baseline_tobacco_history + is_female + income_val + mdes_pos_mean + mdes_neg_mean + gratitude"))
+my_list[["quick_survey_response_dp2"]] <- as.formula(paste("quick_survey_response_dp2 ~ baseline_tobacco_history + income_val + has_partner + cigarette_counts_lag1_dp2"))
 
 restriction_meet_string <- "eligibility_dp2 == 1"
 restriction_violate_string <- "eligibility_dp2 == 0"
@@ -130,8 +133,8 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp2 + src_scored_dp2 + is_low_effort_dp2 + is_high_effort_dp2"))
-my_list[["cigarette_counts_dp2"]] <- as.formula(paste("cigarette_counts_dp2 ~ baseline_tobacco_history + srq_mean + income_val + Y_dp2 + src_scored_dp2 + quick_survey_response_dp2"))
+my_list[["Y_dp2"]] <- as.formula(paste("Y_dp2 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp2 + src_scored_dp2 + is_low_effort_dp2 + is_high_effort_dp2 + I(coinflip_dp2 * emi_resp_indicator_dp2)"))
+my_list[["cigarette_counts_dp2"]] <- as.formula(paste("cigarette_counts_dp2 ~ baseline_tobacco_history + has_partner + income_val + Y_dp2 + src_scored_dp2 + quick_survey_response_dp2"))
 my_list[["src_scored_dp2"]] <- as.formula(paste("src_scored_dp2 ~ baseline_tobacco_history + srq_mean + Y_dp2 + cigarette_counts_dp2"))
 
 restriction_meet_string <- "eligibility_dp2 == 1"

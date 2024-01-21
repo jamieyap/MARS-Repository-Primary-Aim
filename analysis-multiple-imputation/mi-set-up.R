@@ -13,6 +13,4 @@
 .__par_maxit_value_baseline <- 100
 .__par_maxit_value <- 30
 .__par_total_replicates <- 1
-
-
 .__maximum_march_forward <- 60

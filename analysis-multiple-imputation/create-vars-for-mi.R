@@ -185,6 +185,78 @@ dat_analysis <- bind_rows(list_all_dat)
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
 ################################################################################
+# Bring in variables on app usage at current block
+################################################################################
+dat_app_usage <- readRDS(file = file.path(path_app_usage_data, "app_usage_for_mainpipeline_updated1106.rds"))
+
+dat_app_usage <- dat_app_usage %>%
+  filter(!is.na(A)) %>%
+  filter(mars_id %in% all_ids) %>%
+  mutate(emi_resp = replace(emi_resp, is.na(emi_resp), "none")) %>%
+  mutate(emi_resp_indicator = if_else(((A == "low_effort") | (A == "mars")) & ((read_tips == 1) | (activ_done == 1)), 1, 0)) %>%
+  select(mars_id, decision_point, A, emi_resp, emi_resp_indicator) %>%
+  select(mars_id, decision_point, emi_resp_indicator)
+
+# Finally, bring in information on app usage
+dat_analysis <- left_join(x = dat_analysis, y = dat_app_usage, by = join_by(mars_id == mars_id, decision_point == decision_point))
+dat_analysis <- dat_analysis %>% 
+  select(mars_id, participant_id, cluster_id, decision_point, 
+         eligibility, coinflip, is_high_effort, is_low_effort, emi_resp_indicator, everything())
+
+lookup <- c(emi_resp_indicator = "emi_resp_indicator")
+keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
+
+###############################################################################
+# App usage in the past 24 hours
+###############################################################################
+list_all_dat <- list()
+dat_analysis[["emi_resp_indicator_sum_past24hrs"]] <- NA
+dat_analysis[["is_high_effort_sum_past24hrs"]] <- NA
+dat_analysis[["is_low_effort_sum_past24hrs"]] <- NA
+dat_analysis[["coinflip_sum_past24hrs"]] <- NA
+
+for(i in 1:n_ids){
+  current_participant <- all_ids[i]
+  dat_current_participant <- dat_analysis %>% filter(mars_id == current_participant)
+  n_blocks <- nrow(dat_current_participant)
+  
+  for(j in 1:n_blocks){
+    is_rand <- if_else(!is.na(dat_current_participant[j,"ts_coinflip_mountain"]), TRUE, FALSE)
+    
+    if(is_rand == TRUE){
+      n_rand_past24hrs <- dat_current_participant[j,"counts_rand_past24hrs"]
+      
+      if(n_rand_past24hrs > 0){
+        dp_within_range <- dat_current_participant[j,"decision_points_past24hrs"][[1]]
+        dat_within_range <- dat_current_participant %>% filter(decision_point %in% dp_within_range)
+        
+        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["emi_resp_indicator"]]
+        dat_current_participant[j,"emi_resp_indicator_sum_past24hrs"] <- sum(tmp)
+        
+        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["is_high_effort"]]
+        dat_current_participant[j,"is_high_effort_sum_past24hrs"] <- sum(tmp)
+        
+        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["is_low_effort"]]
+        dat_current_participant[j,"is_low_effort_sum_past24hrs"] <- sum(tmp)
+        
+        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["coinflip"]]
+        dat_current_participant[j,"coinflip_sum_past24hrs"] <- sum(tmp)
+      }
+    }  # This if-then statement only executes if a block had a micro-randomization
+  } # This loop completes checking each participant-block
+  
+  list_all_dat <- append(list_all_dat, list(dat_current_participant))
+}
+
+dat_analysis <- bind_rows(list_all_dat)
+
+lookup <- c(emi_resp_indicator_sum_past24hrs = "emi_resp_indicator_sum_past24hrs",
+            is_high_effort_sum_past24hrs = "is_high_effort_sum_past24hrs",
+            is_low_effort_sum_past24hrs = "is_low_effort_sum_past24hrs",
+            coinflip_sum_past24hrs = "coinflip_sum_past24hrs")
+keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
+
+################################################################################
 # Select only the columns you will need
 ################################################################################
 keep_these_columns_for_analysis <- unlist(keep_these_columns_for_analysis)

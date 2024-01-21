@@ -39,6 +39,12 @@ dat_long <- dat_long %>% filter(decision_point >= 3)
 
 # STEP 1: Set up dataset for imputation ---------------------------------------
 
+# Note that only 2 decision points between decision point 3 and
+# decision point 60 satisfy cond1
+# In both cases, cond1 occurs at the very first block of the day
+# but the first block of the day was more than 24 hours from the sixth block
+# of the previous day
+
 cond1 <- "(eligibility == 1 & eligibility_lag1 == 1 & elig24hrs == 0)"
 cond2 <- "(eligibility == 1 & eligibility_lag1 == 0 & elig24hrs == 1)"
 cond3 <- "(eligibility == 1 & eligibility_lag1 == 0 & elig24hrs == 0)"
@@ -47,38 +53,49 @@ dat_for_imputation <- dat_long %>% filter(!!rlang::parse_expr(restriction_meet_s
 
 dat_for_imputation <- dat_for_imputation %>%
   select(replicate_id, participant_id, decision_point,
-         is_high_effort, is_low_effort,
-         quick_survey_response, Y, cigarette_counts, src_scored)
+         is_high_effort, is_low_effort, coinflip, emi_resp_indicator,
+         quick_survey_response, Y, cigarette_counts, src_scored,
+         eligibility, eligibility_lag1, elig24hrs)
 
 dat_wide_completed_baseline <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_baseline.rds"))
 # Note that the variables specified below would not have missing values anymore
 # since any missing values would have been imputed at a previous step
-historical_vars_to_use <- c("income_val", "is_female", "mdes_pos_mean", "mdes_neg_mean", "gratitude", "baseline_tobacco_history", "srq_mean")
+historical_vars_to_use <- c("baseline_tobacco_history", "income_val", "has_partner", "gratitude", "srq_mean")
 # Note that we separate out replicate_id and participant_id because we will retain these columns but drop all the variables listed in historical_vars_to_use
 these_columns <- c("replicate_id", "participant_id", historical_vars_to_use)
 dat_baseline_for_merging <- dat_wide_completed_baseline %>% select(all_of(these_columns))
 dat_for_imputation <- left_join(x = dat_for_imputation, y = dat_baseline_for_merging, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
 
-# STEP 2: Specify imputation models -------------------------------------------
+# STEP 2: Impute quick survey response -----------------------------------------
 
 my_list <- list()
 LHS <- "quick_survey_response"
 RHS <- paste("baseline_tobacco_history",
-             "is_female",
              "income_val",
-             "mdes_pos_mean",
-             "mdes_neg_mean",
-             "gratitude",
+             "has_partner",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
+
+imp <- mice(data = dat_for_imputation, 
+            m = 1, 
+            maxit = 1,
+            formulas =  my_list)
+
+saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_sparse_restrictions_quick_survey_response", ".rds", sep = "")))
+
+dat_for_imputation_completed <- complete(imp, 1) 
+
+# STEP 3: Impute EMA response -------------------------------------------------
+dat_for_imputation <- dat_for_imputation_completed
 
 LHS <- "Y"
 RHS <- paste("baseline_tobacco_history",
              "gratitude",
-             "is_high_effort",
-             "is_low_effort",
              "cigarette_counts",
              "src_scored",
+             "is_high_effort",
+             "is_low_effort",
+             "I(coinflip * emi_resp_indicator)",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
@@ -99,14 +116,12 @@ RHS <- paste("baseline_tobacco_history",
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
-# STEP 3: Create completed dataset --------------------------------------------
-
 imp <- mice(data = dat_for_imputation, 
             m = 1, 
             maxit = use_maxit_value,
             formulas =  my_list)
 
-saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_sparse_restrictions", ".rds", sep = "")))
+saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_sparse_restrictions_ema_response", ".rds", sep = "")))
 
 dat_for_imputation_completed <- complete(imp, 1) 
 

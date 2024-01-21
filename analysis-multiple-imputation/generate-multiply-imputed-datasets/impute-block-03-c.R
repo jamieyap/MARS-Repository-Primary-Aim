@@ -463,10 +463,12 @@ rows_meet_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_mee
 my_list <- list()
 this_outcome <- "quick_survey_response"
 LHS <- paste(this_outcome, suffix, sep = "")
-RHS <- paste("is_female", "income_val", "mdes_pos_mean", "mdes_neg_mean", "gratitude",
+RHS <- paste("baseline_tobacco_history", "income_val", "has_partner",
              paste("quick_survey_nreported_past24hrs", suffix, sep = ""), 
              paste("quick_survey_response_lag1", suffix, sep = ""), 
              paste("quick_survey_response_sum_past24hrs", suffix, sep = ""),
+             paste("cigarette_counts_lag1", suffix, sep = ""),
+             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
@@ -537,11 +539,12 @@ RHS <- paste("baseline_tobacco_history",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("Y_lag1", suffix, sep = ""),
              paste("Y_sum_past24hrs", suffix, sep = ""),
-             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
-             paste("src_scored_mean_past24hrs", suffix, sep = ""),
-             paste("counts_rand_past24hrs", suffix, sep = ""),
              paste("is_low_effort", suffix, sep = ""),
              paste("is_high_effort", suffix, sep = ""),
+             paste("I(", paste("coinflip", suffix, sep = ""),  " * ", paste("emi_resp_indicator", suffix, sep = ""), ")", sep = ""),
+             paste("coinflip_sum_past24hrs", suffix, sep = ""),
+             paste("emi_resp_indicator_sum_past24hrs", suffix, sep = ""),
+             paste("I(", paste("coinflip_sum_past24hrs", suffix, sep = ""),  " * ", paste("emi_resp_indicator_sum_past24hrs", suffix, sep = ""), ")", sep = ""),
              paste("cigarette_counts", suffix, sep = ""),
              paste("src_scored", suffix, sep = ""),
              sep = " + ")
@@ -550,14 +553,12 @@ my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 this_outcome <- "cigarette_counts"
 LHS <- paste(this_outcome, suffix, sep = "")
 RHS <- paste("baseline_tobacco_history",
-             "income_val",
+             "has_partner",
              paste("Y_nreported_past24hrs", suffix, sep = ""),
              paste("cigarette_counts_lag1", suffix, sep = ""),
              paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
-             paste("Y_sum_past24hrs", suffix, sep = ""),
-             paste("src_scored_mean_past24hrs", suffix, sep = ""),
-             paste("is_low_effort", suffix, sep = ""),
-             paste("is_high_effort", suffix, sep = ""),
+             paste("quick_survey_response_sum_past24hrs", suffix, sep = ""),
+             paste("quick_survey_response", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("src_scored", suffix, sep = ""),
              sep = " + ")
@@ -570,10 +571,6 @@ RHS <- paste("baseline_tobacco_history",
              paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("src_scored_lag1", suffix, sep = ""),
              paste("src_scored_mean_past24hrs", suffix, sep = ""),
-             paste("Y_sum_past24hrs", suffix, sep = ""),
-             paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
-             paste("is_low_effort", suffix, sep = ""),
-             paste("is_high_effort", suffix, sep = ""),
              paste("Y", suffix, sep = ""), 
              paste("cigarette_counts", suffix, sep = ""),
              sep = " + ")

@@ -533,6 +533,7 @@ LHS <- paste(this_outcome, suffix, sep = "")
 RHS <- paste(paste("Y_nreported_past24hrs", suffix, sep = ""),
              paste("Y_sum_past24hrs", suffix, sep = ""),
              paste("coinflip", suffix, sep = ""),
+             paste("I(", paste("coinflip", suffix, sep = ""),  " * ", paste("emi_resp_indicator", suffix, sep = ""), ")", sep = ""),
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
@@ -540,7 +541,6 @@ this_outcome <- "cigarette_counts"
 LHS <- paste(this_outcome, suffix, sep = "")
 RHS <- paste(paste("Y_nreported_past24hrs", suffix, sep = ""),
              paste("cigarette_counts_sum_past24hrs", suffix, sep = ""),
-             paste("coinflip", suffix, sep = ""),
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 
@@ -548,7 +548,6 @@ this_outcome <- "src_scored"
 LHS <- paste(this_outcome, suffix, sep = "")
 RHS <- paste(paste("Y_nreported_past24hrs", suffix, sep = ""), 
              paste("src_scored_mean_past24hrs", suffix, sep = ""),
-             paste("coinflip", suffix, sep = ""),
              sep = " + ")
 my_list[[LHS]] <- as.formula(paste(LHS, RHS, sep = " ~ "))
 

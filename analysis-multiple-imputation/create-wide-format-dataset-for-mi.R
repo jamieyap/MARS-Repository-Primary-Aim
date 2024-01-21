@@ -90,11 +90,22 @@ if(maximum_replicate_id > 0){
 # Time-varying variables which DO NOT have missing values and hence will NOT be 
 # imputed
 ################################################################################
-these_vars <- c("eligibility", "elig24hrs", "counts_rand_past24hrs", 
-                "coinflip", "is_high_effort", "is_low_effort",
-                "matched_24hrs", "matched_recent", 
+these_vars <- c("eligibility", 
+                "elig24hrs", 
+                "counts_rand_past24hrs", 
+                "coinflip", 
+                "is_high_effort", 
+                "is_low_effort",
+                "matched_24hrs", 
+                "matched_recent", 
                 "any_response_2qs",  
-                "Y_nreported_past24hrs", "quick_survey_nreported_past24hrs")
+                "Y_nreported_past24hrs", 
+                "quick_survey_nreported_past24hrs",
+                "emi_resp_indicator",
+                "coinflip_sum_past24hrs",
+                "emi_resp_indicator_sum_past24hrs",
+                "is_high_effort_sum_past24hrs",
+                "is_low_effort_sum_past24hrs")
 
 dat_timevarying_long_without_missing <- dat_primary_aim %>%
   select(replicate_id, participant_id, decision_point, all_of(these_vars)) %>% 
@@ -125,12 +136,27 @@ spec1 <- dat_timevarying_long %>%
   build_wider_spec(names_from = decision_point, 
                    names_prefix = "dp",
                    values_from = c(Y, 
-                                   eligibility, elig24hrs, counts_rand_past24hrs, coinflip, is_high_effort, is_low_effort,
-                                   matched_24hrs, matched_recent, 
-                                   any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+                                   any_recent_eligible_dp, 
+                                   engagement_most_recent_eligible,
                                    src_scored, 
                                    cigarette_counts,
-                                   Y_nreported_past24hrs, quick_survey_nreported_past24hrs, quick_survey_response))
+                                   quick_survey_response,
+                                   eligibility, 
+                                   elig24hrs, 
+                                   counts_rand_past24hrs, 
+                                   coinflip, 
+                                   is_high_effort, 
+                                   is_low_effort,
+                                   matched_24hrs, 
+                                   matched_recent, 
+                                   any_response_2qs, 
+                                   Y_nreported_past24hrs, 
+                                   quick_survey_nreported_past24hrs, 
+                                   emi_resp_indicator,
+                                   coinflip_sum_past24hrs,
+                                   emi_resp_indicator_sum_past24hrs,
+                                   is_high_effort_sum_past24hrs,
+                                   is_low_effort_sum_past24hrs))
 
 dat_timevarying_wide <- dat_timevarying_long %>% pivot_wider_spec(spec1, id_cols = c("replicate_id", "participant_id"))
 

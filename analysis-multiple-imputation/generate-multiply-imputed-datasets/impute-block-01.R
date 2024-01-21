@@ -72,8 +72,8 @@ saveRDS(imp, file = file.path(path_multiple_imputation_pipeline_data, "sequentia
 dat_wide <- dat_wide_completed
 
 my_list <- list()
-my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp1 + src_scored_dp1 + is_low_effort_dp1 + is_high_effort_dp1"))
-my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ baseline_tobacco_history + srq_mean + income_val + Y_dp1 + src_scored_dp1 + quick_survey_response_dp1"))
+my_list[["Y_dp1"]] <- as.formula(paste("Y_dp1 ~ baseline_tobacco_history + gratitude + cigarette_counts_dp1 + src_scored_dp1 + is_low_effort_dp1 + is_high_effort_dp1 + I(coinflip_dp1 * emi_resp_indicator_dp1)"))
+my_list[["cigarette_counts_dp1"]] <- as.formula(paste("cigarette_counts_dp1 ~ baseline_tobacco_history + has_partner + income_val + Y_dp1 + src_scored_dp1 + quick_survey_response_dp1"))
 my_list[["src_scored_dp1"]] <- as.formula(paste("src_scored_dp1 ~ baseline_tobacco_history + srq_mean + Y_dp1 + cigarette_counts_dp1"))
 
 # Specifying the correct restriction is key to imputing MRT data.

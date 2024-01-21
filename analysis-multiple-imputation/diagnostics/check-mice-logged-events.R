@@ -17,7 +17,15 @@ library(mice)
 for(.idx_outer in 1:.__total_imputed_datasets){
   mi_dataset_num <- .idx_outer
   
-  imp <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_completed_sparse_restrictions", ".rds", sep = "")))
+  imp <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_sparse_restrictions_quick_survey_response", ".rds", sep = "")))
+  
+  print(imp$loggedEvents)
+}
+
+for(.idx_outer in 1:.__total_imputed_datasets){
+  mi_dataset_num <- .idx_outer
+  
+  imp <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imp_obj_sparse_restrictions_ema_response", ".rds", sep = "")))
   
   print(imp$loggedEvents)
 }
