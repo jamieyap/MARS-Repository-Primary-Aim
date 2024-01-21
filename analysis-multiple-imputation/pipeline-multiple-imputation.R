@@ -189,4 +189,20 @@ for(.idx_outer in 1:.__total_imputed_datasets){
 
 rm(list = ls())
 
+source(file = file.path("analysis-multiple-imputation", "analyze-multiply-imputed-datasets", "mi-primary-aim-analysis.R"))
+
+rm(list = ls())
+
+source(file = file.path("analysis-multiple-imputation", "analyze-multiply-imputed-datasets", "pool-primary.R"))
+
+rm(list = ls())
+
+source(file = file.path("analysis-multiple-imputation", "analyze-multiply-imputed-datasets", "mi-secondary-aim-analysis.R"))
+
+rm(list = ls())
+
+source(file = file.path("analysis-multiple-imputation", "analyze-multiply-imputed-datasets", "pool-secondary.R"))
+
+rm(list = ls())
+
 
