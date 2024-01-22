@@ -94,8 +94,8 @@ for(j in 1:num_terms){
   list_U <- list()
   for(mi_dataset_num in 1:.__total_imputed_datasets){
     results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_linear_time.rds"))
-    list_Q[[mi_dataset_num]] <- results_obj$control_variables[j,"Estimate"]
-    list_U[[mi_dataset_num]] <- (results_obj$control_variables[j,"StdErr"])^2
+    list_Q[[mi_dataset_num]] <- results_obj$causal_excursion_effect[j,"Estimate"]
+    list_U[[mi_dataset_num]] <- (results_obj$causal_excursion_effect[j,"StdErr"])^2
   }
   pool_manual <- pool.scalar(Q = unlist(list_Q), U = unlist(list_U), n = num_participants)
   list_pool_manual_output <- append(list_pool_manual_output, list(pool_manual))
@@ -165,8 +165,8 @@ for(j in 1:num_terms){
   list_U <- list()
   for(mi_dataset_num in 1:.__total_imputed_datasets){
     results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_quadratic_time.rds"))
-    list_Q[[mi_dataset_num]] <- results_obj$control_variables[j,"Estimate"]
-    list_U[[mi_dataset_num]] <- (results_obj$control_variables[j,"StdErr"])^2
+    list_Q[[mi_dataset_num]] <- results_obj$causal_excursion_effect[j,"Estimate"]
+    list_U[[mi_dataset_num]] <- (results_obj$causal_excursion_effect[j,"StdErr"])^2
   }
   pool_manual <- pool.scalar(Q = unlist(list_Q), U = unlist(list_U), n = num_participants)
   list_pool_manual_output <- append(list_pool_manual_output, list(pool_manual))
