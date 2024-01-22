@@ -56,14 +56,14 @@ max_replicate_id <- max(dat_long_completed[["replicate_id"]])
 ###############################################################################
 # We will set up the dataset so that in analysis, we may have the following 
 # comparisons:
-#   * high effort versus low effort
-#   * none versus low effort
+#   * high effort versus no prompt
+#   * low effort versus no prompt
 ###############################################################################
 dat_long_completed <- dat_long_completed %>%
   mutate(treatment_cate = case_when(
-    is_low_effort == 1 ~ 2,  # Important note: the value of zero in treatment_cate is used to indicate the reference category to be used. Another important note: we actually want low effort prompt rather than no prompt to be our reference category; therefore, the variable treatment_cate was specified in this way
-    is_high_effort == 1 ~ 1, # This allows us to make the comparison: high effort prompt versus low effort prompt
-    coinflip == 0 ~ 0,       # This allows us to make the comparison: no prompt versus low effort prompt
+    is_low_effort == 1 ~ 2,  # This allows us to make the comparison: low effort prompt versus no prompt
+    is_high_effort == 1 ~ 1, # This allows us to make the comparison: high effort prompt versus no prompt
+    coinflip == 0 ~ 0,       # Important note: the value of zero in treatment_cate is used to indicate the reference category to be used. 
     .default = NULL)) %>%
   mutate(rand_prob = case_when(
     treatment_cate == 0 ~ 0.50,
