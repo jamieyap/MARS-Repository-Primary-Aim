@@ -27,7 +27,7 @@ options(width = 7000)
 source("paths.R")
 library(knitr)
 library(tidyverse)
-source("prepare-analytic-datasets/functions-for-analytical-dataset-creation.R")
+source(file = file.path("prepare-analytic-datasets", "functions-for-analytical-dataset-creation.R"))  # Needed for the function 'convert_to_local_datetime'
 ```
 
 ```{r}
@@ -56,7 +56,10 @@ dat_matched_to_decision_points <- dat_matched_to_decision_points %>%
 ```
 
 ```{r}
-# Merge datasets
+# Note that:
+#   * dat_mars_time_varying_moderators is needed because of the column 'status_survey_ema_collapsed'
+#   * dat_mars_time_varying_noise_reduction_vars is needed because of the column 'status_survey_2qs_collapsed'
+
 dat_mars_analysis <- left_join(x = dat_mars_time_varying_moderators, 
                                y = dat_mars_time_varying_noise_reduction_vars,
                                by = join_by(mars_id == mars_id,
@@ -110,7 +113,7 @@ quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
 
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0,5)) + scale_x_continuous("", labels = NULL, breaks = NULL)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q1.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "Q1.png"), height = 10, width = 3, units = "in")
 ```
 
 # Check: Minutes elapsed between when brief survey was administered and when micro-randomization occurred
@@ -127,7 +130,7 @@ quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
  
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0,140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q2.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "Q2.png"), height = 10, width = 3, units = "in")
 ```
 
 # Check: Minutes elapsed between when brief survey was administered and when EMA was administered
@@ -144,7 +147,7 @@ quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
  
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q3.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "Q3.png"), height = 10, width = 3, units = "in")
 ```
 
 # Check: Minutes elapsed between when EMA was administered and when EMA was completed
@@ -161,7 +164,7 @@ quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
  
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 140), breaks = seq(0,140,20), labels = seq(0,140,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "Q4.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "Q4.png"), height = 10, width = 3, units = "in")
 ```
 
 # Check: Minutes elapsed between when brief survey was completed and micro-randomization
@@ -180,7 +183,7 @@ quantile(dat_for_calculation[["elapsed_mins"]], c(0, 0.25, 0.50, 0.75, seq(0.90,
 
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 60), breaks = seq(0,60,20), labels = seq(0,60,20)) + scale_x_continuous("", labels = NULL, breaks = NULL)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "R1.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "R1.png"), height = 10, width = 3, units = "in")
 ```
 
 # Check: Minutes elapsed between when micro-randomization occurred and when EMA was completed
@@ -197,13 +200,13 @@ quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
  
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 160), breaks = seq(0,160,20), labels = seq(0,160,20)) + scale_x_continuous("", labels = NULL, breaks = NULL) + geom_abline(slope = 0, intercept = 140, color = "red", linewidth = 1)
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "R2.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "R2.png"), height = 10, width = 3, units = "in")
 ```
 
 ```{r}
 dat_quants <- bind_cols(list_quants)
 row.names(dat_quants) <- c("Minimum", "25th-Percentile", "50th-Percentile", "75th-Percentile", "Maximum")
-write.csv(dat_quants, file.path("prepare-analytic-datasets", "plots", "checks_quantiles_minutes_elapsed.csv"), row.names = TRUE)
+write.csv(dat_quants, file.path("check-conditions", "plots", "checks_quantiles_minutes_elapsed.csv"), row.names = TRUE)
 ```
 
 # Checks: Empirical randomization probabilities
@@ -248,7 +251,7 @@ dat_summary_reshaped <- data.frame(A = c("none", "low effort prompt", "high effo
 g <- ggplot(data = dat_summary_reshaped, aes(x = A, y = est, ymin = LB95, ymax = UB95, group = A))
 g + geom_errorbar(width = 0.10) + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_discrete(name = "Randomization assignment")
 
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "rand.png"), height = 10, width = 3, units = "in")
 ```
 
 ```{r}
@@ -297,20 +300,20 @@ dat_all_blocks <- rbind(dat1, dat2, dat3, dat4, dat5, dat6)
 g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_none, group = block_number, ymin = prop_none_LB95, ymax = prop_none_UB95))
 g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
 
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_no_prompt_by_block.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "rand_no_prompt_by_block.png"), height = 10, width = 3, units = "in")
 ```
 
 ```{r}
 g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_low_effort, group = block_number, ymin = prop_low_effort_LB95, ymax = prop_low_effort_UB95))
 g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
 
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_low_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "rand_low_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
 ```
 
 ```{r}
 g <- ggplot(data = dat_all_blocks, aes(x = block_number, y = prop_mars, group = block_number, ymin = prop_mars_LB95, ymax = prop_mars_UB95))
 g + geom_errorbar() + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_continuous(name = "Day-Level Block Order", breaks = c(1,2,3,4,5,6), labels = c(1,2,3,4,5,6))
 
-ggsave(filename = file.path("prepare-analytic-datasets", "plots", "rand_high_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "rand_high_effort_prompt_by_block.png"), height = 10, width = 3, units = "in")
 ```
 
