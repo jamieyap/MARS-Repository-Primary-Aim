@@ -1,0 +1,5 @@
+"privacy_data_not_found_rand","privacy_activated_rand","privacy_not_activated_rand","driving_data_not_found_rand","driving_detected_rand","driving_not_detected_rand","count"
+FALSE,FALSE,TRUE,FALSE,FALSE,TRUE,2118
+FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,784
+TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,1121
+TRUE,FALSE,FALSE,TRUE,FALSE,FALSE,526

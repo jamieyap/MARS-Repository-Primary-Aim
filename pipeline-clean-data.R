@@ -305,9 +305,33 @@ rm(list = ls())
 #   dat_mars_time_varying_moderators.rds
 #   dat_mars_time_varying_noise_reduction_vars.rds
 #   dat_mars_proximal_cigarette_smoking.rds
+#   dat_parsed_conditions.rds
 # Output:
 #   dat_primary_aim.rds
+#   dat_conditions_for_analytic_sample.rds
 source("prepare-analytic-datasets/create-primary-aims-paper-analysis-dataset.R")
+rm(list = ls())
+
+###############################################################################
+# Linking data and metadata elements: conditions under which
+# micro-randomization occurred, 2qs was administered, EMA was administered
+###############################################################################
+
+# Input: 
+#   list_all_system_log.rds
+# Output: 
+#   dat_parsed_conditions.rds
+source("check-conditions/parse-conditions.R")
+rm(list = ls())
+
+
+# Input: 
+#   dat_parsed_conditions.rds
+#   dat_matched_to_decision_points.rds
+#   mars_ids_excluded_from_all_analytic_datasets.rds
+# Output: 
+#   dat_matched_conditions.rds
+source("check-conditions/match-conditions.R")
 rm(list = ls())
 
 ###############################################################################
