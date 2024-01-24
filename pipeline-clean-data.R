@@ -183,11 +183,13 @@ rm(list = ls())
 #   dat_within_study.rds
 #   dat_outside_study.rds
 #   dat_matched_to_decision_points.rds
+#   mars_ids_did_not_have_mhealth_data_within_mrt_period
 source("remove-out-of-study-period.R")
 rm(list = ls())
 
 # Input:
 #   dat_matched_to_decision_points.rds
+#   mars_ids_did_not_have_mhealth_data_within_mrt_period
 # Output:
 #   mars_ids_did_not_meet_ema_completion_criteria.rds
 #   mars_ids_pilot.rds -- ID's corresponding to beta testing/pilot participants

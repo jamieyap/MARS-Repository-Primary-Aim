@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2023-10-10" />
+<meta name="date" content="2024-01-24" />
 
 <title>CONSORT: Tracking Data Exclusion</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">CONSORT: Tracking Data Exclusion</h1>
-<h4 class="date">October 10, 2023</h4>
+<h4 class="date">January 24, 2024</h4>
 
 </div>
 
@@ -360,39 +360,16 @@ display: none;
 <li><a href="#phase-2" id="toc-phase-2">Phase 2</a>
 <ul>
 <li><a href="#step-remove-sequences-outside-of-10-day-mrt-period" id="toc-step-remove-sequences-outside-of-10-day-mrt-period">Step: Remove
-sequences outside of 10-day MRT period</a>
-<ul>
-<li><a href="#outside-10-day-mrt-period" id="toc-outside-10-day-mrt-period">Outside 10-day MRT Period</a></li>
-<li><a href="#inside-10-day-mrt-period" id="toc-inside-10-day-mrt-period">Inside 10-day MRT Period</a></li>
+sequences outside of 10-day MRT period</a></li>
+<li><a href="#step-remove-sequences-due-to-change-in-wake-up" id="toc-step-remove-sequences-due-to-change-in-wake-up">Step: Remove
+sequences due to change in wake up</a></li>
+<li><a href="#step-remove-sequences-on-the-first-day-or-last-day-of-the-10-day-mrt" id="toc-step-remove-sequences-on-the-first-day-or-last-day-of-the-10-day-mrt">Step:
+Remove sequences on the First Day or Last Day of the 10-day MRT</a></li>
+<li><a href="#step-remove-individuals-who-completed-less-than-3-ema-between-days-2-to-9-inclusive" id="toc-step-remove-individuals-who-completed-less-than-3-ema-between-days-2-to-9-inclusive">Step:
+Remove individuals who completed less than 3 EMA between days 2 to 9
+inclusive</a></li>
 </ul></li>
-<li><a href="#step-remove-sequences-belonging-to-pilot-participants" id="toc-step-remove-sequences-belonging-to-pilot-participants">Step:
-Remove sequences belonging to pilot participants</a>
-<ul>
-<li><a href="#pilot-participants" id="toc-pilot-participants">Pilot
-participants</a></li>
-<li><a href="#not-pilot-participants" id="toc-not-pilot-participants">Not Pilot participants</a></li>
-</ul></li>
-<li><a href="#step-remove-sequences-belonging-to-participants-who-did-not-meet-ema-completion-criteria" id="toc-step-remove-sequences-belonging-to-participants-who-did-not-meet-ema-completion-criteria">Step:
-Remove sequences belonging to participants who did not meet EMA
-completion criteria</a>
-<ul>
-<li><a href="#participants-who-were-not-part-of-the-pilot-and-who-met-ema-completion-criteria" id="toc-participants-who-were-not-part-of-the-pilot-and-who-met-ema-completion-criteria">Participants
-who were not part of the pilot and who met EMA completion
-criteria</a></li>
-<li><a href="#participants-who-were-not-part-of-the-pilot-and-who-did-not-meet-ema-completion-criteria" id="toc-participants-who-were-not-part-of-the-pilot-and-who-did-not-meet-ema-completion-criteria">Participants
-who were not part of the pilot and who did not meet EMA completion
-criteria</a></li>
-</ul></li>
-<li><a href="#step-remove-sequences-that-fall-on-the-first-day-or-last-day-of-the-10-day-mrt" id="toc-step-remove-sequences-that-fall-on-the-first-day-or-last-day-of-the-10-day-mrt">Step:
-remove sequences that fall on the First Day or Last Day of the 10-day
-MRT</a>
-<ul>
-<li><a href="#sequences-on-the-first-day-or-last-day-of-the-10-day-mrt" id="toc-sequences-on-the-first-day-or-last-day-of-the-10-day-mrt">Sequences
-on the First Day or Last Day of the 10-day MRT</a></li>
-<li><a href="#sequences-between-the-second-and-ninth-day-inclusive-of-the-10-day-mrt" id="toc-sequences-between-the-second-and-ninth-day-inclusive-of-the-10-day-mrt">Sequences
-between the Second and Ninth Day (inclusive) of the 10-day MRT</a></li>
-</ul></li>
-</ul></li>
+<li><a href="#supplemental-calculations" id="toc-supplemental-calculations">Supplemental calculations</a></li>
 </ul>
 </div>
 
@@ -405,7 +382,7 @@ margin-right: auto;
 </style>
 <p>Our approach to deriving the analytic dataset has three phases:</p>
 <ul>
-<li>Phase 1: Applying a matching procedure (data linkage algorithm)</li>
+<li>Phase 1: Applying a matching procedure (data linkage)</li>
 <li>Phase 2: Applying decisions common to all analyses</li>
 <li>Phase 3: Define outcome analysis population for each hypothesis</li>
 </ul>
@@ -414,15 +391,15 @@ Phase 1 and Phase 2.</p>
 <div id="phase-1" class="section level1">
 <h1>Phase 1</h1>
 <ul>
-<li><p>Number of participants at the start of Phase 1: 114</p></li>
-<li><p>Number of micro-randomizations at the start of Phase 1:
-5327</p></li>
+<li><p>Number of participants at the start of Phase 1: 111</p></li>
 <li><p>Number of sequences obtained after applying the matching
-procedure: 5380</p></li>
+procedure: 5229</p></li>
 <li><p>Number of sequences that are inconsistent with study protocol:
 13</p></li>
 <li><p>Number of sequences that are consistent with study protocol:
-5367</p></li>
+5216</p></li>
+<li><p>Number of micro-randomizations at the start of Phase 1:
+5177</p></li>
 </ul>
 <table style="width:100%;">
 <colgroup>
@@ -448,7 +425,7 @@ micro-randomization, no EMA administered</td>
 <td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">58</td>
+<td align="right">57</td>
 </tr>
 <tr class="even">
 <td align="left">S2: Short survey administered (just once),
@@ -456,7 +433,7 @@ micro-randomization (just once), no EMA administered</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">0</td>
-<td align="right">628</td>
+<td align="right">596</td>
 </tr>
 <tr class="odd">
 <td align="left">S3: Short survey administered (just once),
@@ -464,65 +441,14 @@ micro-randomization (just once), EMA administered (just once)</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">4681</td>
+<td align="right">4563</td>
 </tr>
 <tr class="even">
 <td align="left">Grand total person-blocks</td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
-<td align="right">5367</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;">
-<colgroup>
-<col width="78%" />
-<col width="5%" />
-<col width="6%" />
-<col width="5%" />
-<col width="4%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">sequence</th>
-<th align="right">is_2qs</th>
-<th align="right">is_rand</th>
-<th align="right">is_ema</th>
-<th align="right">total</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">S1: Short survey administered (just once), no
-micro-randomization, no EMA administered</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">S2: Short survey administered (just once),
-micro-randomization (just once), no EMA administered</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-</tr>
-<tr class="odd">
-<td align="left">S3: Short survey administered (just once),
-micro-randomization (just once), EMA administered (just once)</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">8</td>
-</tr>
-<tr class="even">
-<td align="left">Grand total person-blocks</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">13</td>
+<td align="right">5216</td>
 </tr>
 </tbody>
 </table>
@@ -596,6 +522,11 @@ time), micro-randomized (2nd time), no EMA administered</td>
 </tr>
 </tbody>
 </table>
+<p>To handle atypical sequences, we dropped the first occurrence if
+brief survey administration, micro-randomization, or EMA administration
+occurred twice within a person-block. In effect, applying this rule
+resulted in conforming sequences into what we would expect to see based
+on study protocol (see table below).</p>
 <table style="width:100%;">
 <colgroup>
 <col width="78%" />
@@ -620,7 +551,7 @@ micro-randomization, no EMA administered</td>
 <td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">60</td>
+<td align="right">59</td>
 </tr>
 <tr class="even">
 <td align="left">S2: Short survey administered (just once),
@@ -628,7 +559,7 @@ micro-randomization (just once), no EMA administered</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">0</td>
-<td align="right">631</td>
+<td align="right">599</td>
 </tr>
 <tr class="odd">
 <td align="left">S3: Short survey administered (just once),
@@ -636,65 +567,14 @@ micro-randomization (just once), EMA administered (just once)</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">4689</td>
+<td align="right">4571</td>
 </tr>
 <tr class="even">
 <td align="left">Grand total person-blocks</td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
-<td align="right">5380</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;">
-<colgroup>
-<col width="78%" />
-<col width="5%" />
-<col width="6%" />
-<col width="5%" />
-<col width="4%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">sequence</th>
-<th align="right">is_2qs</th>
-<th align="right">is_rand</th>
-<th align="right">is_ema</th>
-<th align="right">total</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">S1: Short survey administered (just once), no
-micro-randomization, no EMA administered</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">60</td>
-</tr>
-<tr class="even">
-<td align="left">S2: Short survey administered (just once),
-micro-randomization (just once), no EMA administered</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">631</td>
-</tr>
-<tr class="odd">
-<td align="left">S3: Short survey administered (just once),
-micro-randomization (just once), EMA administered (just once)</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">4689</td>
-</tr>
-<tr class="even">
-<td align="left">Grand total person-blocks</td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">5380</td>
+<td align="right">5229</td>
 </tr>
 </tbody>
 </table>
@@ -703,12 +583,10 @@ micro-randomization (just once), EMA administered (just once)</td>
 <h1>Phase 2</h1>
 <div id="step-remove-sequences-outside-of-10-day-mrt-period" class="section level2">
 <h2>Step: Remove sequences outside of 10-day MRT period</h2>
-<div id="outside-10-day-mrt-period" class="section level3">
-<h3>Outside 10-day MRT Period</h3>
 <ul>
-<li>Number of participants: 105</li>
-<li>Number of sequences: 478</li>
-<li>Number of micro-randomizations: 450</li>
+<li>Number of participants that remain: 110</li>
+<li>Number of sequences that remain: 4754</li>
+<li>Number of micro-randomizations that remain: 4723</li>
 </ul>
 <table style="width:100%;">
 <colgroup>
@@ -734,7 +612,7 @@ micro-randomization, no EMA administered</td>
 <td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">28</td>
+<td align="right">31</td>
 </tr>
 <tr class="even">
 <td align="left">S2: Short survey administered (just once),
@@ -742,7 +620,7 @@ micro-randomization (just once), no EMA administered</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">0</td>
-<td align="right">179</td>
+<td align="right">423</td>
 </tr>
 <tr class="odd">
 <td align="left">S3: Short survey administered (just once),
@@ -750,24 +628,24 @@ micro-randomization (just once), EMA administered (just once)</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">271</td>
+<td align="right">4300</td>
 </tr>
 <tr class="even">
 <td align="left">Grand total person-blocks</td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
-<td align="right">478</td>
+<td align="right">4754</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="inside-10-day-mrt-period" class="section level3">
-<h3>Inside 10-day MRT Period</h3>
+<div id="step-remove-sequences-due-to-change-in-wake-up" class="section level2">
+<h2>Step: Remove sequences due to change in wake up</h2>
 <ul>
-<li>Number of participants: 113</li>
-<li>Number of sequences: 4902</li>
-<li>Number of micro-randomizations: 4870</li>
+<li>Number of participants that remain: 110</li>
+<li>Number of sequences that remain: 4752</li>
+<li>Number of micro-randomizations that remain: 4721</li>
 </ul>
 <table style="width:100%;">
 <colgroup>
@@ -793,7 +671,7 @@ micro-randomization, no EMA administered</td>
 <td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">32</td>
+<td align="right">31</td>
 </tr>
 <tr class="even">
 <td align="left">S2: Short survey administered (just once),
@@ -801,7 +679,7 @@ micro-randomization (just once), no EMA administered</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">0</td>
-<td align="right">452</td>
+<td align="right">421</td>
 </tr>
 <tr class="odd">
 <td align="left">S3: Short survey administered (just once),
@@ -809,81 +687,201 @@ micro-randomization (just once), EMA administered (just once)</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">4418</td>
+<td align="right">4300</td>
 </tr>
 <tr class="even">
 <td align="left">Grand total person-blocks</td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
-<td align="right">4902</td>
+<td align="right">4752</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="step-remove-sequences-on-the-first-day-or-last-day-of-the-10-day-mrt" class="section level2">
+<h2>Step: Remove sequences on the First Day or Last Day of the 10-day
+MRT</h2>
+<ul>
+<li>Number of participants that remain: 110</li>
+<li>Number of sequences that remain: 4004</li>
+<li>Number of micro-randomizations that remain: 3980</li>
+</ul>
+<table style="width:100%;">
+<colgroup>
+<col width="78%" />
+<col width="5%" />
+<col width="6%" />
+<col width="5%" />
+<col width="4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">sequence</th>
+<th align="right">is_2qs</th>
+<th align="right">is_rand</th>
+<th align="right">is_ema</th>
+<th align="right">total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">S1: Short survey administered (just once), no
+micro-randomization, no EMA administered</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">24</td>
+</tr>
+<tr class="even">
+<td align="left">S2: Short survey administered (just once),
+micro-randomization (just once), no EMA administered</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">324</td>
+</tr>
+<tr class="odd">
+<td align="left">S3: Short survey administered (just once),
+micro-randomization (just once), EMA administered (just once)</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">3656</td>
+</tr>
+<tr class="even">
+<td align="left">Grand total person-blocks</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">4004</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="step-remove-individuals-who-completed-less-than-3-ema-between-days-2-to-9-inclusive" class="section level2">
+<h2>Step: Remove individuals who completed less than 3 EMA between days
+2 to 9 inclusive</h2>
+<ul>
+<li>Number of participants that remain: 99</li>
+<li>Number of sequences that remain: 3882</li>
+<li>Number of micro-randomizations that remain: 3858</li>
+</ul>
+<table style="width:100%;">
+<colgroup>
+<col width="78%" />
+<col width="5%" />
+<col width="6%" />
+<col width="5%" />
+<col width="4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">sequence</th>
+<th align="right">is_2qs</th>
+<th align="right">is_rand</th>
+<th align="right">is_ema</th>
+<th align="right">total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">S1: Short survey administered (just once), no
+micro-randomization, no EMA administered</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">24</td>
+</tr>
+<tr class="even">
+<td align="left">S2: Short survey administered (just once),
+micro-randomization (just once), no EMA administered</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">309</td>
+</tr>
+<tr class="odd">
+<td align="left">S3: Short survey administered (just once),
+micro-randomization (just once), EMA administered (just once)</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">3549</td>
+</tr>
+<tr class="even">
+<td align="left">Grand total person-blocks</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">3882</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<div id="step-remove-sequences-belonging-to-pilot-participants" class="section level2">
-<h2>Step: Remove sequences belonging to pilot participants</h2>
-<div id="pilot-participants" class="section level3">
-<h3>Pilot participants</h3>
+<div id="supplemental-calculations" class="section level1">
+<h1>Supplemental calculations</h1>
+<p>We quantify how many participants and sequences will be included in
+Sensitivity Analyses for Hypotheses 1 and 2 which will utilize all 10
+days of the MRT, but still exclude individuals who completed less than 3
+EMA between days 2 and 9 inclusive.</p>
 <ul>
-<li>Number of participants: 3</li>
-<li>Number of sequences: 148</li>
-<li>Number of micro-randomizations: 147</li>
+<li>Number of participants that remain: 99</li>
+<li>Number of sequences that remain: 4580</li>
+<li>Number of micro-randomizations that remain: 4549</li>
 </ul>
-</div>
-<div id="not-pilot-participants" class="section level3">
-<h3>Not Pilot participants</h3>
-<ul>
-<li>Number of participants: 110</li>
-<li>Number of sequences: 4754</li>
-<li>Number of micro-randomizations: 4723</li>
-</ul>
-</div>
-</div>
-<div id="step-remove-sequences-belonging-to-participants-who-did-not-meet-ema-completion-criteria" class="section level2">
-<h2>Step: Remove sequences belonging to participants who did not meet
-EMA completion criteria</h2>
-<div id="participants-who-were-not-part-of-the-pilot-and-who-met-ema-completion-criteria" class="section level3">
-<h3>Participants who were not part of the pilot and who met EMA
-completion criteria</h3>
-<ul>
-<li>Number of participants: 99</li>
-<li>Number of sequences: 4582</li>
-<li>Number of micro-randomizations: 4551</li>
-</ul>
-</div>
-<div id="participants-who-were-not-part-of-the-pilot-and-who-did-not-meet-ema-completion-criteria" class="section level3">
-<h3>Participants who were not part of the pilot and who did not meet EMA
-completion criteria</h3>
-<ul>
-<li>Number of participants: 11</li>
-<li>Number of sequences: 172</li>
-<li>Number of micro-randomizations: 172</li>
-</ul>
-</div>
-</div>
-<div id="step-remove-sequences-that-fall-on-the-first-day-or-last-day-of-the-10-day-mrt" class="section level2">
-<h2>Step: remove sequences that fall on the First Day or Last Day of the
-10-day MRT</h2>
-<div id="sequences-on-the-first-day-or-last-day-of-the-10-day-mrt" class="section level3">
-<h3>Sequences on the First Day or Last Day of the 10-day MRT</h3>
-<ul>
-<li>Number of participants: 99</li>
-<li>Number of sequences: 698</li>
-<li>Number of micro-randomizations: 691</li>
-</ul>
-</div>
-<div id="sequences-between-the-second-and-ninth-day-inclusive-of-the-10-day-mrt" class="section level3">
-<h3>Sequences between the Second and Ninth Day (inclusive) of the 10-day
-MRT</h3>
-<ul>
-<li>Number of participants: 99</li>
-<li>Number of sequences: 3884</li>
-<li>Number of micro-randomizations: 3860</li>
-</ul>
-</div>
-</div>
+<table style="width:100%;">
+<colgroup>
+<col width="78%" />
+<col width="5%" />
+<col width="6%" />
+<col width="5%" />
+<col width="4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">sequence</th>
+<th align="right">is_2qs</th>
+<th align="right">is_rand</th>
+<th align="right">is_ema</th>
+<th align="right">total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">S1: Short survey administered (just once), no
+micro-randomization, no EMA administered</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">31</td>
+</tr>
+<tr class="even">
+<td align="left">S2: Short survey administered (just once),
+micro-randomization (just once), no EMA administered</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">398</td>
+</tr>
+<tr class="odd">
+<td align="left">S3: Short survey administered (just once),
+micro-randomization (just once), EMA administered (just once)</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">4151</td>
+</tr>
+<tr class="even">
+<td align="left">Grand total person-blocks</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">4580</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

@@ -30,26 +30,42 @@ library(tidyverse)
 ```
 
 ```{r}
-# This dataset was the output of the matching procedure
-dat_all_burst <- readRDS(file = file.path(path_manipulated_data, "dat_all_burst.rds"))
-# These were the sequences we have identified to be inconsistent with study protocol
-# We also note the decisions on how we handled each case in this file
-dat_decisions_atypical_sequences <- readRDS(file = file.path(path_manipulated_data, "dat_decisions_atypical_sequences.rds"))
-# This is the dataset that results from applying the decisions to handle sequences we have found to be inconsistent with study protocol
-# This dataset also includes an indicator as to whether we regarded a sequence as being outside of a participant's designated 10-day MRT period
-dat_cleaned_burst_with_outside_study_indicator <- readRDS(file = file.path(path_manipulated_data, "dat_cleaned_burst_with_outside_study_indicator.rds"))
 # These are the participants that we will excluded from all analyses
 mars_ids_excluded_from_all_analytic_datasets <- readRDS(file = file.path(path_manipulated_data, "mars_ids_excluded_from_all_analytic_datasets.rds"))
 mars_ids_pilot <- readRDS(file = file.path(path_manipulated_data, "mars_ids_pilot.rds"))
 mars_ids_did_not_meet_ema_completion_criteria <- readRDS(file = file.path(path_manipulated_data, "mars_ids_did_not_meet_ema_completion_criteria.rds"))
-# This dataset contains data from only those sequences which began
-# within the 10-day MRT period.
+mars_ids_did_not_have_mhealth_data_within_mrt_period <- readRDS(file = file.path(path_manipulated_data, "mars_ids_did_not_have_mhealth_data_within_mrt_period.rds"))
+
+# This dataset was the output of the matching procedure
+# Note that this dataset does not contain pilot participant data
+# but this dataset does contain data from individuals who were part of
+# mars_ids_did_not_have_mhealth_data_within_mrt_period
+# or mars_ids_did_not_meet_ema_completion_criteria
+dat_all_burst <- readRDS(file = file.path(path_manipulated_data, "dat_all_burst.rds"))
+
+# These were the sequences we have identified to be inconsistent with study protocol
+# We also describe the decisions on how we handled each case in this file
+# Note that this dataset does not contain pilot participant data
+dat_decisions_atypical_sequences <- readRDS(file = file.path(path_manipulated_data, "dat_decisions_atypical_sequences.rds"))
+
+# This is the dataset that results from applying the decisions to handle sequences we have found to be inconsistent with study protocol
+# This dataset also includes an indicator as to whether we regarded a sequence as being outside of a participant's designated 10-day MRT period
+dat_cleaned_burst_with_outside_study_indicator <- readRDS(file = file.path(path_manipulated_data, "dat_cleaned_burst_with_outside_study_indicator.rds"))
+
+# This is the dataset after removing blocks which are outside of the 10-day MRT period and 
+# two blocks within the 10-day MRT period which had inconsistent info due to likely change in wake times.
+dat_within_study_after_dropped_due_to_changed_wakeup <- readRDS(file = file.path(path_manipulated_data, "dat_within_study_after_dropped_due_to_changed_wakeup.rds"))
+
+# This dataset contains data from blocks within the 10-day MRT period
+# Individuals who were part of mars_ids_pilot or mars_ids_did_not_have_mhealth_data_within_mrt_period
+# are not included in this dataset, but individuals who were part of mars_ids_did_not_meet_ema_completion_criteria
+# are still included in this dataset.
 dat_matched_to_decision_points <- readRDS(file = file.path(path_manipulated_data, "dat_matched_to_decision_points.rds"))
 ```
 
 Our approach to deriving the analytic dataset has three phases:
 
-* Phase 1: Applying a matching procedure (data linkage algorithm)
+* Phase 1: Applying a matching procedure (data linkage)
 * Phase 2: Applying decisions common to all analyses
 * Phase 3: Define outcome analysis population for each hypothesis
 
@@ -59,11 +75,9 @@ This document covers documentation on quantifying data excluded in Phase 1 and P
 
 ```{r}
 n_participants <- length(unique(dat_all_burst[["mars_id"]]))
-n_rand <- sum(!is.na(dat_all_burst[["ts_coinflip_mountain"]]))
 ```
 
 * Number of participants at the start of Phase 1: `r n_participants`
-* Number of micro-randomizations at the start of Phase 1: `r n_rand`
 
 ```{r}
 # Note that sequences that are inconsistent with study protocol appear as 
@@ -81,6 +95,12 @@ n_consistent_sequences <- nrow(dat_all_burst) - 2*n_inconsistent_sequences
 * Number of sequences that are consistent with study protocol: `r n_consistent_sequences`
 
 ```{r}
+n_rand <- sum(!is.na(dat_all_burst[["ts_coinflip_mountain"]]))
+```
+
+* Number of micro-randomizations at the start of Phase 1: `r n_rand`
+
+```{r}
 # Remove these sequence ID's so that, among sequences which are consistent with 
 # study protocol, we can ascertain how many of each type there are.
 sequence_ids_inconsistent <- c(dat_decisions_atypical_sequences[["paired_with_sequence_id"]], 
@@ -88,38 +108,6 @@ sequence_ids_inconsistent <- c(dat_decisions_atypical_sequences[["paired_with_se
 # Now we have a dataset with only those sequences which are consistent with study protocol
 dat_burst_consistent_with_protocol <- dat_all_burst %>% 
   filter(!(stitched_sequence_id %in% sequence_ids_inconsistent))
-dat_summary <- dat_burst_consistent_with_protocol %>%
-  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
-         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
-         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
-  group_by(is_2qs, is_rand, is_ema) %>%
-  summarise(total = n()) %>%
-  arrange(is_2qs, is_rand, is_ema)
-
-last_row <- data.frame(is_2qs = NA, 
-                       is_rand = NA, 
-                       is_ema = NA, 
-                       total = sum(dat_summary[["total"]]))
-dat_summary <- rbind(dat_summary, last_row)
-dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
-                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
-                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
-                               "Grand total person-blocks")
-dat_summary <- dat_summary %>% select(sequence, everything())
-```
-
-```{r}
-options(knitr.kable.NA = '')
-knitr::kable(dat_summary)
-```
-
-```{r}
-# Remove these sequence ID's so that, among sequences which are consistent with 
-# study protocol, we can ascertain how many of each type there are.
-sequence_ids_inconsistent <- c(dat_decisions_atypical_sequences[["stitched_sequence_id"]])
-# Now we have a dataset with only those sequences which are consistent with study protocol
-dat_burst_consistent_with_protocol <- dat_all_burst %>% 
-  filter((stitched_sequence_id %in% sequence_ids_inconsistent))
 dat_summary <- dat_burst_consistent_with_protocol %>%
   mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
          is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
@@ -162,6 +150,8 @@ dat_summary <- rbind(dat_summary, last_row)
 knitr::kable(dat_summary)
 ```
 
+To handle atypical sequences, we dropped the first occurrence if brief survey administration, micro-randomization, or EMA administration occurred twice within a person-block. In effect, applying this rule resulted in conforming sequences into what we would expect to see based on study protocol (see table below).
+
 ```{r}
 dat_summary <- dat_cleaned_burst_with_outside_study_indicator %>%
   mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
@@ -188,86 +178,13 @@ options(knitr.kable.NA = '')
 knitr::kable(dat_summary)
 ```
 
-```{r}
-# Remove these sequence ID's so that, among sequences which are consistent with 
-# study protocol, we can ascertain how many of each type there are.
-sequence_ids_inconsistent <- c(dat_decisions_atypical_sequences[["paired_with_sequence_id"]])
-# Now we have a dataset with only those sequences which are consistent with study protocol
-dat_burst_consistent_with_protocol <- dat_all_burst %>% 
-  filter(!(stitched_sequence_id %in% sequence_ids_inconsistent))
-dat_summary <- dat_burst_consistent_with_protocol %>%
-  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
-         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
-         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
-  group_by(is_2qs, is_rand, is_ema) %>%
-  summarise(total = n()) %>%
-  arrange(is_2qs, is_rand, is_ema)
-
-last_row <- data.frame(is_2qs = NA, 
-                       is_rand = NA, 
-                       is_ema = NA, 
-                       total = sum(dat_summary[["total"]]))
-dat_summary <- rbind(dat_summary, last_row)
-dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
-                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
-                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
-                               "Grand total person-blocks")
-dat_summary <- dat_summary %>% select(sequence, everything())
-```
-
-```{r}
-options(knitr.kable.NA = '')
-knitr::kable(dat_summary)
-```
-
 # Phase 2
-
-```{r}
-dat_outside <- dat_cleaned_burst_with_outside_study_indicator %>% filter(is_outside_study == 1)
-dat_inside <- dat_cleaned_burst_with_outside_study_indicator %>% filter(is_outside_study == 0)
-```
 
 ## Step: Remove sequences outside of 10-day MRT period
 
-### Outside 10-day MRT Period
-
 ```{r}
-n_participants <- length(unique(dat_outside[["mars_id"]]))
-n_sequences <- nrow(dat_outside)
-n_rand <- sum(!is.na(dat_outside[["ts_coinflip_mountain"]]))
+dat_inside <- dat_cleaned_burst_with_outside_study_indicator %>% filter(is_outside_study == 0)
 ```
-
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-```{r}
-dat_summary <- dat_outside %>%
-  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
-         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
-         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
-  group_by(is_2qs, is_rand, is_ema) %>%
-  summarise(total = n()) %>%
-  arrange(is_2qs, is_rand, is_ema)
-
-last_row <- data.frame(is_2qs = NA, 
-                       is_rand = NA, 
-                       is_ema = NA, 
-                       total = sum(dat_summary[["total"]]))
-dat_summary <- rbind(dat_summary, last_row)
-dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
-                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
-                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
-                               "Grand total person-blocks")
-dat_summary <- dat_summary %>% select(sequence, everything())
-```
-
-```{r}
-options(knitr.kable.NA = '')
-knitr::kable(dat_summary)
-```
-
-### Inside 10-day MRT Period
 
 ```{r}
 n_participants <- length(unique(dat_inside[["mars_id"]]))
@@ -275,9 +192,9 @@ n_sequences <- nrow(dat_inside)
 n_rand <- sum(!is.na(dat_inside[["ts_coinflip_mountain"]]))
 ```
 
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
+* Number of participants that remain: `r n_participants`
+* Number of sequences that remain: `r n_sequences`
+* Number of micro-randomizations that remain: `r n_rand`
 
 ```{r}
 dat_summary <- dat_inside %>%
@@ -305,105 +222,175 @@ options(knitr.kable.NA = '')
 knitr::kable(dat_summary)
 ```
 
-## Step: Remove sequences belonging to pilot participants
+## Step: Remove sequences due to change in wake up
 
 ```{r}
-dat_inside_pilot <- dat_inside %>% filter(mars_id %in% mars_ids_pilot)
-dat_inside_not_pilot <- dat_inside %>% filter(!(mars_id %in% mars_ids_pilot))
+n_participants <- length(unique(dat_within_study_after_dropped_due_to_changed_wakeup[["mars_id"]]))
+n_sequences <- nrow(dat_within_study_after_dropped_due_to_changed_wakeup)
+n_rand <- sum(!is.na(dat_within_study_after_dropped_due_to_changed_wakeup[["ts_coinflip_mountain"]]))
 ```
 
-### Pilot participants
+* Number of participants that remain: `r n_participants`
+* Number of sequences that remain: `r n_sequences`
+* Number of micro-randomizations that remain: `r n_rand`
 
 ```{r}
-n_participants <- length(unique(dat_inside_pilot[["mars_id"]]))
-n_sequences <- nrow(dat_inside_pilot)
-n_rand <- sum(!is.na(dat_inside_pilot[["ts_coinflip_mountain"]]))
+dat_summary <- dat_within_study_after_dropped_due_to_changed_wakeup %>%
+  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
+         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
+         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
+  group_by(is_2qs, is_rand, is_ema) %>%
+  summarise(total = n()) %>%
+  arrange(is_2qs, is_rand, is_ema)
+
+last_row <- data.frame(is_2qs = NA, 
+                       is_rand = NA, 
+                       is_ema = NA, 
+                       total = sum(dat_summary[["total"]]))
+dat_summary <- rbind(dat_summary, last_row)
+dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
+                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
+                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
+                               "Grand total person-blocks")
+dat_summary <- dat_summary %>% select(sequence, everything())
 ```
-
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-### Not Pilot participants
 
 ```{r}
-n_participants <- length(unique(dat_inside_not_pilot[["mars_id"]]))
-n_sequences <- nrow(dat_inside_not_pilot)
-n_rand <- sum(!is.na(dat_inside_not_pilot[["ts_coinflip_mountain"]]))
+options(knitr.kable.NA = '')
+knitr::kable(dat_summary)
 ```
 
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-## Step: Remove sequences belonging to participants who did not meet EMA completion criteria
+## Step: Remove sequences on the First Day or Last Day of the 10-day MRT
 
 ```{r}
-dat_inside_not_pilot_and_pass <- dat_inside_not_pilot %>% filter(!(mars_id %in% mars_ids_did_not_meet_ema_completion_criteria))
-dat_inside_not_pilot_and_fail <- dat_inside_not_pilot %>% filter(mars_id %in% mars_ids_did_not_meet_ema_completion_criteria)
+dat_matched_to_decision_points <- dat_matched_to_decision_points %>% filter((cluster_id >= 2) & (cluster_id <= 9))
 ```
-
-### Participants who were not part of the pilot and who met EMA completion criteria
 
 ```{r}
-n_participants <- length(unique(dat_inside_not_pilot_and_pass[["mars_id"]]))
-n_sequences <- nrow(dat_inside_not_pilot_and_pass)
-n_rand <- sum(!is.na(dat_inside_not_pilot_and_pass[["ts_coinflip_mountain"]]))
+n_participants <- length(unique(dat_matched_to_decision_points[["mars_id"]]))
+n_sequences <- sum(!is.na(dat_matched_to_decision_points[["ts_2qs_triggered_mountain"]]))
+n_rand <- sum(!is.na(dat_matched_to_decision_points[["ts_coinflip_mountain"]]))
 ```
 
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-### Participants who were not part of the pilot and who did not meet EMA completion criteria
+* Number of participants that remain: `r n_participants`
+* Number of sequences that remain: `r n_sequences`
+* Number of micro-randomizations that remain: `r n_rand`
 
 ```{r}
-n_participants <- length(unique(dat_inside_not_pilot_and_fail[["mars_id"]]))
-n_sequences <- nrow(dat_inside_not_pilot_and_fail)
-n_rand <- sum(!is.na(dat_inside_not_pilot_and_fail[["ts_coinflip_mountain"]]))
+dat_summary <- dat_matched_to_decision_points %>%
+  filter(!is.na(ts_2qs_triggered_mountain)) %>%
+  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
+         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
+         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
+  group_by(is_2qs, is_rand, is_ema) %>%
+  summarise(total = n()) %>%
+  arrange(is_2qs, is_rand, is_ema)
+
+last_row <- data.frame(is_2qs = NA, 
+                       is_rand = NA, 
+                       is_ema = NA, 
+                       total = sum(dat_summary[["total"]]))
+dat_summary <- rbind(dat_summary, last_row)
+dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
+                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
+                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
+                               "Grand total person-blocks")
+dat_summary <- dat_summary %>% select(sequence, everything())
 ```
-
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-## Step: remove sequences that fall on the First Day or Last Day of the 10-day MRT
-
-### Sequences on the First Day or Last Day of the 10-day MRT
 
 ```{r}
-dat_mars_analysis <- dat_matched_to_decision_points %>% 
-  filter(!(mars_id %in% mars_ids_excluded_from_all_analytic_datasets)) %>%
-  filter((decision_point < 7) | (decision_point > 54))
+options(knitr.kable.NA = '')
+knitr::kable(dat_summary)
 ```
 
+## Step: Remove individuals who completed less than 3 EMA between days 2 to 9 inclusive
 
 ```{r}
-n_participants <- length(unique(dat_mars_analysis[["mars_id"]]))
-n_sequences <- sum(!is.na(dat_mars_analysis[["ts_2qs_triggered_mountain"]]))
-n_rand <- sum(!is.na(dat_mars_analysis[["ts_coinflip_mountain"]]))
+dat_matched_to_decision_points <- dat_matched_to_decision_points %>% filter(!(mars_id %in% mars_ids_did_not_meet_ema_completion_criteria))
 ```
-
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
-
-### Sequences between the Second and Ninth Day (inclusive) of the 10-day MRT
 
 ```{r}
-dat_mars_analysis <- dat_matched_to_decision_points %>% 
-  filter(!(mars_id %in% mars_ids_excluded_from_all_analytic_datasets)) %>% 
-  filter((decision_point >= 7) & (decision_point <= 54))
+n_participants <- length(unique(dat_matched_to_decision_points[["mars_id"]]))
+n_sequences <- sum(!is.na(dat_matched_to_decision_points[["ts_2qs_triggered_mountain"]]))
+n_rand <- sum(!is.na(dat_matched_to_decision_points[["ts_coinflip_mountain"]]))
 ```
 
+* Number of participants that remain: `r n_participants`
+* Number of sequences that remain: `r n_sequences`
+* Number of micro-randomizations that remain: `r n_rand`
 
 ```{r}
-n_participants <- length(unique(dat_mars_analysis[["mars_id"]]))
-n_sequences <- sum(!is.na(dat_mars_analysis[["ts_2qs_triggered_mountain"]]))
-n_rand <- sum(!is.na(dat_mars_analysis[["ts_coinflip_mountain"]]))
+dat_summary <- dat_matched_to_decision_points %>%
+  filter(!is.na(ts_2qs_triggered_mountain)) %>%
+  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
+         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
+         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
+  group_by(is_2qs, is_rand, is_ema) %>%
+  summarise(total = n()) %>%
+  arrange(is_2qs, is_rand, is_ema)
+
+last_row <- data.frame(is_2qs = NA, 
+                       is_rand = NA, 
+                       is_ema = NA, 
+                       total = sum(dat_summary[["total"]]))
+dat_summary <- rbind(dat_summary, last_row)
+dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
+                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
+                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
+                               "Grand total person-blocks")
+dat_summary <- dat_summary %>% select(sequence, everything())
 ```
 
-* Number of participants: `r n_participants`
-* Number of sequences: `r n_sequences`
-* Number of micro-randomizations: `r n_rand`
+```{r}
+options(knitr.kable.NA = '')
+knitr::kable(dat_summary)
+```
 
+# Supplemental calculations
+
+We quantify how many participants and sequences will be included in Sensitivity Analyses for Hypotheses 1 and 2 which will utilize all 10 days of the MRT, but still exclude individuals who completed less than 3 EMA between days 2 and 9 inclusive.
+
+```{r}
+dat_matched_to_decision_points <- readRDS(file = file.path(path_manipulated_data, "dat_matched_to_decision_points.rds"))
+```
+
+```{r}
+dat_matched_to_decision_points <- dat_matched_to_decision_points %>% filter(!(mars_id %in% mars_ids_did_not_meet_ema_completion_criteria))
+```
+
+```{r}
+n_participants <- length(unique(dat_matched_to_decision_points[["mars_id"]]))
+n_sequences <- sum(!is.na(dat_matched_to_decision_points[["ts_2qs_triggered_mountain"]]))
+n_rand <- sum(!is.na(dat_matched_to_decision_points[["ts_coinflip_mountain"]]))
+```
+
+* Number of participants that remain: `r n_participants`
+* Number of sequences that remain: `r n_sequences`
+* Number of micro-randomizations that remain: `r n_rand`
+
+```{r}
+dat_summary <- dat_matched_to_decision_points %>%
+  filter(!is.na(ts_2qs_triggered_mountain)) %>%
+  mutate(is_2qs = if_else(!is.na(ts_2qs_triggered_mountain), 1, 0),
+         is_rand = if_else(!is.na(ts_coinflip_mountain), 1, 0),
+         is_ema = if_else(!is.na(ts_ema_triggered_mountain), 1, 0)) %>%
+  group_by(is_2qs, is_rand, is_ema) %>%
+  summarise(total = n()) %>%
+  arrange(is_2qs, is_rand, is_ema)
+
+last_row <- data.frame(is_2qs = NA, 
+                       is_rand = NA, 
+                       is_ema = NA, 
+                       total = sum(dat_summary[["total"]]))
+dat_summary <- rbind(dat_summary, last_row)
+dat_summary[["sequence"]] <- c("S1: Short survey administered (just once), no micro-randomization, no EMA administered",
+                               "S2: Short survey administered (just once), micro-randomization (just once), no EMA administered",
+                               "S3: Short survey administered (just once), micro-randomization (just once), EMA administered (just once)",
+                               "Grand total person-blocks")
+dat_summary <- dat_summary %>% select(sequence, everything())
+```
+
+```{r}
+options(knitr.kable.NA = '')
+knitr::kable(dat_summary)
+```
