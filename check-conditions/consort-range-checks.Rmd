@@ -251,7 +251,7 @@ dat_summary_reshaped <- data.frame(A = c("none", "low effort prompt", "high effo
 g <- ggplot(data = dat_summary_reshaped, aes(x = A, y = est, ymin = LB95, ymax = UB95, group = A))
 g + geom_errorbar(width = 0.10) + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_discrete(name = "Randomization assignment")
 
-ggsave(filename = file.path("check-conditions", "plots", "rand.png"), height = 10, width = 3, units = "in")
+ggsave(filename = file.path("check-conditions", "plots", "rand.png"), height = 10, width = 4, units = "in")
 ```
 
 ```{r}

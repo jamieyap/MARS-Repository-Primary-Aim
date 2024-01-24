@@ -1,0 +1,150 @@
+---
+title: "CONSORT: Pre-Trial Range Checks"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+source(file = file.path("prepare-analytic-datasets", "functions-for-analytical-dataset-creation.R"))  # Needed for the function 'convert_to_local_datetime'
+```
+
+```{r}
+dat_all_burst_with_pilot <- readRDS(file = file.path(path_manipulated_data, "dat_all_burst_with_pilot.rds"))
+dat_visit_dates <- readRDS(file = file.path(path_manipulated_data, "dat_visit_dates_V1_only.rds"))
+mars_ids_pilot <- readRDS(file = file.path(path_manipulated_data, "mars_ids_pilot.rds"))
+```
+
+```{r}
+dat_cleaned_burst <- dat_all_burst_with_pilot %>% filter(mars_id %in% mars_ids_pilot)
+dat_visit_dates <- dat_visit_dates %>% filter(mars_id %in% mars_ids_pilot)
+```
+
+```{r}
+###############################################################################
+# First, remove observations outside of study period
+###############################################################################
+dat_study_bounds <- dat_visit_dates %>% 
+  select(mars_id, v1_date_began) %>%
+  mutate(v1_date_began = v1_date_began + seconds(1)) %>%  # -- This will help serve as a visual cue when performing spot checks that v1_date_began is in fact a variable of type date-time
+  mutate(v1_date_began_plus_nine = v1_date_began + days(9) + hours(23) + minutes(59) + seconds(58))  # -- This will help serve as a visual cue when performing spot checks that v1_date_began_plus_nine is in fact a variable of type date-time
+
+all_ids <- unique(dat_cleaned_burst[["mars_id"]])
+list_all_burst <- list()
+
+for(i in 1:length(all_ids)){
+  current_participant <- all_ids[i]
+  dat_current_burst <- dat_cleaned_burst %>% filter(mars_id == current_participant)
+  dat_current_study_bounds <- dat_study_bounds %>% filter(mars_id == current_participant)
+  
+  # Note that these dates are in mountain time in the raw data.
+  # These are arrays of length 1
+  v1 <- dat_current_study_bounds[["v1_date_began"]]
+  v1_plus_nine <- dat_current_study_bounds[["v1_date_began_plus_nine"]]
+  
+  # Using force_tz and setting the tzone argument to UTC is a trick to work with 
+  # just a single column that could possibly represent date times from multiple time zones
+  dat_current_burst <- dat_current_burst %>%
+    mutate(block_start_mountain = int_start(block_bounds_mountain)) %>%
+    mutate(block_start_pacific = with_tz(time = block_start_mountain, tzone = "US/Pacific"),
+           block_start_central = with_tz(time = block_start_mountain, tzone = "US/Central"),
+           block_start_eastern = with_tz(time = block_start_mountain, tzone = "US/Eastern")) %>%
+    mutate(block_start_local = case_when(
+      olson == "US/Mountain" ~ force_tz(time = block_start_mountain, tzone = "UTC"),
+      olson == "US/Pacific" ~ force_tz(time = block_start_pacific, tzone = "UTC"),
+      olson == "US/Central" ~ force_tz(time = block_start_central, tzone = "UTC"),
+      olson == "US/Eastern" ~ force_tz(time = block_start_eastern, tzone = "UTC"),
+      .default = NULL
+    ))
+  
+  dat_current_burst <- dat_current_burst %>%
+    mutate(v1_date_began_mountain = v1) %>%
+    mutate(v1_date_began_local = force_tz(time = v1_date_began_mountain, tzone = "UTC")) %>%
+    mutate(v1_date_began_plus_nine_mountain = v1_plus_nine) %>% 
+    mutate(v1_date_began_plus_nine_local = force_tz(time = v1_date_began_plus_nine_mountain, tzone = "UTC"))
+  
+  dat_current_burst <- dat_current_burst %>%
+    mutate(is_outside_study = if_else((block_start_local < v1_date_began_local) | (block_start_local > v1_date_began_plus_nine_local), 1, 0))
+  
+  list_all_burst <- append(list_all_burst, list(dat_current_burst))
+}
+
+dat_cleaned_burst_with_outside_study_indicator <- bind_rows(list_all_burst)
+
+###############################################################################
+# First, remove observations outside of study period
+###############################################################################
+dat_within_study <- dat_cleaned_burst_with_outside_study_indicator %>% filter(is_outside_study == 0) %>% select(-is_outside_study)
+```
+
+# Checks: Empirical randomization probabilities
+
+```{r}
+dat_mars_analysis <- dat_within_study
+dat_mars_analysis[["ts_coinflip_local"]] <- convert_to_local_datetime(cleaned_data_frame = dat_mars_analysis, datetime_mountain_name = "ts_coinflip_mountain")
+```
+
+```{r}
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_coinflip_local))
+
+dat_summary <- dat_for_calculation %>%
+  summarise(n_none = sum(A == "none"),
+            n_low_effort = sum(A == "low_effort"),
+            n_mars = sum(A == "mars"),
+            n_total_rand = n()) %>%
+  mutate(prop_none = n_none/n_total_rand,
+         prop_low_effort = n_low_effort/n_total_rand,
+         prop_mars = n_mars/n_total_rand) %>%
+  mutate(n_total_prop = prop_none + prop_low_effort + prop_mars) %>%
+  mutate(prop_none_LB95 = prop_none - qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none),
+         prop_none_UB95 = prop_none + qnorm(0.975)*sqrt(prop_none*(1-prop_none))*sqrt(1/n_none)) %>%
+  mutate(prop_low_effort_LB95 = prop_low_effort - qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort),
+         prop_low_effort_UB95 = prop_low_effort + qnorm(0.975)*sqrt(prop_low_effort*(1-prop_low_effort))*sqrt(1/n_low_effort)) %>%
+  mutate(prop_mars_LB95 = prop_mars - qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars),
+         prop_mars_UB95 = prop_mars + qnorm(0.975)*sqrt(prop_mars*(1-prop_mars))*sqrt(1/n_mars))
+
+dat_randprob_95ci <- data.frame(treatment = c("none", "low effort", "high effort", "total"),
+                                count_randomizations = c(dat_summary[["n_none"]], dat_summary[["n_low_effort"]], dat_summary[["n_mars"]], dat_summary[["n_total_rand"]]),
+                                est_prob = c(dat_summary[["prop_none"]], dat_summary[["prop_low_effort"]], dat_summary[["prop_mars"]], dat_summary[["n_total_prop"]]),
+                                LB95 = c(dat_summary[["prop_none_LB95"]], dat_summary[["prop_low_effort_LB95"]], dat_summary[["prop_mars_LB95"]], NA),
+                                UB95 = c(dat_summary[["prop_none_UB95"]], dat_summary[["prop_low_effort_UB95"]], dat_summary[["prop_mars_UB95"]], NA))
+```
+
+```{r}
+options(knitr.kable.NA = '')
+dat_randprob_95ci %>% kable(., digits = 3)
+```
+
+```{r}
+dat_summary_reshaped <- data.frame(A = c("none", "low effort prompt", "high effort prompt"),
+                                   est = c(dat_summary$prop_none, dat_summary$prop_low_effort, dat_summary$prop_mars),
+                                   LB95 = c(dat_summary$prop_none_LB95,dat_summary$prop_low_effort_LB95,dat_summary$prop_mars_LB95),
+                                   UB95 = c(dat_summary$prop_none_UB95,dat_summary$prop_low_effort_UB95,dat_summary$prop_mars_UB95))
+
+g <- ggplot(data = dat_summary_reshaped, aes(x = A, y = est, ymin = LB95, ymax = UB95, group = A))
+g + geom_errorbar(width = 0.10) + geom_point(size=4, shape=21, fill="white") + scale_y_continuous(limits = c(0,1), name = "Empirical randomization probability and 95% CI's") + geom_abline(slope = 0, intercept = 0.50, color = "red", linewidth = 1) + geom_abline(slope = 0, intercept = 0.25, color = "red", linewidth = 1) + scale_x_discrete(name = "Randomization assignment")
+
+ggsave(filename = file.path("check-conditions", "plots", "pilot_rand.png"), height = 10, width = 4, units = "in")
+```
+
