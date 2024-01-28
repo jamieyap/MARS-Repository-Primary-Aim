@@ -112,7 +112,7 @@ dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_status_survey_2qs_
 dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_2qs_triggered_local"]] %--% dat_for_calculation[["ts_status_survey_2qs_local"]])/(60)  # Minutes
 
 quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
-list_quants <- append(list_quants, list(Q1 = quants))
+list_quants <- append(list_quants, list(L1 = quants))
 quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
 
 quantile(dat_for_calculation[["elapsed_mins"]], c(0, 0.25, 0.50, 0.75, seq(0.90, 1, 0.01))) 
@@ -135,7 +135,7 @@ dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_ema_triggered_loca
 dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_ema_triggered_local"]] %--% dat_for_calculation[["ts_status_survey_ema_local"]])/(60)  # Minutes
 
 quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
-list_quants <- append(list_quants, list(Q4 = quants))
+list_quants <- append(list_quants, list(L2 = quants))
 quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
 
 quantile(dat_for_calculation[["elapsed_mins"]], c(0, 0.25, 0.50, 0.75, seq(0.90, 1, 0.01))) 
@@ -190,6 +190,29 @@ ggsave(filename = file.path("check-conditions", "plots", "R2.png"), height = 10,
 g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
 g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(60, 64), breaks = seq(60,64,1), labels = seq(60,64,1)) + scale_x_continuous("", labels = NULL, breaks = NULL)
 ggsave(filename = file.path("check-conditions", "plots", "R2_zoomed_upto_90percentile.png"), height = 10, width = 3, units = "in")
+```
+
+# Check: Minutes elapsed between when micro-randomization occurred and when EMA was completed
+
+```{r}
+# Note that you need to take only the subset of the data for which micro-randomization
+# occurred prior to performing this calculation
+dat_for_calculation <- dat_mars_analysis %>% filter(!is.na(ts_ema_triggered_local)) %>% filter(!is.na(ts_status_survey_ema_local)) %>% filter(!is.na(ts_coinflip_local)) %>% filter(status_survey_ema_collapsed == "fully_completed")
+dat_for_calculation[["elapsed_mins"]] <- int_length(dat_for_calculation[["ts_coinflip_local"]] %--% dat_for_calculation[["ts_status_survey_ema_local"]])/(60)  # Minutes
+
+quants <- quantile(dat_for_calculation[["elapsed_mins"]]) 
+list_quants <- append(list_quants, list(R3 = quants))
+quants %>% kable(., digits = 3, col.names = "Percentiles of mins elapsed")
+
+quantile(dat_for_calculation[["elapsed_mins"]], c(0, 0.25, 0.50, 0.75, 0.85, 0.86, 0.87, 0.88, 0.89, seq(0.90, 1, 0.01))) 
+ 
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(0, 160), breaks = seq(0,160,20), labels = seq(0,160,20)) + scale_x_continuous("", labels = NULL, breaks = NULL) + geom_abline(slope = 0, intercept = 140, color = "red", linewidth = 1)
+ggsave(filename = file.path("check-conditions", "plots", "R3.png"), height = 10, width = 3, units = "in")
+
+g <- ggplot(data = dat_for_calculation, aes(x = plot_no_group, y = elapsed_mins))
+g + geom_violin(scale = "area", color = "cyan4", linewidth = 1) + geom_boxplot(color = "black", fill = "goldenrod", linewidth = 0.7, width = 0.10) + scale_y_continuous("Minutes Elapsed", limits = c(60, 83), breaks = seq(60,83,5), labels = seq(60,83,5)) + scale_x_continuous("", labels = NULL, breaks = NULL)
+ggsave(filename = file.path("check-conditions", "plots", "R3_zoomed_upto_90percentile.png"), height = 10, width = 3, units = "in")
 ```
 
 ```{r}
