@@ -1,0 +1,1577 @@
+---
+title: "MARS MRT: H3"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(MRTAnalysis)
+```
+
+Let $X_t$ denote the observed value of any of the constructs listed below at decision point $t$, $I_t$ denote an indicator for whether decision point $t$ was eligible for micro-randomization, and $n_t$ denote the total number of eligible decision points within the past 24 hours prior to $t$ (not including $t$ itself). We consider three ways to operationalize constructs listed below:
+
+-   **(value at prior decision point)** value in the decision point prior to the current decision point, i.e., $X_{t-1}$ given that $I_{t-1}=1$
+
+-   **(mean within past 24 hours)** mean over all eligible decision points in the past 24 hours prior to the current decision point, i.e., $\frac{1}{\sum_{j=1}^{n_t}I_{t-j}} \sum_{j=1}^{n_t} X_{t-j} I_{t-j}$ given that $\sum_{j=1}^{n_t}I_{t-j} \geq 1$
+
+-   **(sum within past 24 hours)** sum over all eligible decision points in the past 24 hours prior to the current decision point, i.e., $\sum_{j=1}^{n_t} X_{t-j} I_{t-j}$ given that given that $\sum_{j=1}^{n_t}I_{t-j} \geq 1$
+
+| **Construct**                                                                              | **Operationalization #1**     | **Operationalization #2** |
+|-------------------------------|-----------------------|--------------------|
+| Ashamed                                                                                    | value at prior decision point | mean within past 24 hours |
+| Guilty                                                                                     | value at prior decision point | mean within past 24 hours |
+| Happy                                                                                      | value at prior decision point | mean within past 24 hours |
+| Self-regulatory capacity                                                                   | value at prior decision point | mean within past 24 hours |
+| Stressor                                                                                   | value at prior decision point | sum within past 24 hours  |
+| Substance use - Any substances used                                                        | value at prior decision point | sum within past 24 hours  |
+| Substance use - Any tobacco product used (includes cigarettes, vaping, cigars, cigarillos) | value at prior decision point | sum within past 24 hours  |
+| Substance use - Any marijuana used                                                         | value at prior decision point | sum within past 24 hours  |
+| Substance use - No. cigarettes smoked                                                      | value at prior decision point | sum within past 24 hours  |
+| Substance use - No. alcoholic servings                                                     | value at prior decision point | sum within past 24 hours  |
+| Substance use - Any cigarette use                                                          | value at prior decision point | sum within past 24 hours  |
+
+```{r}
+# This is the data frame that is the output of the very last step of our data pipeline
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- dat_primary_aim %>%
+  # Note that in contrast to H1, in H3 there is no sensitivity analysis where we re-do the analyses using all 10 days of the MRT
+  mutate(is_include_main = if_else((decision_point >= 7) & (decision_point <= 54), 1, 0))                                                    
+```
+
+```{r}
+dat_primary_aim <- dat_primary_aim %>%
+  group_by(mars_id) %>%
+  mutate(eligibility_lag1 = lag(eligibility)) %>%
+  mutate(ashamed_lag1 = lag(ashamed), 
+         guilty_lag1 = lag(guilty), 
+         happy_lag1 = lag(happy),
+         stressor_is_any_lag1 = lag(stressor_is_any), 
+         src_scored_lag1 = lag(src_scored),
+         substance_is_any_lag1 = lag(substance_is_any), 
+         substance_is_any_nicotine_lag1 = lag(substance_is_any_nicotine), 
+         substance_is_alcohol_lag1 = lag(substance_is_alcohol), 
+         substance_is_marijuana_or_cannabis_lag1 = lag(substance_is_marijuana_or_cannabis),
+         cigarette_counts_lag1 = lag(cigarette_counts), 
+         alcohol_counts_lag1 = lag(alcohol_counts),
+         substance_is_cigarettes_new_lag1 = lag(substance_is_cigarettes_new)) %>%
+  mutate(eligibility_lag1 = replace(eligibility_lag1, decision_point == 1, 0)) %>%
+  mutate(eligibility_overall_past_dp = if_else(eligibility == 1 & eligibility_lag1 == 1, 1, 0),
+         eligibility_overall_past_24h = if_else(eligibility == 1 & counts_rand_past24hrs > 0, 1, 0)) %>%
+  ungroup(.)
+```
+
+```{r}
+dat_primary_aim <- dat_primary_aim %>% filter(is_include_main == 1)
+```
+
+```{r}
+my_list <- list(Y = -1,
+                coinflip = -1,
+                hour_coinflip_local = -1,
+                days_between_v1_and_coinflip_local = -1,
+                any_response_2qs = -1,
+                any_recent_eligible_dp = -1,
+                engagement_most_recent_eligible = -1,
+                age = -1,
+                is_female = -1,
+                is_latino = -1,
+                is_not_latino_and_black = -1,
+                is_not_latino_and_other = -1,
+                baseline_tobacco_history = -1,
+                has_partner = -1,
+                income_val = -1,
+                # Past 1 decision point
+                ashamed_lag1 = -1,
+                guilty_lag1 = -1,
+                happy_lag1 = -1,
+                stressor_is_any_lag1 = -1,
+                src_scored_lag1 = -1,
+                substance_is_any_lag1 = -1,
+                substance_is_any_nicotine_lag1 = -1,
+                substance_is_alcohol_lag1 = -1,
+                substance_is_marijuana_or_cannabis_lag1 = -1,
+                cigarette_counts_lag1 = -1,
+                alcohol_counts_lag1 = -1,
+                substance_is_cigarettes_new_lag1 = -1,
+                # Past 24 hours
+                ashamed_mean_past24hrs = -1,
+                guilty_mean_past24hrs = -1,
+                happy_mean_past24hrs = -1,
+                src_scored_mean_past24hrs = -1,
+                stressor_is_any_sum_past24hrs = -1,
+                cigarette_counts_sum_past24hrs = -1,
+                alcohol_counts_sum_past24hrs = -1,
+                substance_is_any_sum_past24hrs = -1,
+                substance_is_any_nicotine_sum_past24hrs = -1,
+                substance_is_marijuana_or_cannabis_sum_past24hrs = -1,
+                substance_is_alcohol_sum_past24hrs = -1,
+                substance_is_cigarettes_new_sum_past24hrs = -1)
+```
+
+```{r}
+use_these_moderators <- c("ashamed_lag1",
+                          "guilty_lag1",
+                          "happy_lag1",
+                          "stressor_is_any_lag1",
+                          "src_scored_lag1",
+                          "substance_is_any_lag1",
+                          "substance_is_any_nicotine_lag1",
+                          "substance_is_alcohol_lag1",
+                          "substance_is_marijuana_or_cannabis_lag1",
+                          "cigarette_counts_lag1",
+                          "alcohol_counts_lag1",
+                          "substance_is_cigarettes_new_lag1")
+
+logical_vec_cc <- dat_primary_aim %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_primary_aim %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_dp == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig_overall_past_dp = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig_overall_past_dp = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig_overall_past_dp = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
+use_these_moderators <- c("ashamed_lag1",
+                          "guilty_lag1",
+                          "happy_lag1",
+                          "stressor_is_any_lag1",
+                          "src_scored_lag1",
+                          "substance_is_any_lag1",
+                          "substance_is_any_nicotine_lag1",
+                          "substance_is_alcohol_lag1",
+                          "substance_is_marijuana_or_cannabis_lag1",
+                          "cigarette_counts_lag1",
+                          "alcohol_counts_lag1",
+                          "substance_is_cigarettes_new_lag1")
+
+logical_vec_cc <- dat_primary_aim %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_primary_aim %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_24h == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+dat_summary <- data.frame(n_elig_overall_past_dp = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig_overall_past_24h = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig_overall_past_24h = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+# Time-varying moderators: Operationalization 1
+
+## Ashamed
+
+```{r}
+use_these_moderators <- c("ashamed_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ ashamed_lag1,  
+  control_formula = ~ ashamed_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Guilty
+
+```{r}
+use_these_moderators <- c("guilty_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ guilty_lag1,  
+  control_formula = ~ guilty_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Happy
+
+```{r}
+use_these_moderators <- c("happy_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ happy_lag1,  
+  control_formula = ~ happy_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Self-regulatory capacity
+
+```{r}
+use_these_moderators <- c("src_scored_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ src_scored_lag1,  
+  control_formula = ~ src_scored_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Stressor
+
+```{r}
+use_these_moderators <- c("stressor_is_any_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ stressor_is_any_lag1,  
+  control_formula = ~ stressor_is_any_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any substance use
+
+```{r}
+use_these_moderators <- c("substance_is_any_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_lag1,  
+  control_formula = ~ substance_is_any_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any nicotine use
+
+```{r}
+use_these_moderators <- c("substance_is_any_nicotine_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_nicotine_lag1,  
+  control_formula = ~ substance_is_any_nicotine_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- cigarette counts
+
+```{r}
+use_these_moderators <- c("cigarette_counts_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ cigarette_counts_lag1,  
+  control_formula = ~ cigarette_counts_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any alcohol use
+
+```{r}
+use_these_moderators <- c("substance_is_alcohol_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_alcohol_lag1,  
+  control_formula = ~ substance_is_alcohol_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- alcohol counts
+
+```{r}
+use_these_moderators <- c("alcohol_counts_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ alcohol_counts_lag1,  
+  control_formula = ~ alcohol_counts_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any marijuana or cannabis
+
+```{r}
+use_these_moderators <- c("substance_is_marijuana_or_cannabis_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_marijuana_or_cannabis_lag1,  
+  control_formula = ~ substance_is_marijuana_or_cannabis_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Cigarette use
+
+```{r}
+use_these_moderators <- c("substance_is_cigarettes_new_lag1")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_dp)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_cigarettes_new_lag1,  
+  control_formula = ~ substance_is_cigarettes_new_lag1 + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+# Time-varying moderators: Operationalization 2
+
+## Ashamed
+
+```{r}
+use_these_moderators <- c("ashamed_mean_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ ashamed_mean_past24hrs,  
+  control_formula = ~ ashamed_mean_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Guilty
+
+```{r}
+use_these_moderators <- c("guilty_mean_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ guilty_mean_past24hrs,  
+  control_formula = ~ guilty_mean_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Happy
+
+```{r}
+use_these_moderators <- c("happy_mean_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ happy_mean_past24hrs,  
+  control_formula = ~ happy_mean_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Self-regulatory capacity
+
+```{r}
+use_these_moderators <- c("src_scored_mean_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ src_scored_mean_past24hrs,  
+  control_formula = ~ src_scored_mean_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Stressor
+
+```{r}
+use_these_moderators <- c("stressor_is_any_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ stressor_is_any_sum_past24hrs,  
+  control_formula = ~ stressor_is_any_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any substance use
+
+```{r}
+use_these_moderators <- c("substance_is_any_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_sum_past24hrs,  
+  control_formula = ~ substance_is_any_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any nicotine use
+
+```{r}
+use_these_moderators <- c("substance_is_any_nicotine_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_nicotine_sum_past24hrs,  
+  control_formula = ~ substance_is_any_nicotine_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- cigarette counts
+
+```{r}
+use_these_moderators <- c("cigarette_counts_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ cigarette_counts_sum_past24hrs,  
+  control_formula = ~ cigarette_counts_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any alcohol use
+
+```{r}
+use_these_moderators <- c("substance_is_alcohol_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_alcohol_sum_past24hrs,  
+  control_formula = ~ substance_is_alcohol_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- alcohol counts
+
+```{r}
+use_these_moderators <- c("alcohol_counts_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ alcohol_counts_sum_past24hrs,  
+  control_formula = ~ alcohol_counts_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- any marijuana or cannabis use
+
+```{r}
+use_these_moderators <- c("substance_is_marijuana_or_cannabis_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_marijuana_or_cannabis_sum_past24hrs,  
+  control_formula = ~ substance_is_marijuana_or_cannabis_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+## Substance use -- cigarette use
+
+```{r}
+use_these_moderators <- c("substance_is_cigarettes_new_sum_past24hrs")
+
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  rename(eligibility = eligibility_overall_past_24h)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_cigarettes_new_sum_past24hrs,  
+  control_formula = ~ substance_is_cigarettes_new_sum_past24hrs + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+
+# There is no variability in response to 2qs; thus you need to remove it from the model for the model to converge
+# table(dat_for_analysis$any_response_2qs, dat_for_analysis$substance_is_cigarettes_new_sum_past24hrs)
+```
