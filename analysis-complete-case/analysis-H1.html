@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-01-11" />
+<meta name="date" content="2024-01-29" />
 
 <title>MARS MRT: H1 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H1 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">January 11, 2024</h4>
+<h4 class="date">January 29, 2024</h4>
 
 </div>
 
@@ -419,10 +419,9 @@ in a linear or quadratic manner.</p>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local, 
-##     control_formula = ~days_between_v1_and_coinflip_local + age + 
-##         is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
-##         baseline_tobacco_history + has_partner + income_val + 
-##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
 ##     availability = &quot;eligibility&quot;)
 ## 
@@ -434,7 +433,6 @@ in a linear or quadratic manner.</p>
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
 ## (Intercept)                        -0.4941975172 -1.127239026  0.138843992 0.318277682 -1.55272438 83 1.242939e-01
-## days_between_v1_and_coinflip_local  0.0120939402 -0.010433297  0.034621178 0.011326140  1.06779007 83 2.887111e-01
 ## age                                 0.0013653080 -0.005660387  0.008391003 0.003532346  0.38651589 83 7.001038e-01
 ## is_female                           0.1380047883 -0.146429510  0.422439087 0.143006561  0.96502417 83 3.373361e-01
 ## is_latino                           0.2103357913 -0.074470272  0.495141854 0.143193475  1.46889229 83 1.456420e-01
@@ -444,6 +442,7 @@ in a linear or quadratic manner.</p>
 ## has_partner                         0.0083232342 -0.201567793  0.218214261 0.105528040  0.07887225 83 9.373241e-01
 ## income_val                         -0.0055740273 -0.037513027  0.026364973 0.016058143 -0.34711532 83 7.293833e-01
 ## hour_coinflip_local                 0.0004611783 -0.009422887  0.010345244 0.004969465  0.09280242 83 9.262842e-01
+## days_between_v1_and_coinflip_local  0.0120939402 -0.010433297  0.034621178 0.011326140  1.06779007 83 2.887111e-01
 ## any_response_2qs                    0.0383232880 -0.096517861  0.173164436 0.067794809  0.56528352 83 5.734058e-01
 ## any_recent_eligible_dp             -1.0226590626 -1.459660881 -0.585657244 0.219713753 -4.65450636 83 1.217344e-05
 ## engagement_most_recent_eligible     0.8696540675  0.609601192  1.129706943 0.130748182  6.65136642 83 2.891615e-09</code></pre>
@@ -455,11 +454,10 @@ in a linear or quadratic manner.</p>
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local + 
 ##         I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local), 
-##     control_formula = ~days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * 
-##         days_between_v1_and_coinflip_local) + age + is_female + 
-##         is_latino + is_not_latino_and_black + is_not_latino_and_other + 
-##         baseline_tobacco_history + has_partner + income_val + 
-##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
 ##     availability = &quot;eligibility&quot;)
 ## 
@@ -472,8 +470,6 @@ in a linear or quadratic manner.</p>
 ## $control_variables
 ##                                                                                 Estimate      95% LCL      95% UCL      StdErr      t_value df      p-value
 ## (Intercept)                                                                -6.176989e-01 -1.334345182  0.098947290 0.360180511 -1.714970487 81 9.017420e-02
-## days_between_v1_and_coinflip_local                                          9.245533e-02 -0.030263045  0.215173713 0.061677249  1.499018451 81 1.377563e-01
-## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) -7.948973e-03 -0.019582070  0.003684125 0.005846699 -1.359565868 81 1.777401e-01
 ## age                                                                         1.492399e-03 -0.005573101  0.008557899 0.003551062  0.420268255 81 6.754023e-01
 ## is_female                                                                   1.364129e-01 -0.150114843  0.422940741 0.144006514  0.947269292 81 3.463191e-01
 ## is_latino                                                                   2.110333e-01 -0.074772608  0.496839142 0.143643685  1.469144066 81 1.456670e-01
@@ -483,6 +479,8 @@ in a linear or quadratic manner.</p>
 ## has_partner                                                                 7.095855e-03 -0.203540587  0.217732297 0.105864145  0.067027936 81 9.467246e-01
 ## income_val                                                                 -5.099155e-03 -0.037400582  0.027202271 0.016234432 -0.314095101 81 7.542563e-01
 ## hour_coinflip_local                                                         4.274983e-05 -0.009922720  0.010008219 0.005008563  0.008535348 81 9.932108e-01
+## days_between_v1_and_coinflip_local                                          9.245533e-02 -0.030263045  0.215173713 0.061677249  1.499018451 81 1.377563e-01
+## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) -7.948973e-03 -0.019582070  0.003684125 0.005846699 -1.359565868 81 1.777401e-01
 ## any_response_2qs                                                            3.800865e-02 -0.097600402  0.173617709 0.068155997  0.557671440 81 5.786068e-01
 ## any_recent_eligible_dp                                                     -1.055684e+00 -1.543312959 -0.568054180 0.245078525 -4.307531920 81 4.600588e-05
 ## engagement_most_recent_eligible                                             8.646874e-01  0.604925345  1.124449398 0.130554260  6.623203011 81 3.563391e-09</code></pre>

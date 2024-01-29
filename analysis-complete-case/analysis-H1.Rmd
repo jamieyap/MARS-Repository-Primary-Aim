@@ -151,7 +151,7 @@ fit2 <- emee(
   treatment = "coinflip",
   rand_prob = 0.5,
   moderator_formula = ~ days_between_v1_and_coinflip_local,  
-  control_formula = ~ days_between_v1_and_coinflip_local + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
   availability = "eligibility"
 )
 
@@ -175,7 +175,7 @@ fit3 <- emee(
   treatment = "coinflip",
   rand_prob = 0.5,
   moderator_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local),  
-  control_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
   availability = "eligibility"
 )
 
