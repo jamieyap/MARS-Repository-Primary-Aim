@@ -302,6 +302,16 @@ source("prepare-analytic-datasets/indicator-for-proximal-cigarette-smoking/imple
 rm(list = ls())
 
 # Input:
+#   dat_matched_to_decision_points.rds
+#   mars_ids_excluded_from_all_analytic_datasets.rds
+#   dat_master_ema_questions.rds
+#   dat_master_ema_response_options.rds
+# Output:
+#   parsed_vape_puff_times.rds
+source("prepare-analytic-datasets/indicator-for-proximal-vaping/parse-vaping-smoking-times.R")  
+rm(list = ls())
+
+# Input:
 #   dat_mars_basic.rds
 #   dat_mars_derived_time_vars.rds
 #   dat_mars_time_varying_moderators.rds

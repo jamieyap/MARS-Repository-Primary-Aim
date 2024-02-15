@@ -93,6 +93,8 @@ collapse_survey_2qs_status <- function(cleaned_data_frame){
 }
 
 clean_response_substance_use_multiple_select <- function(cleaned_data_frame){
+
+  # Note that cleaned_data_frame must have a column named Q19_response
   
   cleaned_data_frame <- cleaned_data_frame %>%
     mutate(Q19_response_cleaned_none = 1*grepl(pattern = "None", x = Q19_response, fixed = TRUE),
@@ -155,17 +157,80 @@ identify_item_version_cigarette_when_smoked <- function(cleaned_data_frame){
   
   cleaned_data_frame <- cleaned_data_frame %>% 
     mutate(item_version = case_when(
-      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q21_response)) ~ "early",
-      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q48_response)) ~ "late",
-      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q23_response)) ~ "early",
-      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q22_response)) ~ "early",
-      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q49_response)) ~ "late",
-      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q50_response)) ~ "late",
+      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q21_response)) ~ "early_version",
+      (!is.na(Q20_response_cleaned)) & ((Q20_response_cleaned > 0) & (Q20_response_cleaned <= 1)) & (!is.na(Q48_response)) ~ "late_version",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q23_response)) ~ "early_version",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q22_response)) ~ "early_version",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q49_response)) ~ "late_version",
+      (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned >= 2) & (!is.na(Q50_response)) ~ "late_version",
       (!is.na(Q20_response_cleaned)) & (Q20_response_cleaned == 0) ~ "prior_item_has_response_and_skipped",
-      (is.na(Q20_response_cleaned)) & (status_survey_ema_collapsed == "partially_completed") ~ "prior_item_has_no_response",
-      .default = NA
+      (is.na(Q20_response_cleaned)) & (!is.na(ts_coinflip_mountain)) ~ "prior_item_has_no_response",
+      .default = NULL
     ))
   
   return(cleaned_data_frame[["item_version"]])
 }
+
+clean_response_vape_puffs <- function(cleaned_data_frame){
+  
+  cleaned_data_frame <- clean_response_substance_use_multiple_select(cleaned_data_frame)
+  
+  # Calling suppressWarnings(as.numeric(.)) will let the warning below not
+  # be printed in the terminal
+  #
+  # Warning message:
+  #   There was 1 warning in `mutate()`.
+  # ℹ In argument: `Q24_response_cleaned = case_when(...)`.
+  # Caused by warning in `vec_case_when()`:
+  #   ! NAs introduced by coercion 
+  
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(Q24_response_cleaned = case_when(
+      Q24_response == "0 (I did not vape)" ~ 0,
+      Q24_response == "1" ~ 1,
+      Q24_response == "2" ~ 2,
+      Q24_response == "3" ~ 3,
+      Q24_response == "4" ~ 4,
+      Q24_response == "5" ~ 5,
+      Q24_response == "6" ~ 6,
+      Q24_response == "7" ~ 7,
+      Q24_response == "8" ~ 8,
+      Q24_response == "9" ~ 9,
+      Q24_response == "10" ~ 10,
+      Q24_response == "11" ~ 11,
+      Q24_response == "More than 100" ~ 101,
+      .default = suppressWarnings(as.numeric(Q24_response))
+      ))
+  
+  # In this code, set the value of Q24_response_cleaned to zero 
+  # if the value of Q19_response_cleaned_vape_juul_or_ecigarettes is zero.
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(Q24_response_cleaned = replace(Q24_response_cleaned, Q19_response_cleaned_vape_juul_or_ecigarettes == 0, 0))
+  
+  return(cleaned_data_frame[["Q24_response_cleaned"]])
+}
+
+identify_item_version_vape_when_puffed <- function(cleaned_data_frame){
+  
+  cleaned_data_frame[["Q24_response_cleaned"]] <- clean_response_vape_puffs(cleaned_data_frame)
+  cleaned_data_frame[["status_survey_ema_collapsed"]] <- collapse_survey_ema_status(cleaned_data_frame)
+  
+  cleaned_data_frame <- cleaned_data_frame %>% 
+    mutate(item_version = case_when(
+      (!is.na(Q24_response_cleaned)) & ((Q24_response_cleaned > 0) & (Q24_response_cleaned <= 1)) & (!is.na(Q25_response)) ~ "no_version_change",
+      
+      (!is.na(Q24_response_cleaned)) & (Q24_response_cleaned >= 2) & (!is.na(Q27_response)) ~ "early_version",
+      (!is.na(Q24_response_cleaned)) & (Q24_response_cleaned >= 2) & (!is.na(Q26_response)) ~ "early_version",
+      
+      (!is.na(Q24_response_cleaned)) & (Q24_response_cleaned >= 2) & (!is.na(Q51_response)) ~ "late_version",
+      (!is.na(Q24_response_cleaned)) & (Q24_response_cleaned >= 2) & (!is.na(Q52_response)) ~ "late_version",
+      
+      (!is.na(Q24_response_cleaned)) & (Q24_response_cleaned == 0) ~ "prior_item_has_response_and_skipped",
+      (is.na(Q24_response_cleaned)) & (!is.na(ts_coinflip_mountain)) ~ "prior_item_has_no_response",
+      .default = NULL
+    ))
+  
+  return(cleaned_data_frame[["item_version"]])
+}
+
 
