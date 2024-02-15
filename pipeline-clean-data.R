@@ -298,7 +298,7 @@ rm(list = ls())
 # Output:
 #   dat_mars_proximal_cigarette_smoking_with_metadata.rds
 #   dat_mars_proximal_cigarette_smoking.rds
-source("prepare-analytic-datasets/indicator-for-proximal-cigarette-smoking/implement-decision-rule.R")  
+source("prepare-analytic-datasets/indicator-for-proximal-cigarette-smoking/implement-decision-rule-cigarette-smoking-times.R")  
 rm(list = ls())
 
 # Input:
@@ -312,11 +312,20 @@ source("prepare-analytic-datasets/indicator-for-proximal-vaping/parse-vaping-smo
 rm(list = ls())
 
 # Input:
+#   parsed_vape_puff_times.rds
+# Output:
+#   dat_mars_proximal_vaping_with_metadata.rds
+#   dat_mars_proximal_vaping.rds
+source("prepare-analytic-datasets/indicator-for-proximal-vaping/implement-decision-rule-vaping-times.R")
+rm(list = ls())
+
+# Input:
 #   dat_mars_basic.rds
 #   dat_mars_derived_time_vars.rds
 #   dat_mars_time_varying_moderators.rds
 #   dat_mars_time_varying_noise_reduction_vars.rds
 #   dat_mars_proximal_cigarette_smoking.rds
+#   dat_mars_proximal_vaping.rds
 #   dat_parsed_conditions.rds
 # Output:
 #   dat_primary_aim.rds

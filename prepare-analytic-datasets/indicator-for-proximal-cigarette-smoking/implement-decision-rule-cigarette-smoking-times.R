@@ -14,7 +14,7 @@ library(tidyverse)
 # Load datasets
 ################################################################################
 
-parsed_cigarette_smoking_times <- readRDS(file = file.path(path_manipulated_data, "smoking-lapse-indicators-pipeline-data", "parsed_cigarette_smoking_times.rds"))
+parsed_cigarette_smoking_times <- readRDS(file = file.path(path_proximal_smoking_pipeline_data, "parsed_cigarette_smoking_times.rds"))
 dat_analysis <- parsed_cigarette_smoking_times
 
 ################################################################################
