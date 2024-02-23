@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-01-29" />
+<meta name="date" content="2024-02-23" />
 
 <title>MARS MRT: H1 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,18 +351,36 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H1 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">January 29, 2024</h4>
+<h4 class="date">February 23, 2024</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#h1-main-analysis" id="toc-h1-main-analysis"><span class="toc-section-number">1</span> H1 Main Analysis</a></li>
+<li><a href="#h1-main-analysis" id="toc-h1-main-analysis"><span class="toc-section-number">1</span> H1 Main Analysis</a>
+<ul>
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">1.1</span> Estimated effect on the log risk
+ratio scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">1.2</span> Estimated effect on the risk ratio
+scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-difference-scale" id="toc-estimated-effect-on-the-risk-difference-scale"><span class="toc-section-number">1.3</span> Estimated effect on the risk
+difference scale</a></li>
+<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">1.4</span> Estimated prevalence by
+group</a></li>
+</ul></li>
 <li><a href="#exploratory-analysis-linear-effect-of-time" id="toc-exploratory-analysis-linear-effect-of-time"><span class="toc-section-number">2</span> Exploratory Analysis (Linear Effect
 of Time)</a></li>
 <li><a href="#exploratory-analysis-quadratic-effect-of-time" id="toc-exploratory-analysis-quadratic-effect-of-time"><span class="toc-section-number">3</span> Exploratory Analysis (Quadratic
 Effect of Time)</a></li>
-<li><a href="#h1-sensitivity-analysis" id="toc-h1-sensitivity-analysis"><span class="toc-section-number">4</span> H1 Sensitivity Analysis</a></li>
+<li><a href="#h1-sensitivity-analysis" id="toc-h1-sensitivity-analysis"><span class="toc-section-number">4</span> H1 Sensitivity Analysis</a>
+<ul>
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">4.1</span> Estimated effect on the log risk
+ratio scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-difference-scale-1" id="toc-estimated-effect-on-the-risk-difference-scale-1"><span class="toc-section-number">4.2</span> Estimated effect on the risk
+difference scale</a></li>
+<li><a href="#estimated-prevalence-by-group-1" id="toc-estimated-prevalence-by-group-1"><span class="toc-section-number">4.3</span> Estimated prevalence by
+group</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -381,8 +399,11 @@ Effect of Time</strong>, we investigate whether the effect of prompt
 in a linear or quadratic manner.</p>
 <div id="h1-main-analysis" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> H1 Main Analysis</h1>
-<pre><code>##   n_elig n_included_among_elig n_excluded_among_elig
-## 1   3858                  1724                  2134</code></pre>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_blocks_elig n_blocks_included_among_elig n_blocks_excluded_among_elig
+## 1                  99                                 90                                  9          3858                         1724                         2134</code></pre>
+<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Estimated effect on
+the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
@@ -394,24 +415,73 @@ in a linear or quadratic manner.</p>
 ## 
 ## $causal_excursion_effect
 ##              Estimate    95% LCL   95% UCL     StdErr  t_value df    p-value
-## (Intercept) 0.1057369 0.01084529 0.2006284 0.04771755 2.215891 84 0.02940349
+## (Intercept) 0.1057369 0.01067863 0.2007951 0.04771755 2.215891 75 0.02973248
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4621172761 -1.050033874  0.125799321 0.295642029 -1.56309736 84 1.217895e-01
-## age                                 0.0013799407 -0.005631283  0.008391164 0.003525691  0.39139578 84 6.964958e-01
-## is_female                           0.1385652766 -0.146047293  0.423177846 0.143121385  0.96816613 84 3.357408e-01
-## is_latino                           0.2104193266 -0.074451835  0.495290488 0.143251421  1.46888125 84 1.456002e-01
-## is_not_latino_and_black             0.1378492551 -0.132175168  0.407873678 0.135785533  1.01519840 84 3.129265e-01
-## is_not_latino_and_other             0.1301973091 -0.240296474  0.500691093 0.186307946  0.69882853 84 4.865896e-01
-## baseline_tobacco_history            0.0003621882 -0.013147493  0.013871870 0.006793531  0.05331369 84 9.576086e-01
-## has_partner                         0.0085755311 -0.201478048  0.218629110 0.105628361  0.08118588 84 9.354873e-01
-## income_val                         -0.0054758241 -0.037399351  0.026447703 0.016053189 -0.34110506 84 7.338762e-01
-## hour_coinflip_local                 0.0006456214 -0.009251144  0.010542387 0.004976726  0.12972815 84 8.970917e-01
-## days_between_v1_and_coinflip_local  0.0041302731 -0.011147321  0.019407867 0.007682550  0.53761746 84 5.922626e-01
-## any_response_2qs                    0.0422326044 -0.091790682  0.176255891 0.067395472  0.62663861 84 5.325955e-01
-## any_recent_eligible_dp             -1.0184089637 -1.396363427 -0.640454500 0.190059653 -5.35836485 84 7.223041e-07
-## engagement_most_recent_eligible     0.8660172640  0.607462074  1.124572454 0.130018069  6.66074545 84 2.660786e-09</code></pre>
+## (Intercept)                        -0.4621172761 -1.051066400  0.126831847 0.295642029 -1.56309736 75 1.222396e-01
+## age                                 0.0013799407 -0.005643597  0.008403478 0.003525691  0.39139578 75 6.966145e-01
+## is_female                           0.1385652766 -0.146547142  0.423677695 0.143121385  0.96816613 75 3.360732e-01
+## is_latino                           0.2104193266 -0.074952138  0.495790791 0.143251421  1.46888125 75 1.460471e-01
+## is_not_latino_and_black             0.1378492551 -0.132649397  0.408347907 0.135785533  1.01519840 75 3.132751e-01
+## is_not_latino_and_other             0.1301973091 -0.240947152  0.501341771 0.186307946  0.69882853 75 4.868207e-01
+## baseline_tobacco_history            0.0003621882 -0.013171219  0.013895596 0.006793531  0.05331369 75 9.576237e-01
+## has_partner                         0.0085755311 -0.201846954  0.218998016 0.105628361  0.08118588 75 9.355104e-01
+## income_val                         -0.0054758241 -0.037455417  0.026503768 0.016053189 -0.34110506 75 7.339782e-01
+## hour_coinflip_local                 0.0006456214 -0.009268525  0.010559768 0.004976726  0.12972815 75 8.971288e-01
+## days_between_v1_and_coinflip_local  0.0041302731 -0.011174152  0.019434698 0.007682550  0.53761746 75 5.924329e-01
+## any_response_2qs                    0.0422326044 -0.092026060  0.176491269 0.067395472  0.62663861 75 5.327990e-01
+## any_recent_eligible_dp             -1.0184089637 -1.397027208 -0.639790720 0.190059653 -5.35836485 75 8.899442e-07
+## engagement_most_recent_eligible     0.8660172640  0.607007988  1.125026540 0.130018069  6.66074545 75 3.986971e-09</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##             exp_estimates  stderr_rr   rrLB95   rrUB95
+## (Intercept)      1.111529 0.05303946 1.005869 1.217189</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Estimated effect on
+the risk difference scale</h2>
+<pre><code>## $call
+## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
+##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##               Estimate    95% LCL   95% UCL     StdErr     Wald df1 df2    p-value
+## (Intercept) 0.06522852 0.01427153 0.1161855 0.02557951 6.502654   1  75 0.01281179
+## 
+## $control_variables
+##                                         Estimate       95% LCL      95% UCL      StdErr        Wald df1 df2      p-value
+## (Intercept)                         0.7597624968  0.5037685233  1.015756470 0.128504441 34.95581493   1  75 9.322916e-08
+## age                                 0.0005914445 -0.0030309315  0.004213820 0.001818369  0.10579475   1  75 7.458891e-01
+## is_female                           0.0831100961 -0.0355705531  0.201790745 0.059575584  1.94612599   1  75 1.671226e-01
+## is_latino                           0.1223205749 -0.0004113877  0.245052538 0.061609272  3.94191158   1  75 5.075329e-02
+## is_not_latino_and_black             0.0801454937 -0.0391484990  0.199439486 0.059883472  1.79120082   1  75 1.848232e-01
+## is_not_latino_and_other             0.0774961511 -0.0759370139  0.230929316 0.077020731  1.01238334   1  75 3.175678e-01
+## baseline_tobacco_history            0.0007656490 -0.0056755526  0.007206851 0.003233369  0.05607237   1  75 8.134606e-01
+## has_partner                         0.0075448333 -0.0868535816  0.101943248 0.047386332  0.02535088   1  75 8.739238e-01
+## income_val                         -0.0043738955 -0.0191039044  0.010356113 0.007394204  0.34990810   1  75 5.559440e-01
+## hour_coinflip_local                 0.0006288763 -0.0049170836  0.006174836 0.002783974  0.05102703   1  75 8.219002e-01
+## days_between_v1_and_coinflip_local  0.0020329482 -0.0068736325  0.010939529 0.004470946  0.20675395   1  75 6.506370e-01
+## any_response_2qs                    0.0253673604 -0.0425693296  0.093304050 0.034103015  0.55330552   1  75 4.592943e-01
+## any_recent_eligible_dp             -0.5995386220 -0.7404490361 -0.458628208 0.070734532 71.84083288   1  75 1.480926e-12
+## engagement_most_recent_eligible     0.4472793124  0.3526276744  0.541930950 0.047513446 88.61853486   1  75 2.442491e-14</code></pre>
+</div>
+<div id="estimated-prevalence-by-group" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> Estimated prevalence
+by group</h2>
+<pre><code>## # A tibble: 2 × 2
+##   coinflip  mu_Y
+##      &lt;dbl&gt; &lt;dbl&gt;
+## 1        1 0.650
+## 2        0 0.589</code></pre>
+</div>
 </div>
 <div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Exploratory Analysis
@@ -426,26 +496,26 @@ in a linear or quadratic manner.</p>
 ##     availability = &quot;eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                                       Estimate      95% LCL    95% UCL     StdErr   t_value df    p-value
-## (Intercept)                         0.18606740 -0.001740917 0.37387571 0.09442540  1.970523 83 0.05211213
-## days_between_v1_and_coinflip_local -0.01608063 -0.046879917 0.01471866 0.01548512 -1.038457 83 0.30207338
+##                                       Estimate     95% LCL    95% UCL     StdErr   t_value df    p-value
+## (Intercept)                         0.18606740 -0.00207931 0.37421411 0.09442540  1.970523 74 0.05251958
+## days_between_v1_and_coinflip_local -0.01608063 -0.04693541 0.01477416 0.01548512 -1.038457 74 0.30243889
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4941975172 -1.127239026  0.138843992 0.318277682 -1.55272438 83 1.242939e-01
-## age                                 0.0013653080 -0.005660387  0.008391003 0.003532346  0.38651589 83 7.001038e-01
-## is_female                           0.1380047883 -0.146429510  0.422439087 0.143006561  0.96502417 83 3.373361e-01
-## is_latino                           0.2103357913 -0.074470272  0.495141854 0.143193475  1.46889229 83 1.456420e-01
-## is_not_latino_and_black             0.1377492145 -0.132235019  0.407733448 0.135741424  1.01479128 83 3.131544e-01
-## is_not_latino_and_other             0.1299045971 -0.239315489  0.499124684 0.185634768  0.69978592 83 4.860177e-01
-## baseline_tobacco_history            0.0004321648 -0.013032942  0.013897271 0.006769924  0.06383598 83 9.492543e-01
-## has_partner                         0.0083232342 -0.201567793  0.218214261 0.105528040  0.07887225 83 9.373241e-01
-## income_val                         -0.0055740273 -0.037513027  0.026364973 0.016058143 -0.34711532 83 7.293833e-01
-## hour_coinflip_local                 0.0004611783 -0.009422887  0.010345244 0.004969465  0.09280242 83 9.262842e-01
-## days_between_v1_and_coinflip_local  0.0120939402 -0.010433297  0.034621178 0.011326140  1.06779007 83 2.887111e-01
-## any_response_2qs                    0.0383232880 -0.096517861  0.173164436 0.067794809  0.56528352 83 5.734058e-01
-## any_recent_eligible_dp             -1.0226590626 -1.459660881 -0.585657244 0.219713753 -4.65450636 83 1.217344e-05
-## engagement_most_recent_eligible     0.8696540675  0.609601192  1.129706943 0.130748182  6.65136642 83 2.891615e-09</code></pre>
+## (Intercept)                        -0.4941975172 -1.128379643  0.139984608 0.318277682 -1.55272438 74 1.247556e-01
+## age                                 0.0013653080 -0.005673046  0.008403662 0.003532346  0.38651589 74 7.002238e-01
+## is_female                           0.1380047883 -0.146942005  0.422951581 0.143006561  0.96502417 74 3.376759e-01
+## is_latino                           0.2103357913 -0.074983436  0.495655019 0.143193475  1.46889229 74 1.461004e-01
+## is_not_latino_and_black             0.1377492145 -0.132721478  0.408219907 0.135741424  1.01479128 74 3.135119e-01
+## is_not_latino_and_other             0.1299045971 -0.239980752  0.499789946 0.185634768  0.69978592 74 4.862551e-01
+## baseline_tobacco_history            0.0004321648 -0.013057203  0.013921533 0.006769924  0.06383598 74 9.492730e-01
+## has_partner                         0.0083232342 -0.201945975  0.218592444 0.105528040  0.07887225 74 9.373471e-01
+## income_val                         -0.0055740273 -0.037570575  0.026422521 0.016058143 -0.34711532 74 7.294899e-01
+## hour_coinflip_local                 0.0004611783 -0.009440696  0.010363053 0.004969465  0.09280242 74 9.263113e-01
+## days_between_v1_and_coinflip_local  0.0120939402 -0.010473887  0.034661768 0.011326140  1.06779007 74 2.890863e-01
+## any_response_2qs                    0.0383232880 -0.096760818  0.173407394 0.067794809  0.56528352 74 5.735909e-01
+## any_recent_eligible_dp             -1.0226590628 -1.460448273 -0.584869853 0.219713753 -4.65450636 74 1.394515e-05
+## engagement_most_recent_eligible     0.8696540676  0.609132628  1.130175507 0.130748182  6.65136642 74 4.359468e-09</code></pre>
 </div>
 <div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Exploratory Analysis
@@ -462,34 +532,37 @@ in a linear or quadratic manner.</p>
 ##     availability = &quot;eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                                                                                Estimate      95% LCL    95% UCL      StdErr    t_value df   p-value
-## (Intercept)                                                                 0.311076207 -0.100829705 0.72298212 0.207020528  1.5026346 81 0.1368221
-## days_between_v1_and_coinflip_local                                         -0.077341966 -0.246642683 0.09195875 0.085089150 -0.9089522 81 0.3660720
-## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)  0.006034876 -0.009950014 0.02201977 0.008033875  0.7511788 81 0.4547220
+##                                                                                Estimate     95% LCL    95% UCL      StdErr    t_value df   p-value
+## (Intercept)                                                                 0.311076207 -0.10161167 0.72376409 0.207020528  1.5026346 72 0.1373068
+## days_between_v1_and_coinflip_local                                         -0.077341966 -0.24696409 0.09228015 0.085089150 -0.9089522 72 0.3664080
+## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)  0.006034876 -0.00998036 0.02205011 0.008033875  0.7511788 72 0.4549933
 ## 
 ## $control_variables
 ##                                                                                 Estimate      95% LCL      95% UCL      StdErr      t_value df      p-value
-## (Intercept)                                                                -6.176989e-01 -1.334345182  0.098947290 0.360180511 -1.714970487 81 9.017420e-02
-## age                                                                         1.492399e-03 -0.005573101  0.008557899 0.003551062  0.420268255 81 6.754023e-01
-## is_female                                                                   1.364129e-01 -0.150114843  0.422940741 0.144006514  0.947269292 81 3.463191e-01
-## is_latino                                                                   2.110333e-01 -0.074772608  0.496839142 0.143643685  1.469144066 81 1.456670e-01
-## is_not_latino_and_black                                                     1.369533e-01 -0.133941012  0.407847534 0.136149236  1.005905469 81 3.174566e-01
-## is_not_latino_and_other                                                     1.297147e-01 -0.241619480  0.501048840 0.186629498  0.695038465 81 4.890203e-01
-## baseline_tobacco_history                                                    3.091085e-04 -0.013130482  0.013748699 0.006754628  0.045762474 81 9.636122e-01
-## has_partner                                                                 7.095855e-03 -0.203540587  0.217732297 0.105864145  0.067027936 81 9.467246e-01
-## income_val                                                                 -5.099155e-03 -0.037400582  0.027202271 0.016234432 -0.314095101 81 7.542563e-01
-## hour_coinflip_local                                                         4.274983e-05 -0.009922720  0.010008219 0.005008563  0.008535348 81 9.932108e-01
-## days_between_v1_and_coinflip_local                                          9.245533e-02 -0.030263045  0.215173713 0.061677249  1.499018451 81 1.377563e-01
-## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) -7.948973e-03 -0.019582070  0.003684125 0.005846699 -1.359565868 81 1.777401e-01
-## any_response_2qs                                                            3.800865e-02 -0.097600402  0.173617709 0.068155997  0.557671440 81 5.786068e-01
-## any_recent_eligible_dp                                                     -1.055684e+00 -1.543312959 -0.568054180 0.245078525 -4.307531920 81 4.600588e-05
-## engagement_most_recent_eligible                                             8.646874e-01  0.604925345  1.124449398 0.130554260  6.623203011 81 3.563391e-09</code></pre>
+## (Intercept)                                                                -6.176989e-01 -1.335705671  0.100307780 0.360180511 -1.714970487 72 9.065191e-02
+## age                                                                         1.492399e-03 -0.005586514  0.008571312 0.003551062  0.420268255 72 6.755411e-01
+## is_female                                                                   1.364129e-01 -0.150658791  0.423484688 0.144006514  0.947269292 72 3.466701e-01
+## is_latino                                                                   2.110333e-01 -0.075315185  0.497381719 0.143643685  1.469144066 72 1.461497e-01
+## is_not_latino_and_black                                                     1.369533e-01 -0.134455280  0.408361803 0.136149236  1.005905469 72 3.178297e-01
+## is_not_latino_and_other                                                     1.297147e-01 -0.242324425  0.501753785 0.186629498  0.695038465 72 4.892682e-01
+## baseline_tobacco_history                                                    3.091085e-04 -0.013155995  0.013774212 0.006754628  0.045762474 72 9.636263e-01
+## has_partner                                                                 7.095855e-03 -0.203940461  0.218132172 0.105864145  0.067027936 72 9.467452e-01
+## income_val                                                                 -5.099155e-03 -0.037461903  0.027263592 0.016234432 -0.314095101 72 7.543571e-01
+## hour_coinflip_local                                                         4.274983e-05 -0.009941638  0.010027138 0.005008563  0.008535348 72 9.932135e-01
+## days_between_v1_and_coinflip_local                                          9.245533e-02 -0.030496014  0.215406683 0.061677249  1.499018451 72 1.382409e-01
+## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) -7.948973e-03 -0.019604155  0.003706209 0.005846699 -1.359565868 72 1.782101e-01
+## any_response_2qs                                                            3.800865e-02 -0.097857844  0.173875150 0.068155997  0.557671440 72 5.787986e-01
+## any_recent_eligible_dp                                                     -1.055684e+00 -1.544238681 -0.567128459 0.245078525 -4.307531919 72 5.137234e-05
+## engagement_most_recent_eligible                                             8.646874e-01  0.604432209  1.124942533 0.130554260  6.623203011 72 5.431979e-09</code></pre>
 </div>
 <div id="h1-sensitivity-analysis" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> H1 Sensitivity
 Analysis</h1>
-<pre><code>##   n_elig n_included_among_elig n_excluded_among_elig
-## 1   4549                  2014                  2535</code></pre>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_blocks_elig n_blocks_included_among_elig n_blocks_excluded_among_elig
+## 1                  99                                 90                                  9          4549                         2014                         2535</code></pre>
+<div id="estimated-effect-on-the-log-risk-ratio-scale-1" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Estimated effect on
+the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
@@ -501,24 +574,69 @@ Analysis</h1>
 ## 
 ## $causal_excursion_effect
 ##              Estimate    95% LCL   95% UCL     StdErr  t_value df     p-value
-## (Intercept) 0.1448387 0.04997095 0.2397065 0.04770559 3.036096 84 0.003191092
+## (Intercept) 0.1448387 0.04980434 0.2398731 0.04770559 3.036096 75 0.003294523
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.7848513875 -1.380585119 -0.189117656 0.299572984 -2.61990042 84 1.043583e-02
-## age                                 0.0013407442 -0.005621137  0.008302625 0.003500879  0.38297363 84 7.027068e-01
-## is_female                           0.1237662455 -0.155509065  0.403041556 0.140437470  0.88129076 84 3.806752e-01
-## is_latino                           0.1996281666 -0.088303765  0.487560098 0.144790572  1.37873733 84 1.716364e-01
-## is_not_latino_and_black             0.1335222120 -0.134431188  0.401475612 0.134744090  0.99093186 84 3.245648e-01
-## is_not_latino_and_other             0.1397071264 -0.229341057  0.508755310 0.185581007  0.75280940 84 4.536691e-01
-## baseline_tobacco_history           -0.0001914485 -0.013674714  0.013291817 0.006780247 -0.02823621 84 9.775407e-01
-## has_partner                         0.0054517860 -0.206700309  0.217603881 0.106683629  0.05110237 84 9.593653e-01
-## income_val                         -0.0065443162 -0.037968950  0.024880318 0.015802314 -0.41413658 84 6.798297e-01
-## hour_coinflip_local                 0.0004064190 -0.009504319  0.010317157 0.004983752  0.08154880 84 9.351995e-01
-## days_between_v1_and_coinflip_local  0.0052973114 -0.007957236  0.018551859 0.006665233  0.79476760 84 4.289885e-01
-## any_response_2qs                    0.0432155206 -0.083576327  0.170007368 0.063759042  0.67779438 84 4.997648e-01
-## any_recent_eligible_dp             -0.7102196368 -1.047387754 -0.373051519 0.169549672 -4.18885880 84 6.886554e-05
-## engagement_most_recent_eligible     0.8816752432  0.632702865  1.130647622 0.125199220  7.04217842 84 4.813126e-10</code></pre>
+## (Intercept)                        -0.7848513875 -1.381631374 -0.188071401 0.299572984 -2.61990042 75 1.064038e-02
+## age                                 0.0013407442 -0.005633363  0.008314852 0.003500879  0.38297363 75 7.028226e-01
+## is_female                           0.1237662455 -0.155999541  0.403532032 0.140437470  0.88129076 75 3.809761e-01
+## is_latino                           0.1996281666 -0.088809444  0.488065777 0.144790572  1.37873733 75 1.720742e-01
+## is_not_latino_and_black             0.1335222120 -0.134901780  0.401946204 0.134744090  0.99093186 75 3.249051e-01
+## is_not_latino_and_other             0.1397071264 -0.229989196  0.509403449 0.185581007  0.75280940 75 4.539209e-01
+## baseline_tobacco_history           -0.0001914485 -0.013698394  0.013315497 0.006780247 -0.02823621 75 9.775488e-01
+## has_partner                         0.0054517860 -0.207072900  0.217976472 0.106683629  0.05110237 75 9.593798e-01
+## income_val                         -0.0065443162 -0.038024140  0.024935507 0.015802314 -0.41413658 75 6.799561e-01
+## hour_coinflip_local                 0.0004064190 -0.009521725  0.010334563 0.004983752  0.08154880 75 9.352228e-01
+## days_between_v1_and_coinflip_local  0.0052973114 -0.007980514  0.018575137 0.006665233  0.79476760 75 4.292566e-01
+## any_response_2qs                    0.0432155206 -0.083799005  0.170230046 0.063759042  0.67779438 75 4.999878e-01
+## any_recent_eligible_dp             -0.7102196368 -1.047979904 -0.372459369 0.169549672 -4.18885880 75 7.565668e-05
+## engagement_most_recent_eligible     0.8816752432  0.632265608  1.131084879 0.125199220  7.04217842 75 7.739695e-10</code></pre>
+<pre><code>##             exp_estimates  stderr_rr   rrLB95   rrUB95
+## (Intercept)      1.155853 0.05514065 1.046007 1.265699</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-difference-scale-1" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Estimated effect on
+the risk difference scale</h2>
+<pre><code>## $call
+## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
+##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##               Estimate    95% LCL   95% UCL     StdErr     Wald df1 df2      p-value
+## (Intercept) 0.08878269 0.04032386 0.1372415 0.02432547 13.32092   1  75 0.0004827084
+## 
+## $control_variables
+##                                         Estimate      95% LCL      95% UCL      StdErr         Wald df1 df2      p-value
+## (Intercept)                         0.4981875308  0.216712744  0.779662318 0.141295358 1.243168e+01   1  75 7.237384e-04
+## age                                 0.0005959684 -0.002995485  0.004187421 0.001802846 1.092771e-01   1  75 7.418903e-01
+## is_female                           0.0744234793 -0.042785040  0.191631998 0.058836601 1.600018e+00   1  75 2.098169e-01
+## is_latino                           0.1121084625 -0.010363051  0.234579976 0.061478531 3.325292e+00   1  75 7.220609e-02
+## is_not_latino_and_black             0.0760348879 -0.040577471  0.192647247 0.058537339 1.687174e+00   1  75 1.979532e-01
+## is_not_latino_and_other             0.0813627614 -0.073915095  0.236640618 0.077946734 1.089571e+00   1  75 2.999191e-01
+## baseline_tobacco_history            0.0002899768 -0.006122326  0.006702280 0.003218862 8.115621e-03   1  75 9.284584e-01
+## has_partner                         0.0061365896 -0.089137700  0.101410879 0.047826006 1.646364e-02   1  75 8.982465e-01
+## income_val                         -0.0046494800 -0.019115449  0.009816489 0.007261660 4.099557e-01   1  75 5.239433e-01
+## hour_coinflip_local                 0.0004729612 -0.004986541  0.005932464 0.002740574 2.978298e-02   1  75 8.634484e-01
+## days_between_v1_and_coinflip_local  0.0027323049 -0.005218786  0.010683396 0.003991307 4.686278e-01   1  75 4.957292e-01
+## any_response_2qs                    0.0259452651 -0.037284447  0.089174978 0.031740196 6.681855e-01   1  75 4.162742e-01
+## any_recent_eligible_dp             -0.3280433694 -0.490161933 -0.165924806 0.081380648 1.624876e+01   1  75 1.321075e-04
+## engagement_most_recent_eligible     0.4490154255  0.360728495  0.537302356 0.044318476 1.026486e+02   1  75 1.110223e-15</code></pre>
+</div>
+<div id="estimated-prevalence-by-group-1" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Estimated prevalence
+by group</h2>
+<pre><code>## # A tibble: 2 × 2
+##   coinflip  mu_Y
+##      &lt;dbl&gt; &lt;dbl&gt;
+## 1        1 0.657
+## 2        0 0.573</code></pre>
+</div>
 </div>
 
 
