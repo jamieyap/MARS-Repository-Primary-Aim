@@ -316,7 +316,7 @@ rm(list = ls())
 # Output:
 #   dat_mars_proximal_vaping_with_metadata.rds
 #   dat_mars_proximal_vaping.rds
-source("prepare-analytic-datasets/indicator-for-proximal-vaping/implement-decision-rule-vaping-times.R")
+source("prepare-analytic-datasets/indicator-for-proximal-vaping/implement-decision-rule-vaping-smoking-times.R")
 rm(list = ls())
 
 # Input:

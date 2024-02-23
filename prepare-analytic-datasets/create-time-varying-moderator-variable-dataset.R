@@ -278,7 +278,8 @@ lookup <- c(stressor_is_any_sum_past24hrs = "stressor_is_any_sum_past24hrs",
             substance_is_any_sum_past24hrs = "substance_is_any_sum_past24hrs",
             substance_is_any_nicotine_sum_past24hrs = "substance_is_any_nicotine_sum_past24hrs",
             substance_is_marijuana_or_cannabis_sum_past24hrs = "substance_is_marijuana_or_cannabis_sum_past24hrs",
-            substance_is_alcohol_sum_past24hrs = "substance_is_alcohol_sum_past24hrs")
+            substance_is_alcohol_sum_past24hrs = "substance_is_alcohol_sum_past24hrs",
+            substance_is_cigarettes_sum_past24hrs = "substance_is_cigarettes_sum_past24hrs")
 
 list_all_dat <- list()
 dat_analysis[["stressor_is_any_sum_past24hrs"]] <- NA
@@ -288,6 +289,7 @@ dat_analysis[["substance_is_any_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_nicotine_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_sum_past24hrs"]] <- NA
+dat_analysis[["substance_is_cigarettes_sum_past24hrs"]] <- NA
 
 dat_analysis[["stressor_is_any_nreported_past24hrs"]] <- NA
 dat_analysis[["cigarette_counts_nreported_past24hrs"]] <- NA
@@ -296,6 +298,8 @@ dat_analysis[["substance_is_any_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_nicotine_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_nreported_past24hrs"]] <- NA
+dat_analysis[["substance_is_cigarettes_nreported_past24hrs"]] <- NA
+
 
 for(i in 1:n_ids){
   current_participant <- all_ids[i]
@@ -319,6 +323,7 @@ for(i in 1:n_ids){
         dat_current_participant[j,"substance_is_any_nicotine_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_any_nicotine"]]))
         dat_current_participant[j,"substance_is_marijuana_or_cannabis_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_marijuana_or_cannabis"]]))
         dat_current_participant[j,"substance_is_alcohol_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_alcohol"]]))
+        dat_current_participant[j,"substance_is_cigarettes_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_cigarettes"]]))
         
         # Note that checking whether number of micro-randomizations is equal to
         # the number of completed EMA will not count partially completed EMAs; 
@@ -350,6 +355,11 @@ for(i in 1:n_ids){
         
         if(n_rand_past24hrs == dat_current_participant[j,"substance_is_alcohol_nreported_past24hrs"]){
           dat_current_participant[j,"substance_is_alcohol_sum_past24hrs"] <- sum(dat_within_range[["substance_is_alcohol"]], na.rm = TRUE)
+        }
+        
+        
+        if(n_rand_past24hrs == dat_current_participant[j,"substance_is_cigarettes_nreported_past24hrs"]){
+          dat_current_participant[j,"substance_is_cigarettes_sum_past24hrs"] <- sum(dat_within_range[["substance_is_cigarettes"]], na.rm = TRUE)
         }
         
       }  # This if-then statement only executes if a block had any micro-randomization in the past 24 hours PRIOR TO the current micro-randomization
