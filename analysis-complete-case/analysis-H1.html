@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-02-23" />
+<meta name="date" content="2024-02-26" />
 
 <title>MARS MRT: H1 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H1 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">February 23, 2024</h4>
+<h4 class="date">February 26, 2024</h4>
 
 </div>
 
@@ -365,20 +365,28 @@ ratio scale</a></li>
 scale</a></li>
 <li><a href="#estimated-effect-on-the-risk-difference-scale" id="toc-estimated-effect-on-the-risk-difference-scale"><span class="toc-section-number">1.3</span> Estimated effect on the risk
 difference scale</a></li>
-<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">1.4</span> Estimated prevalence by
-group</a></li>
+<li><a href="#estimated-prevalence-by-group-marginal-over-time" id="toc-estimated-prevalence-by-group-marginal-over-time"><span class="toc-section-number">1.4</span> Estimated prevalence by group
+(marginal over time)</a></li>
 </ul></li>
 <li><a href="#exploratory-analysis-linear-effect-of-time" id="toc-exploratory-analysis-linear-effect-of-time"><span class="toc-section-number">2</span> Exploratory Analysis (Linear Effect
-of Time)</a></li>
+of Time)</a>
+<ul>
+<li><a href="#day-in-study" id="toc-day-in-study"><span class="toc-section-number">2.1</span> Day in study</a></li>
+<li><a href="#hour-of-day" id="toc-hour-of-day"><span class="toc-section-number">2.2</span> Hour of day</a></li>
+</ul></li>
 <li><a href="#exploratory-analysis-quadratic-effect-of-time" id="toc-exploratory-analysis-quadratic-effect-of-time"><span class="toc-section-number">3</span> Exploratory Analysis (Quadratic
-Effect of Time)</a></li>
+Effect of Time)</a>
+<ul>
+<li><a href="#day-in-study-1" id="toc-day-in-study-1"><span class="toc-section-number">3.1</span> Day in study</a></li>
+<li><a href="#hour-of-day-1" id="toc-hour-of-day-1"><span class="toc-section-number">3.2</span> Hour of day</a></li>
+</ul></li>
 <li><a href="#h1-sensitivity-analysis" id="toc-h1-sensitivity-analysis"><span class="toc-section-number">4</span> H1 Sensitivity Analysis</a>
 <ul>
 <li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">4.1</span> Estimated effect on the log risk
 ratio scale</a></li>
 <li><a href="#estimated-effect-on-the-risk-difference-scale-1" id="toc-estimated-effect-on-the-risk-difference-scale-1"><span class="toc-section-number">4.2</span> Estimated effect on the risk
 difference scale</a></li>
-<li><a href="#estimated-prevalence-by-group-1" id="toc-estimated-prevalence-by-group-1"><span class="toc-section-number">4.3</span> Estimated prevalence by
+<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">4.3</span> Estimated prevalence by
 group</a></li>
 </ul></li>
 </ul>
@@ -407,7 +415,7 @@ the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
@@ -419,9 +427,9 @@ the log risk ratio scale</h2>
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4621172761 -1.051066400  0.126831847 0.295642029 -1.56309736 75 1.222396e-01
+## (Intercept)                        -0.3235519995 -0.801009179  0.153905180 0.239675048 -1.34996113 75 1.810887e-01
 ## age                                 0.0013799407 -0.005643597  0.008403478 0.003525691  0.39139578 75 6.966145e-01
-## is_female                           0.1385652766 -0.146547142  0.423677695 0.143121385  0.96816613 75 3.360732e-01
+## is_male                            -0.1385652766 -0.423677695  0.146547142 0.143121385 -0.96816613 75 3.360732e-01
 ## is_latino                           0.2104193266 -0.074952138  0.495790791 0.143251421  1.46888125 75 1.460471e-01
 ## is_not_latino_and_black             0.1378492551 -0.132649397  0.408347907 0.135785533  1.01519840 75 3.132751e-01
 ## is_not_latino_and_other             0.1301973091 -0.240947152  0.501341771 0.186307946  0.69882853 75 4.868207e-01
@@ -446,7 +454,7 @@ the risk difference scale</h2>
 <pre><code>## $call
 ## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
@@ -458,9 +466,9 @@ the risk difference scale</h2>
 ## 
 ## $control_variables
 ##                                         Estimate       95% LCL      95% UCL      StdErr        Wald df1 df2      p-value
-## (Intercept)                         0.7597624968  0.5037685233  1.015756470 0.128504441 34.95581493   1  75 9.322916e-08
+## (Intercept)                         0.8428725930  0.6229304883  1.062814698 0.110407041 58.28144649   1  75 5.909229e-11
 ## age                                 0.0005914445 -0.0030309315  0.004213820 0.001818369  0.10579475   1  75 7.458891e-01
-## is_female                           0.0831100961 -0.0355705531  0.201790745 0.059575584  1.94612599   1  75 1.671226e-01
+## is_male                            -0.0831100961 -0.2017907453  0.035570553 0.059575584  1.94612599   1  75 1.671226e-01
 ## is_latino                           0.1223205749 -0.0004113877  0.245052538 0.061609272  3.94191158   1  75 5.075329e-02
 ## is_not_latino_and_black             0.0801454937 -0.0391484990  0.199439486 0.059883472  1.79120082   1  75 1.848232e-01
 ## is_not_latino_and_other             0.0774961511 -0.0759370139  0.230929316 0.077020731  1.01238334   1  75 3.175678e-01
@@ -473,9 +481,9 @@ the risk difference scale</h2>
 ## any_recent_eligible_dp             -0.5995386220 -0.7404490361 -0.458628208 0.070734532 71.84083288   1  75 1.480926e-12
 ## engagement_most_recent_eligible     0.4472793124  0.3526276744  0.541930950 0.047513446 88.61853486   1  75 2.442491e-14</code></pre>
 </div>
-<div id="estimated-prevalence-by-group" class="section level2" number="1.4">
+<div id="estimated-prevalence-by-group-marginal-over-time" class="section level2" number="1.4">
 <h2><span class="header-section-number">1.4</span> Estimated prevalence
-by group</h2>
+by group (marginal over time)</h2>
 <pre><code>## # A tibble: 2 × 2
 ##   coinflip  mu_Y
 ##      &lt;dbl&gt; &lt;dbl&gt;
@@ -486,10 +494,12 @@ by group</h2>
 <div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Exploratory Analysis
 (Linear Effect of Time)</h1>
+<div id="day-in-study" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Day in study</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
@@ -502,9 +512,9 @@ by group</h2>
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4941975172 -1.128379643  0.139984608 0.318277682 -1.55272438 74 1.247556e-01
+## (Intercept)                        -0.3561927289 -0.881219739  0.168834281 0.263495884 -1.35179618 74 1.805581e-01
 ## age                                 0.0013653080 -0.005673046  0.008403662 0.003532346  0.38651589 74 7.002238e-01
-## is_female                           0.1380047883 -0.146942005  0.422951581 0.143006561  0.96502417 74 3.376759e-01
+## is_male                            -0.1380047883 -0.422951581  0.146942005 0.143006561 -0.96502417 74 3.376759e-01
 ## is_latino                           0.2103357913 -0.074983436  0.495655019 0.143193475  1.46889229 74 1.461004e-01
 ## is_not_latino_and_black             0.1377492145 -0.132721478  0.408219907 0.135741424  1.01479128 74 3.135119e-01
 ## is_not_latino_and_other             0.1299045971 -0.239980752  0.499789946 0.185634768  0.69978592 74 4.862551e-01
@@ -517,14 +527,50 @@ by group</h2>
 ## any_recent_eligible_dp             -1.0226590628 -1.460448273 -0.584869853 0.219713753 -4.65450636 74 1.394515e-05
 ## engagement_most_recent_eligible     0.8696540676  0.609132628  1.130175507 0.130748182  6.65136642 74 4.359468e-09</code></pre>
 </div>
+<div id="hour-of-day" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Hour of day</h2>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~hour_coinflip_local, 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                       Estimate     95% LCL    95% UCL      StdErr    t_value df   p-value
+## (Intercept)          0.1726676 -0.12842881 0.47376403 0.151111592  1.1426497 74 0.2568676
+## hour_coinflip_local -0.0046968 -0.02426847 0.01487487 0.009822455 -0.4781696 74 0.6339391
+## 
+## $control_variables
+##                                        Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -0.365190812 -0.868122717  0.137741093 0.252406989 -1.44683320 74 1.521665e-01
+## age                                 0.001398645 -0.005604647  0.008401937 0.003514750  0.39793588 74 6.918231e-01
+## is_male                            -0.137964805 -0.422982637  0.147053028 0.143042214 -0.96450412 74 3.379347e-01
+## is_latino                           0.210142914 -0.074666646  0.494952475 0.142937688  1.47017150 74 1.457545e-01
+## is_not_latino_and_black             0.139192857 -0.130457750  0.408843464 0.135329847  1.02854514 74 3.070437e-01
+## is_not_latino_and_other             0.131304587 -0.239706628  0.502315802 0.186199807  0.70518111 74 4.829114e-01
+## baseline_tobacco_history            0.000333214 -0.013167865  0.013834293 0.006775801  0.04917707 74 9.609107e-01
+## has_partner                         0.008543841 -0.201324295  0.218411977 0.105326753  0.08111748 74 9.355675e-01
+## income_val                         -0.005331166 -0.037218002  0.026555669 0.016003081 -0.33313375 74 7.399753e-01
+## hour_coinflip_local                 0.002857819 -0.011770316  0.017485953 0.007341438  0.38927232 74 6.981927e-01
+## days_between_v1_and_coinflip_local  0.003926092 -0.011286695  0.019138880 0.007634858  0.51423251 74 6.086218e-01
+## any_response_2qs                    0.043266150 -0.091473244  0.178005543 0.067621808  0.63982539 74 5.242621e-01
+## any_recent_eligible_dp             -1.010909606 -1.398837645 -0.622981567 0.194689872 -5.19240982 74 1.761712e-06
+## engagement_most_recent_eligible     0.867600338  0.607523569  1.127677108 0.130525015  6.64700432 74 4.441051e-09</code></pre>
+</div>
+</div>
 <div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Exploratory Analysis
 (Quadratic Effect of Time)</h1>
+<div id="day-in-study-1" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Day in study</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local + 
 ##         I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local), 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + 
@@ -539,9 +585,9 @@ by group</h2>
 ## 
 ## $control_variables
 ##                                                                                 Estimate      95% LCL      95% UCL      StdErr      t_value df      p-value
-## (Intercept)                                                                -6.176989e-01 -1.335705671  0.100307780 0.360180511 -1.714970487 72 9.065191e-02
+## (Intercept)                                                                -4.812860e-01 -1.103231639  0.140659644 0.311992480 -1.542620506 72 1.273069e-01
 ## age                                                                         1.492399e-03 -0.005586514  0.008571312 0.003551062  0.420268255 72 6.755411e-01
-## is_female                                                                   1.364129e-01 -0.150658791  0.423484688 0.144006514  0.947269292 72 3.466701e-01
+## is_male                                                                    -1.364129e-01 -0.423484688  0.150658791 0.144006514 -0.947269292 72 3.466701e-01
 ## is_latino                                                                   2.110333e-01 -0.075315185  0.497381719 0.143643685  1.469144066 72 1.461497e-01
 ## is_not_latino_and_black                                                     1.369533e-01 -0.134455280  0.408361803 0.136149236  1.005905469 72 3.178297e-01
 ## is_not_latino_and_other                                                     1.297147e-01 -0.242324425  0.501753785 0.186629498  0.695038465 72 4.892682e-01
@@ -552,8 +598,46 @@ by group</h2>
 ## days_between_v1_and_coinflip_local                                          9.245533e-02 -0.030496014  0.215406683 0.061677249  1.499018451 72 1.382409e-01
 ## I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) -7.948973e-03 -0.019604155  0.003706209 0.005846699 -1.359565868 72 1.782101e-01
 ## any_response_2qs                                                            3.800865e-02 -0.097857844  0.173875150 0.068155997  0.557671440 72 5.787986e-01
-## any_recent_eligible_dp                                                     -1.055684e+00 -1.544238681 -0.567128459 0.245078525 -4.307531919 72 5.137234e-05
+## any_recent_eligible_dp                                                     -1.055684e+00 -1.544238681 -0.567128459 0.245078525 -4.307531920 72 5.137234e-05
 ## engagement_most_recent_eligible                                             8.646874e-01  0.604432209  1.124942533 0.130554260  6.623203011 72 5.431979e-09</code></pre>
+</div>
+<div id="hour-of-day-1" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Hour of day</h2>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~hour_coinflip_local + 
+##         I(hour_coinflip_local * hour_coinflip_local), control_formula = ~age + 
+##         is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
+##         baseline_tobacco_history + has_partner + income_val + 
+##         hour_coinflip_local + I(hour_coinflip_local * hour_coinflip_local) + 
+##         days_between_v1_and_coinflip_local + any_response_2qs + 
+##         any_recent_eligible_dp + engagement_most_recent_eligible, 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                                                  Estimate      95% LCL     95% UCL     StdErr    t_value df   p-value
+## (Intercept)                                   0.475368693 -0.528785396 1.479522782 0.50372332  0.9437099 72 0.3484739
+## hour_coinflip_local                          -0.051172477 -0.195210265 0.092865311 0.07225504 -0.7082202 72 0.4810951
+## I(hour_coinflip_local * hour_coinflip_local)  0.001644189 -0.003376528 0.006664906 0.00251859  0.6528214 72 0.5159505
+## 
+## $control_variables
+##                                                  Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                                  -0.751715311 -1.493846994 -0.009583628 0.372282541 -2.01920646 72 4.718958e-02
+## age                                           0.001366064 -0.005653079  0.008385208 0.003521079  0.38796746 72 6.991848e-01
+## is_male                                      -0.138741369 -0.424132292  0.146649554 0.143163350 -0.96911234 72 3.357334e-01
+## is_latino                                     0.207130495 -0.077887384  0.492148373 0.142976216  1.44870595 72 1.517610e-01
+## is_not_latino_and_black                       0.139409963 -0.130134823  0.408954749 0.135214303  1.03102971 72 3.059779e-01
+## is_not_latino_and_other                       0.135226999 -0.236661365  0.507115362 0.186553880  0.72486832 72 4.708820e-01
+## baseline_tobacco_history                      0.000281973 -0.013086375  0.013650321 0.006706091  0.04204730 72 9.665774e-01
+## has_partner                                   0.007177344 -0.202842708  0.217197397 0.105354347  0.06812575 72 9.458744e-01
+## income_val                                   -0.004861810 -0.036900705  0.027177085 0.016071974 -0.30250237 72 7.631413e-01
+## hour_coinflip_local                           0.062046488 -0.034318449  0.158411425 0.048340456  1.28353130 72 2.034217e-01
+## I(hour_coinflip_local * hour_coinflip_local) -0.002104495 -0.005518291  0.001309301 0.001712495 -1.22890606 72 2.231084e-01
+## days_between_v1_and_coinflip_local            0.003610353 -0.011636610  0.018857315 0.007648478  0.47203546 72 6.383290e-01
+## any_response_2qs                              0.040042831 -0.095306898  0.175392560 0.067896766  0.58976051 72 5.571975e-01
+## any_recent_eligible_dp                       -1.003967681 -1.359319330 -0.648616032 0.178258412 -5.63209148 72 3.231686e-07
+## engagement_most_recent_eligible               0.869582613  0.608870732  1.130294494 0.130783369  6.64903053 72 4.872937e-09</code></pre>
+</div>
 </div>
 <div id="h1-sensitivity-analysis" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> H1 Sensitivity
@@ -566,7 +650,7 @@ the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
@@ -578,9 +662,9 @@ the log risk ratio scale</h2>
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.7848513875 -1.381631374 -0.188071401 0.299572984 -2.61990042 75 1.064038e-02
+## (Intercept)                        -0.6610851420 -1.160850254 -0.161320030 0.250873235 -2.63513620 75 1.021366e-02
 ## age                                 0.0013407442 -0.005633363  0.008314852 0.003500879  0.38297363 75 7.028226e-01
-## is_female                           0.1237662455 -0.155999541  0.403532032 0.140437470  0.88129076 75 3.809761e-01
+## is_male                            -0.1237662455 -0.403532032  0.155999541 0.140437470 -0.88129076 75 3.809761e-01
 ## is_latino                           0.1996281666 -0.088809444  0.488065777 0.144790572  1.37873733 75 1.720742e-01
 ## is_not_latino_and_black             0.1335222120 -0.134901780  0.401946204 0.134744090  0.99093186 75 3.249051e-01
 ## is_not_latino_and_other             0.1397071264 -0.229989196  0.509403449 0.185581007  0.75280940 75 4.539209e-01
@@ -601,7 +685,7 @@ the risk difference scale</h2>
 <pre><code>## $call
 ## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~1, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
 ##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
@@ -613,9 +697,9 @@ the risk difference scale</h2>
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr         Wald df1 df2      p-value
-## (Intercept)                         0.4981875308  0.216712744  0.779662318 0.141295358 1.243168e+01   1  75 7.237384e-04
+## (Intercept)                         0.5726110100  0.315161851  0.830060169 0.129234918 1.963178e+01   1  75 3.151345e-05
 ## age                                 0.0005959684 -0.002995485  0.004187421 0.001802846 1.092771e-01   1  75 7.418903e-01
-## is_female                           0.0744234793 -0.042785040  0.191631998 0.058836601 1.600018e+00   1  75 2.098169e-01
+## is_male                            -0.0744234793 -0.191631998  0.042785040 0.058836601 1.600018e+00   1  75 2.098169e-01
 ## is_latino                           0.1121084625 -0.010363051  0.234579976 0.061478531 3.325292e+00   1  75 7.220609e-02
 ## is_not_latino_and_black             0.0760348879 -0.040577471  0.192647247 0.058537339 1.687174e+00   1  75 1.979532e-01
 ## is_not_latino_and_other             0.0813627614 -0.073915095  0.236640618 0.077946734 1.089571e+00   1  75 2.999191e-01
@@ -628,7 +712,7 @@ the risk difference scale</h2>
 ## any_recent_eligible_dp             -0.3280433694 -0.490161933 -0.165924806 0.081380648 1.624876e+01   1  75 1.321075e-04
 ## engagement_most_recent_eligible     0.4490154255  0.360728495  0.537302356 0.044318476 1.026486e+02   1  75 1.110223e-15</code></pre>
 </div>
-<div id="estimated-prevalence-by-group-1" class="section level2" number="4.3">
+<div id="estimated-prevalence-by-group" class="section level2" number="4.3">
 <h2><span class="header-section-number">4.3</span> Estimated prevalence
 by group</h2>
 <pre><code>## # A tibble: 2 × 2

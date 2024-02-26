@@ -1,0 +1,4 @@
+"","est_contrast","lcl_contrast","ucl_contrast","se_contrast","test_stat_contrast","degrees_of_freedom","p_value"
+"Indicator for High vs. Low"," 0.406545385","-0.16092580","0.9740166","0.28520636"," 1.4254429","81.000","0.1578715"
+"Indicator for High vs. Low x Day in Study","-0.099504104","-0.35598559","0.1569774","0.12890549","-0.7719152","81.000","0.4424109"
+"Indicator for High vs. Low x Square of Day in Study"," 0.008510267","-0.01531077","0.0323313","0.01197226"," 0.7108324","81.000","0.4792300"

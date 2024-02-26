@@ -29,6 +29,7 @@ dat_analysis <- dat_demogs %>% filter(!(mars_id %in% mars_ids_excluded_from_all_
 dat_analysis <- dat_analysis %>% 
   # Gender
   # * female is the larger group and is thus the reference category
+  mutate(is_male = if_else(gender_category == "male", 1, 0)) %>%
   mutate(is_female = if_else(gender_category == "female", 1, 0)) %>%
   # Partner status
   # * has no partner is the larger group and is thus the reference category
@@ -76,8 +77,8 @@ dat_summary_demogs_continuous <- dat_analysis %>%
             sd_income = sd(income_val, na.rm = TRUE))
 
 dat_summary_demogs_binary <- dat_analysis %>%
-  summarise(n_female = sum(is_female),
-            pct_female = mean(is_female) * 100,
+  summarise(n_male = sum(is_male),
+            pct_male = mean(is_male) * 100,
             n_latino = sum(is_latino),
             pct_latino = mean(is_latino) * 100,
             n_not_latino = sum(is_latino == 0),
@@ -97,7 +98,7 @@ dat_summary_demogs_binary <- dat_analysis %>%
 dat_analysis <- dat_analysis %>% 
   select(mars_id, redcap_id, rsr_id, is_missing_any_demog_data,
          age,
-         is_female, 
+         is_male, is_female, 
          is_latino, is_not_latino_and_black, is_not_latino_and_other, # these three indicators collectively define race/ethnicity
          baseline_tobacco_history, 
          has_partner, 

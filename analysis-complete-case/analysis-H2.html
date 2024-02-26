@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-01-22" />
+<meta name="date" content="2024-02-26" />
 
 <title>MARS MRT: H2 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,18 +351,46 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H2 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">January 22, 2024</h4>
+<h4 class="date">February 26, 2024</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#h2-main-analysis" id="toc-h2-main-analysis"><span class="toc-section-number">1</span> H2 Main Analysis</a></li>
+<li><a href="#h2-main-analysis" id="toc-h2-main-analysis"><span class="toc-section-number">1</span> H2 Main Analysis</a>
+<ul>
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">1.1</span> Estimated effect on the log risk
+ratio scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">1.2</span> Estimated effect on the risk ratio
+scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-difference-scale" id="toc-estimated-effect-on-the-risk-difference-scale"><span class="toc-section-number">1.3</span> Estimated effect on the risk
+difference scale</a></li>
+</ul></li>
 <li><a href="#exploratory-analysis-linear-effect-of-time" id="toc-exploratory-analysis-linear-effect-of-time"><span class="toc-section-number">2</span> Exploratory Analysis (Linear Effect
-of Time)</a></li>
+of Time)</a>
+<ul>
+<li><a href="#day-in-study" id="toc-day-in-study"><span class="toc-section-number">2.1</span> Day in study</a></li>
+<li><a href="#hour-of-day" id="toc-hour-of-day"><span class="toc-section-number">2.2</span> Hour of day</a></li>
+</ul></li>
 <li><a href="#exploratory-analysis-quadratic-effect-of-time" id="toc-exploratory-analysis-quadratic-effect-of-time"><span class="toc-section-number">3</span> Exploratory Analysis (Quadratic
-Effect of Time)</a></li>
-<li><a href="#h2-sensitivity-analysis" id="toc-h2-sensitivity-analysis"><span class="toc-section-number">4</span> H2 Sensitivity Analysis</a></li>
+Effect of Time)</a>
+<ul>
+<li><a href="#day-in-study-1" id="toc-day-in-study-1"><span class="toc-section-number">3.1</span> Day in study</a></li>
+<li><a href="#hour-of-day-1" id="toc-hour-of-day-1"><span class="toc-section-number">3.2</span> Hour of day</a></li>
+<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">3.3</span> Estimated prevalence by
+group</a></li>
+</ul></li>
+<li><a href="#h2-sensitivity-analysis" id="toc-h2-sensitivity-analysis"><span class="toc-section-number">4</span> H2 Sensitivity Analysis</a>
+<ul>
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">4.1</span> Estimated effect on the log risk
+ratio scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale-1" id="toc-estimated-effect-on-the-risk-ratio-scale-1"><span class="toc-section-number">4.2</span> Estimated effect on the risk ratio
+scale</a></li>
+<li><a href="#estimated-prevalence-by-group-1" id="toc-estimated-prevalence-by-group-1"><span class="toc-section-number">4.3</span> Estimated prevalence by
+group</a></li>
+<li><a href="#estimated-effect-on-the-risk-difference-scale-1" id="toc-estimated-effect-on-the-risk-difference-scale-1"><span class="toc-section-number">4.4</span> Estimated effect on the risk
+difference scale</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -381,1097 +409,260 @@ effort prompt (versus low effort prompt) varies by day in study, where
 day in study is modeled in a linear or quadratic manner.</p>
 <div id="h2-main-analysis" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> H2 Main Analysis</h1>
-<table style="width:100%;">
-<colgroup>
-<col width="38%" />
-<col width="12%" />
-<col width="9%" />
-<col width="7%" />
-<col width="6%" />
-<col width="6%" />
-<col width="11%" />
-<col width="3%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus No Prompt)</td>
-<td align="left">beta0</td>
-<td align="right">0.189</td>
-<td align="right">0.078</td>
-<td align="right">0.300</td>
-<td align="right">0.056</td>
-<td align="right">3.378</td>
-<td align="right">84</td>
-<td align="right">0.001</td>
-</tr>
-<tr class="even">
-<td align="left">Low Effort Prompt (versus No Prompt)</td>
-<td align="left">beta1</td>
-<td align="right">0.020</td>
-<td align="right">-0.087</td>
-<td align="right">0.128</td>
-<td align="right">0.054</td>
-<td align="right">0.378</td>
-<td align="right">84</td>
-<td align="right">0.706</td>
-</tr>
-</tbody>
-</table>
-<table>
-<colgroup>
-<col width="48%" />
-<col width="15%" />
-<col width="21%" />
-<col width="7%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">exp(coefficient)</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus No Prompt)</td>
-<td align="left">beta0</td>
-<td align="right">1.208</td>
-<td align="right">1.081</td>
-<td align="right">1.350</td>
-</tr>
-<tr class="even">
-<td align="left">Low Effort Prompt (versus No Prompt)</td>
-<td align="left">beta1</td>
-<td align="right">1.021</td>
-<td align="right">0.917</td>
-<td align="right">1.136</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="12%" />
-<col width="9%" />
-<col width="7%" />
-<col width="7%" />
-<col width="6%" />
-<col width="11%" />
-<col width="3%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Intercept</td>
-<td align="left">alpha0</td>
-<td align="right">-0.416</td>
-<td align="right">-0.976</td>
-<td align="right">0.144</td>
-<td align="right">0.282</td>
-<td align="right">-1.476</td>
-<td align="right">84</td>
-<td align="right">0.144</td>
-</tr>
-<tr class="even">
-<td align="left">age</td>
-<td align="left">alpha1</td>
-<td align="right">0.002</td>
-<td align="right">-0.005</td>
-<td align="right">0.009</td>
-<td align="right">0.004</td>
-<td align="right">0.449</td>
-<td align="right">84</td>
-<td align="right">0.654</td>
-</tr>
-<tr class="odd">
-<td align="left">is_female</td>
-<td align="left">alpha2</td>
-<td align="right">0.139</td>
-<td align="right">-0.142</td>
-<td align="right">0.421</td>
-<td align="right">0.141</td>
-<td align="right">0.985</td>
-<td align="right">84</td>
-<td align="right">0.328</td>
-</tr>
-<tr class="even">
-<td align="left">is_latino</td>
-<td align="left">alpha3</td>
-<td align="right">0.210</td>
-<td align="right">-0.072</td>
-<td align="right">0.491</td>
-<td align="right">0.142</td>
-<td align="right">1.480</td>
-<td align="right">84</td>
-<td align="right">0.143</td>
-</tr>
-<tr class="odd">
-<td align="left">is_not_latino_and_black</td>
-<td align="left">alpha4</td>
-<td align="right">0.138</td>
-<td align="right">-0.131</td>
-<td align="right">0.406</td>
-<td align="right">0.135</td>
-<td align="right">1.021</td>
-<td align="right">84</td>
-<td align="right">0.310</td>
-</tr>
-<tr class="even">
-<td align="left">is_not_latino_and_other</td>
-<td align="left">alpha5</td>
-<td align="right">0.134</td>
-<td align="right">-0.233</td>
-<td align="right">0.501</td>
-<td align="right">0.184</td>
-<td align="right">0.726</td>
-<td align="right">84</td>
-<td align="right">0.470</td>
-</tr>
-<tr class="odd">
-<td align="left">baseline_tobacco_history</td>
-<td align="left">alpha6</td>
-<td align="right">0.001</td>
-<td align="right">-0.013</td>
-<td align="right">0.014</td>
-<td align="right">0.007</td>
-<td align="right">0.086</td>
-<td align="right">84</td>
-<td align="right">0.932</td>
-</tr>
-<tr class="even">
-<td align="left">has_partner</td>
-<td align="left">alpha7</td>
-<td align="right">0.003</td>
-<td align="right">-0.205</td>
-<td align="right">0.211</td>
-<td align="right">0.105</td>
-<td align="right">0.029</td>
-<td align="right">84</td>
-<td align="right">0.977</td>
-</tr>
-<tr class="odd">
-<td align="left">income_val</td>
-<td align="left">alpha8</td>
-<td align="right">-0.004</td>
-<td align="right">-0.036</td>
-<td align="right">0.027</td>
-<td align="right">0.016</td>
-<td align="right">-0.282</td>
-<td align="right">84</td>
-<td align="right">0.779</td>
-</tr>
-<tr class="even">
-<td align="left">hour_coinflip_local</td>
-<td align="left">alpha9</td>
-<td align="right">0.000</td>
-<td align="right">-0.010</td>
-<td align="right">0.010</td>
-<td align="right">0.005</td>
-<td align="right">0.013</td>
-<td align="right">84</td>
-<td align="right">0.990</td>
-</tr>
-<tr class="odd">
-<td align="left">days_between_v1_and_coinflip_local</td>
-<td align="left">alpha10</td>
-<td align="right">0.005</td>
-<td align="right">-0.010</td>
-<td align="right">0.021</td>
-<td align="right">0.008</td>
-<td align="right">0.697</td>
-<td align="right">84</td>
-<td align="right">0.488</td>
-</tr>
-<tr class="even">
-<td align="left">any_response_2qs</td>
-<td align="left">alpha11</td>
-<td align="right">0.034</td>
-<td align="right">-0.099</td>
-<td align="right">0.167</td>
-<td align="right">0.067</td>
-<td align="right">0.503</td>
-<td align="right">84</td>
-<td align="right">0.616</td>
-</tr>
-<tr class="odd">
-<td align="left">any_recent_eligible_dp</td>
-<td align="left">alpha12</td>
-<td align="right">-1.074</td>
-<td align="right">-1.399</td>
-<td align="right">-0.749</td>
-<td align="right">0.164</td>
-<td align="right">-6.567</td>
-<td align="right">84</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="even">
-<td align="left">engagement_most_recent_eligible</td>
-<td align="left">alpha13</td>
-<td align="right">0.869</td>
-<td align="right">0.611</td>
-<td align="right">1.127</td>
-<td align="right">0.130</td>
-<td align="right">6.703</td>
-<td align="right">84</td>
-<td align="right">0.000</td>
-</tr>
-</tbody>
-</table>
+<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Estimated effect on
+the log risk ratio scale</h2>
+<pre><code>##                                       coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus No Prompt)       beta0    0.189  0.078  0.300 0.056     3.378 84 0.001
+## Low Effort Prompt (versus No Prompt)        beta1    0.020 -0.087  0.128 0.054     0.378 84 0.706
+## Intercept                                  alpha0   -0.276 -0.724  0.171 0.225    -1.228 84 0.223
+## age                                        alpha1    0.002 -0.005  0.009 0.004     0.449 84 0.654
+## is_male                                    alpha2   -0.139 -0.421  0.142 0.141    -0.985 84 0.328
+## is_latino                                  alpha3    0.210 -0.072  0.491 0.142     1.480 84 0.143
+## is_not_latino_and_black                    alpha4    0.138 -0.131  0.406 0.135     1.021 84 0.310
+## is_not_latino_and_other                    alpha5    0.134 -0.233  0.501 0.184     0.726 84 0.470
+## baseline_tobacco_history                   alpha6    0.001 -0.013  0.014 0.007     0.086 84 0.932
+## has_partner                                alpha7    0.003 -0.205  0.211 0.105     0.029 84 0.977
+## income_val                                 alpha8   -0.004 -0.036  0.027 0.016    -0.282 84 0.779
+## hour_coinflip_local                        alpha9    0.000 -0.010  0.010 0.005     0.013 84 0.990
+## days_between_v1_and_coinflip_local        alpha10    0.005 -0.010  0.021 0.008     0.697 84 0.488
+## any_response_2qs                          alpha11    0.034 -0.099  0.167 0.067     0.503 84 0.616
+## any_recent_eligible_dp                    alpha12   -1.074 -1.399 -0.749 0.164    -6.567 84 0.000
+## engagement_most_recent_eligible           alpha13    0.869  0.611  1.127 0.130     6.703 84 0.000</code></pre>
+<pre><code>##               est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom     p_value
+## High vs. None   0.18912374   0.07778065    0.3004668  0.05599042          3.3777875                 84 0.001109376
+## Low vs. None    0.02041765  -0.08698887    0.1278242  0.05401086          0.3780285                 84 0.706363000
+## High vs. Low    0.16870610   0.06439596    0.2730162  0.05245380          3.2162796                 84 0.001844620</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##   exp_estimates  stderr_rr    rrLB95   rrUB95
+## 1      1.208190 0.06764709 1.0736668 1.342714
+## 2      1.020628 0.05512497 0.9110055 1.130250
+## 3      1.183772 0.06209335 1.0602927 1.307252</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Estimated effect on
+the risk difference scale</h2>
+<pre><code>##                              variable    estimates        LCL95      UCL95    std_err
+## 1                         (Intercept) -0.396258400 -1.857317156 1.06480036 0.74545184
+## 2                      is_high_effort  0.548975632  0.231366684 0.86658458 0.16204836
+## 3                       is_low_effort  0.015606935 -0.263645004 0.29485887 0.14247810
+## 4                                 age  0.006274204 -0.022007784 0.03455619 0.01442985
+## 5                             is_male -0.571619049 -1.392528476 0.24929038 0.41883904
+## 6                           is_latino  0.894725977 -0.006837302 1.79628926 0.45998972
+## 7             is_not_latino_and_black  0.607076287 -0.218794509 1.43294708 0.42137039
+## 8             is_not_latino_and_other  0.512577420 -0.694636435 1.71979128 0.61593675
+## 9            baseline_tobacco_history  0.001820258 -0.045739566 0.04938008 0.02426566
+## 10                        has_partner -0.077965608 -0.775275432 0.61934422 0.35577686
+## 11                         income_val -0.036626666 -0.146864423 0.07361109 0.05624479
+## 12                hour_coinflip_local -0.001348209 -0.033834849 0.03113843 0.01657512
+## 13 days_between_v1_and_coinflip_local  0.037364743 -0.027974504 0.10270399 0.03333696
+## 14                   any_response_2qs  0.284198879 -0.131353797 0.69975155 0.21202057</code></pre>
+<pre><code>##       contrast est_contrast       LB95      UB95 est_stderr_contrast
+## 1 high vs none   0.54897563  0.2313667 0.8665846           0.1620484
+## 2  low vs none   0.01560694 -0.2636450 0.2948589           0.1424781
+## 3  high vs low   0.53336870  0.2124377 0.8542997           0.1637433</code></pre>
+</div>
 </div>
 <div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Exploratory Analysis
 (Linear Effect of Time)</h1>
-<table>
-<colgroup>
-<col width="46%" />
-<col width="10%" />
-<col width="7%" />
-<col width="6%" />
-<col width="5%" />
-<col width="5%" />
-<col width="9%" />
-<col width="2%" />
-<col width="5%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus No Prompt)</td>
-<td align="left">beta0</td>
-<td align="right">0.289</td>
-<td align="right">0.069</td>
-<td align="right">0.509</td>
-<td align="right">0.111</td>
-<td align="right">2.613</td>
-<td align="right">83</td>
-<td align="right">0.011</td>
-</tr>
-<tr class="even">
-<td align="left">High Effort Prompt (versus No Prompt) x Day in
-Study</td>
-<td align="left">beta1</td>
-<td align="right">-0.020</td>
-<td align="right">-0.055</td>
-<td align="right">0.014</td>
-<td align="right">0.017</td>
-<td align="right">-1.180</td>
-<td align="right">83</td>
-<td align="right">0.241</td>
-</tr>
-<tr class="odd">
-<td align="left">Low Effort Prompt (versus No Prompt)</td>
-<td align="left">beta2</td>
-<td align="right">0.056</td>
-<td align="right">-0.160</td>
-<td align="right">0.272</td>
-<td align="right">0.109</td>
-<td align="right">0.517</td>
-<td align="right">83</td>
-<td align="right">0.606</td>
-</tr>
-<tr class="even">
-<td align="left">Low Effort Prompt (versus No Prompt) x Day in
-Study</td>
-<td align="left">beta3</td>
-<td align="right">-0.007</td>
-<td align="right">-0.045</td>
-<td align="right">0.031</td>
-<td align="right">0.019</td>
-<td align="right">-0.375</td>
-<td align="right">83</td>
-<td align="right">0.708</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="12%" />
-<col width="9%" />
-<col width="7%" />
-<col width="7%" />
-<col width="6%" />
-<col width="11%" />
-<col width="3%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Intercept</td>
-<td align="left">alpha0</td>
-<td align="right">-0.433</td>
-<td align="right">-1.012</td>
-<td align="right">0.147</td>
-<td align="right">0.291</td>
-<td align="right">-1.486</td>
-<td align="right">83</td>
-<td align="right">0.141</td>
-</tr>
-<tr class="even">
-<td align="left">age</td>
-<td align="left">alpha1</td>
-<td align="right">0.002</td>
-<td align="right">-0.005</td>
-<td align="right">0.009</td>
-<td align="right">0.004</td>
-<td align="right">0.442</td>
-<td align="right">83</td>
-<td align="right">0.659</td>
-</tr>
-<tr class="odd">
-<td align="left">is_female</td>
-<td align="left">alpha2</td>
-<td align="right">0.138</td>
-<td align="right">-0.144</td>
-<td align="right">0.419</td>
-<td align="right">0.142</td>
-<td align="right">0.972</td>
-<td align="right">83</td>
-<td align="right">0.334</td>
-</tr>
-<tr class="even">
-<td align="left">is_latino</td>
-<td align="left">alpha3</td>
-<td align="right">0.210</td>
-<td align="right">-0.072</td>
-<td align="right">0.492</td>
-<td align="right">0.142</td>
-<td align="right">1.484</td>
-<td align="right">83</td>
-<td align="right">0.142</td>
-</tr>
-<tr class="odd">
-<td align="left">is_not_latino_and_black</td>
-<td align="left">alpha4</td>
-<td align="right">0.139</td>
-<td align="right">-0.129</td>
-<td align="right">0.408</td>
-<td align="right">0.135</td>
-<td align="right">1.030</td>
-<td align="right">83</td>
-<td align="right">0.306</td>
-</tr>
-<tr class="even">
-<td align="left">is_not_latino_and_other</td>
-<td align="left">alpha5</td>
-<td align="right">0.135</td>
-<td align="right">-0.231</td>
-<td align="right">0.502</td>
-<td align="right">0.184</td>
-<td align="right">0.733</td>
-<td align="right">83</td>
-<td align="right">0.466</td>
-</tr>
-<tr class="odd">
-<td align="left">baseline_tobacco_history</td>
-<td align="left">alpha6</td>
-<td align="right">0.001</td>
-<td align="right">-0.013</td>
-<td align="right">0.014</td>
-<td align="right">0.007</td>
-<td align="right">0.091</td>
-<td align="right">83</td>
-<td align="right">0.928</td>
-</tr>
-<tr class="even">
-<td align="left">has_partner</td>
-<td align="left">alpha7</td>
-<td align="right">0.003</td>
-<td align="right">-0.206</td>
-<td align="right">0.211</td>
-<td align="right">0.105</td>
-<td align="right">0.027</td>
-<td align="right">83</td>
-<td align="right">0.979</td>
-</tr>
-<tr class="odd">
-<td align="left">income_val</td>
-<td align="left">alpha8</td>
-<td align="right">-0.004</td>
-<td align="right">-0.036</td>
-<td align="right">0.027</td>
-<td align="right">0.016</td>
-<td align="right">-0.277</td>
-<td align="right">83</td>
-<td align="right">0.782</td>
-</tr>
-<tr class="even">
-<td align="left">hour_coinflip_local</td>
-<td align="left">alpha9</td>
-<td align="right">0.000</td>
-<td align="right">-0.010</td>
-<td align="right">0.010</td>
-<td align="right">0.005</td>
-<td align="right">-0.010</td>
-<td align="right">83</td>
-<td align="right">0.992</td>
-</tr>
-<tr class="odd">
-<td align="left">days_between_v1_and_coinflip_local</td>
-<td align="left">alpha10</td>
-<td align="right">0.012</td>
-<td align="right">-0.010</td>
-<td align="right">0.035</td>
-<td align="right">0.011</td>
-<td align="right">1.077</td>
-<td align="right">83</td>
-<td align="right">0.284</td>
-</tr>
-<tr class="even">
-<td align="left">any_response_2qs</td>
-<td align="left">alpha11</td>
-<td align="right">0.030</td>
-<td align="right">-0.104</td>
-<td align="right">0.164</td>
-<td align="right">0.067</td>
-<td align="right">0.447</td>
-<td align="right">83</td>
-<td align="right">0.656</td>
-</tr>
-<tr class="odd">
-<td align="left">any_recent_eligible_dp</td>
-<td align="left">alpha12</td>
-<td align="right">-1.088</td>
-<td align="right">-1.440</td>
-<td align="right">-0.737</td>
-<td align="right">0.177</td>
-<td align="right">-6.166</td>
-<td align="right">83</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="even">
-<td align="left">engagement_most_recent_eligible</td>
-<td align="left">alpha13</td>
-<td align="right">0.873</td>
-<td align="right">0.613</td>
-<td align="right">1.132</td>
-<td align="right">0.130</td>
-<td align="right">6.694</td>
-<td align="right">83</td>
-<td align="right">0.000</td>
-</tr>
-</tbody>
-</table>
+<div id="day-in-study" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Day in study</h2>
+<pre><code>##                                                      coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus No Prompt)                      beta0    0.289  0.069  0.509 0.111     2.613 83 0.011
+## High Effort Prompt (versus No Prompt) x Day in Study       beta1   -0.020 -0.055  0.014 0.017    -1.180 83 0.241
+## Low Effort Prompt (versus No Prompt)                       beta2    0.056 -0.160  0.272 0.109     0.517 83 0.606
+## Low Effort Prompt (versus No Prompt) x Day in Study        beta3   -0.007 -0.045  0.031 0.019    -0.375 83 0.708
+## Intercept                                                 alpha0   -0.295 -0.759  0.169 0.233    -1.266 83 0.209
+## age                                                       alpha1    0.002 -0.005  0.009 0.004     0.442 83 0.659
+## is_male                                                   alpha2   -0.138 -0.419  0.144 0.142    -0.972 83 0.334
+## is_latino                                                 alpha3    0.210 -0.072  0.492 0.142     1.484 83 0.142
+## is_not_latino_and_black                                   alpha4    0.139 -0.129  0.408 0.135     1.030 83 0.306
+## is_not_latino_and_other                                   alpha5    0.135 -0.231  0.502 0.184     0.733 83 0.466
+## baseline_tobacco_history                                  alpha6    0.001 -0.013  0.014 0.007     0.091 83 0.928
+## has_partner                                               alpha7    0.003 -0.206  0.211 0.105     0.027 83 0.979
+## income_val                                                alpha8   -0.004 -0.036  0.027 0.016    -0.277 83 0.782
+## hour_coinflip_local                                       alpha9    0.000 -0.010  0.010 0.005    -0.010 83 0.992
+## days_between_v1_and_coinflip_local                       alpha10    0.012 -0.010  0.035 0.011     1.077 83 0.284
+## any_response_2qs                                         alpha11    0.030 -0.104  0.164 0.067     0.447 83 0.656
+## any_recent_eligible_dp                                   alpha12   -1.088 -1.440 -0.737 0.177    -6.166 83 0.000
+## engagement_most_recent_eligible                          alpha13    0.873  0.613  1.132 0.130     6.694 83 0.000</code></pre>
+<pre><code>##                                           est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom    p_value
+## Indicator for High vs. Low                  0.23257985  0.004000646   0.46115905  0.11492399          2.0237710                 83 0.04621087
+## Indicator for High vs. Low x Day in Study  -0.01316123 -0.052422120   0.02609965  0.01973941         -0.6667493                 83 0.50678157</code></pre>
+</div>
+<div id="hour-of-day" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Hour of day</h2>
+<pre><code>##                                              coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus No Prompt)              beta0    0.292 -0.072  0.657 0.183     1.595 83 0.115
+## High Effort Prompt (versus No Prompt) x Hour       beta1   -0.007 -0.029  0.015 0.011    -0.639 83 0.525
+## Low Effort Prompt (versus No Prompt)               beta2    0.088 -0.278  0.454 0.184     0.480 83 0.632
+## Low Effort Prompt (versus No Prompt) x Hour        beta3   -0.005 -0.030  0.020 0.013    -0.382 83 0.703
+## Intercept                                         alpha0   -0.327 -0.806  0.153 0.241    -1.355 83 0.179
+## age                                               alpha1    0.002 -0.005  0.009 0.004     0.460 83 0.646
+## is_male                                           alpha2   -0.138 -0.419  0.142 0.141    -0.981 83 0.330
+## is_latino                                         alpha3    0.209 -0.072  0.491 0.141     1.482 83 0.142
+## is_not_latino_and_black                           alpha4    0.140 -0.127  0.407 0.134     1.040 83 0.302
+## is_not_latino_and_other                           alpha5    0.135 -0.231  0.502 0.184     0.735 83 0.464
+## baseline_tobacco_history                          alpha6    0.001 -0.013  0.014 0.007     0.081 83 0.936
+## has_partner                                       alpha7    0.003 -0.206  0.211 0.105     0.026 83 0.979
+## income_val                                        alpha8   -0.004 -0.036  0.027 0.016    -0.272 83 0.787
+## hour_coinflip_local                               alpha9    0.003 -0.012  0.017 0.007     0.391 83 0.697
+## days_between_v1_and_coinflip_local               alpha10    0.005 -0.010  0.020 0.008     0.667 83 0.506
+## any_response_2qs                                 alpha11    0.035 -0.098  0.168 0.067     0.521 83 0.604
+## any_recent_eligible_dp                           alpha12   -1.068 -1.408 -0.727 0.171    -6.236 83 0.000
+## engagement_most_recent_eligible                  alpha13    0.871  0.612  1.131 0.130     6.680 83 0.000</code></pre>
+<pre><code>##                                   est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
+## Indicator for High vs. Low         0.204013406  -0.20640608   0.61443289   0.2063488          0.9886822                 83 0.3256921
+## Indicator for High vs. Low x Hour -0.002360726  -0.02849168   0.02377023   0.0131380         -0.1796869                 83 0.8578363</code></pre>
+</div>
 </div>
 <div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Exploratory Analysis
 (Quadratic Effect of Time)</h1>
-<table>
-<colgroup>
-<col width="53%" />
-<col width="9%" />
-<col width="7%" />
-<col width="5%" />
-<col width="4%" />
-<col width="4%" />
-<col width="8%" />
-<col width="2%" />
-<col width="4%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus No Prompt)</td>
-<td align="left">beta0</td>
-<td align="right">0.484</td>
-<td align="right">0.029</td>
-<td align="right">0.939</td>
-<td align="right">0.229</td>
-<td align="right">2.115</td>
-<td align="right">81</td>
-<td align="right">0.038</td>
-</tr>
-<tr class="even">
-<td align="left">High Effort Prompt (versus No Prompt) x Day in
-Study</td>
-<td align="left">beta1</td>
-<td align="right">-0.117</td>
-<td align="right">-0.305</td>
-<td align="right">0.071</td>
-<td align="right">0.095</td>
-<td align="right">-1.240</td>
-<td align="right">81</td>
-<td align="right">0.219</td>
-</tr>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus No Prompt) x Day in Study x
-Day in Study</td>
-<td align="left">beta2</td>
-<td align="right">0.010</td>
-<td align="right">-0.008</td>
-<td align="right">0.027</td>
-<td align="right">0.009</td>
-<td align="right">1.072</td>
-<td align="right">81</td>
-<td align="right">0.287</td>
-</tr>
-<tr class="even">
-<td align="left">Low Effort Prompt (versus No Prompt)</td>
-<td align="left">beta3</td>
-<td align="right">0.077</td>
-<td align="right">-0.468</td>
-<td align="right">0.623</td>
-<td align="right">0.274</td>
-<td align="right">0.281</td>
-<td align="right">81</td>
-<td align="right">0.779</td>
-</tr>
-<tr class="odd">
-<td align="left">Low Effort Prompt (versus No Prompt) x Day in
-Study</td>
-<td align="left">beta4</td>
-<td align="right">-0.018</td>
-<td align="right">-0.256</td>
-<td align="right">0.220</td>
-<td align="right">0.120</td>
-<td align="right">-0.148</td>
-<td align="right">81</td>
-<td align="right">0.882</td>
-</tr>
-<tr class="even">
-<td align="left">Low Effort Prompt (versus No Prompt) x Day in Study x
-Day in Study</td>
-<td align="left">beta5</td>
-<td align="right">0.001</td>
-<td align="right">-0.021</td>
-<td align="right">0.023</td>
-<td align="right">0.011</td>
-<td align="right">0.098</td>
-<td align="right">81</td>
-<td align="right">0.922</td>
-</tr>
-</tbody>
-</table>
-<table>
-<colgroup>
-<col width="41%" />
-<col width="11%" />
-<col width="8%" />
-<col width="6%" />
-<col width="6%" />
-<col width="5%" />
-<col width="10%" />
-<col width="2%" />
-<col width="5%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Intercept</td>
-<td align="left">alpha0</td>
-<td align="right">-0.536</td>
-<td align="right">-1.171</td>
-<td align="right">0.099</td>
-<td align="right">0.319</td>
-<td align="right">-1.680</td>
-<td align="right">81</td>
-<td align="right">0.097</td>
-</tr>
-<tr class="even">
-<td align="left">age</td>
-<td align="left">alpha1</td>
-<td align="right">0.002</td>
-<td align="right">-0.005</td>
-<td align="right">0.009</td>
-<td align="right">0.004</td>
-<td align="right">0.482</td>
-<td align="right">81</td>
-<td align="right">0.631</td>
-</tr>
-<tr class="odd">
-<td align="left">is_female</td>
-<td align="left">alpha2</td>
-<td align="right">0.135</td>
-<td align="right">-0.148</td>
-<td align="right">0.419</td>
-<td align="right">0.142</td>
-<td align="right">0.951</td>
-<td align="right">81</td>
-<td align="right">0.345</td>
-</tr>
-<tr class="even">
-<td align="left">is_latino</td>
-<td align="left">alpha3</td>
-<td align="right">0.210</td>
-<td align="right">-0.073</td>
-<td align="right">0.493</td>
-<td align="right">0.142</td>
-<td align="right">1.478</td>
-<td align="right">81</td>
-<td align="right">0.143</td>
-</tr>
-<tr class="odd">
-<td align="left">is_not_latino_and_black</td>
-<td align="left">alpha4</td>
-<td align="right">0.137</td>
-<td align="right">-0.132</td>
-<td align="right">0.406</td>
-<td align="right">0.135</td>
-<td align="right">1.013</td>
-<td align="right">81</td>
-<td align="right">0.314</td>
-</tr>
-<tr class="even">
-<td align="left">is_not_latino_and_other</td>
-<td align="left">alpha5</td>
-<td align="right">0.133</td>
-<td align="right">-0.236</td>
-<td align="right">0.503</td>
-<td align="right">0.186</td>
-<td align="right">0.718</td>
-<td align="right">81</td>
-<td align="right">0.475</td>
-</tr>
-<tr class="odd">
-<td align="left">baseline_tobacco_history</td>
-<td align="left">alpha6</td>
-<td align="right">0.001</td>
-<td align="right">-0.013</td>
-<td align="right">0.014</td>
-<td align="right">0.007</td>
-<td align="right">0.075</td>
-<td align="right">81</td>
-<td align="right">0.941</td>
-</tr>
-<tr class="even">
-<td align="left">has_partner</td>
-<td align="left">alpha7</td>
-<td align="right">0.002</td>
-<td align="right">-0.207</td>
-<td align="right">0.212</td>
-<td align="right">0.105</td>
-<td align="right">0.023</td>
-<td align="right">81</td>
-<td align="right">0.982</td>
-</tr>
-<tr class="odd">
-<td align="left">income_val</td>
-<td align="left">alpha8</td>
-<td align="right">-0.004</td>
-<td align="right">-0.036</td>
-<td align="right">0.028</td>
-<td align="right">0.016</td>
-<td align="right">-0.257</td>
-<td align="right">81</td>
-<td align="right">0.798</td>
-</tr>
-<tr class="even">
-<td align="left">hour_coinflip_local</td>
-<td align="left">alpha9</td>
-<td align="right">-0.001</td>
-<td align="right">-0.011</td>
-<td align="right">0.009</td>
-<td align="right">0.005</td>
-<td align="right">-0.125</td>
-<td align="right">81</td>
-<td align="right">0.901</td>
-</tr>
-<tr class="odd">
-<td align="left">days_between_v1_and_coinflip_local</td>
-<td align="left">alpha10</td>
-<td align="right">0.094</td>
-<td align="right">-0.028</td>
-<td align="right">0.216</td>
-<td align="right">0.061</td>
-<td align="right">1.529</td>
-<td align="right">81</td>
-<td align="right">0.130</td>
-</tr>
-<tr class="even">
-<td align="left">any_response_2qs</td>
-<td align="left">alpha11</td>
-<td align="right">0.031</td>
-<td align="right">-0.104</td>
-<td align="right">0.165</td>
-<td align="right">0.068</td>
-<td align="right">0.454</td>
-<td align="right">81</td>
-<td align="right">0.651</td>
-</tr>
-<tr class="odd">
-<td align="left">any_recent_eligible_dp</td>
-<td align="left">alpha12</td>
-<td align="right">-1.142</td>
-<td align="right">-1.507</td>
-<td align="right">-0.777</td>
-<td align="right">0.183</td>
-<td align="right">-6.224</td>
-<td align="right">81</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="even">
-<td align="left">engagement_most_recent_eligible</td>
-<td align="left">alpha13</td>
-<td align="right">0.867</td>
-<td align="right">0.608</td>
-<td align="right">1.126</td>
-<td align="right">0.130</td>
-<td align="right">6.662</td>
-<td align="right">81</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="odd">
-<td align="left">days_between_v1_and_coinflip_local_squared</td>
-<td align="left">alpha14</td>
-<td align="right">-0.008</td>
-<td align="right">-0.020</td>
-<td align="right">0.004</td>
-<td align="right">0.006</td>
-<td align="right">-1.387</td>
-<td align="right">81</td>
-<td align="right">0.169</td>
-</tr>
-</tbody>
-</table>
+<div id="day-in-study-1" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Day in study</h2>
+<pre><code>##                                                                     coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus No Prompt)                                     beta0    0.484  0.029  0.939 0.229     2.115 81 0.038
+## High Effort Prompt (versus No Prompt) x Day in Study                      beta1   -0.117 -0.305  0.071 0.095    -1.240 81 0.219
+## High Effort Prompt (versus No Prompt) x Day in Study x Day in Study       beta2    0.010 -0.008  0.027 0.009     1.072 81 0.287
+## Low Effort Prompt (versus No Prompt)                                      beta3    0.077 -0.468  0.623 0.274     0.281 81 0.779
+## Low Effort Prompt (versus No Prompt) x Day in Study                       beta4   -0.018 -0.256  0.220 0.120    -0.148 81 0.882
+## Low Effort Prompt (versus No Prompt) x Day in Study x Day in Study        beta5    0.001 -0.021  0.023 0.011     0.098 81 0.922
+## Intercept                                                                alpha0   -0.401 -0.931  0.130 0.267    -1.504 81 0.137
+## age                                                                      alpha1    0.002 -0.005  0.009 0.004     0.482 81 0.631
+## is_male                                                                  alpha2   -0.135 -0.419  0.148 0.142    -0.951 81 0.345
+## is_latino                                                                alpha3    0.210 -0.073  0.493 0.142     1.478 81 0.143
+## is_not_latino_and_black                                                  alpha4    0.137 -0.132  0.406 0.135     1.013 81 0.314
+## is_not_latino_and_other                                                  alpha5    0.133 -0.236  0.503 0.186     0.718 81 0.475
+## baseline_tobacco_history                                                 alpha6    0.001 -0.013  0.014 0.007     0.075 81 0.941
+## has_partner                                                              alpha7    0.002 -0.207  0.212 0.105     0.023 81 0.982
+## income_val                                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 81 0.798
+## hour_coinflip_local                                                      alpha9   -0.001 -0.011  0.009 0.005    -0.125 81 0.901
+## days_between_v1_and_coinflip_local                                      alpha10    0.094 -0.028  0.216 0.061     1.529 81 0.130
+## any_response_2qs                                                        alpha11    0.031 -0.104  0.165 0.068     0.454 81 0.651
+## any_recent_eligible_dp                                                  alpha12   -1.142 -1.507 -0.777 0.183    -6.224 81 0.000
+## engagement_most_recent_eligible                                         alpha13    0.867  0.608  1.126 0.130     6.662 81 0.000
+## days_between_v1_and_coinflip_local_squared                              alpha14   -0.008 -0.020  0.004 0.006    -1.387 81 0.169</code></pre>
+<pre><code>##                                                     est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
+## Indicator for High vs. Low                           0.406545385  -0.16092580    0.9740166  0.28520636          1.4254429                 81 0.1578715
+## Indicator for High vs. Low x Day in Study           -0.099504104  -0.35598559    0.1569774  0.12890549         -0.7719152                 81 0.4424109
+## Indicator for High vs. Low x Square of Day in Study  0.008510267  -0.01531077    0.0323313  0.01197226          0.7108324                 81 0.4792300</code></pre>
+</div>
+<div id="hour-of-day-1" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Hour of day</h2>
+<pre><code>##                                                     coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus No Prompt)                     beta0    0.316 -0.787  1.419 0.554     0.570 81 0.570
+## High Effort Prompt (versus No Prompt) x Hour              beta1   -0.012 -0.167  0.143 0.078    -0.150 81 0.881
+## High Effort Prompt (versus No Prompt) x Hour x Hour       beta2    0.000 -0.005  0.006 0.003     0.071 81 0.944
+## Low Effort Prompt (versus No Prompt)                      beta3    0.599 -0.748  1.947 0.677     0.885 81 0.379
+## Low Effort Prompt (versus No Prompt) x Hour               beta4   -0.083 -0.283  0.117 0.100    -0.827 81 0.411
+## Low Effort Prompt (versus No Prompt) x Hour x Hour        beta5    0.003 -0.004  0.010 0.004     0.779 81 0.439
+## Intercept                                                alpha0   -0.730 -1.475  0.015 0.374    -1.950 81 0.055
+## age                                                      alpha1    0.002 -0.005  0.009 0.004     0.455 81 0.650
+## is_male                                                  alpha2   -0.137 -0.419  0.144 0.141    -0.970 81 0.335
+## is_latino                                                alpha3    0.208 -0.073  0.488 0.141     1.474 81 0.144
+## is_not_latino_and_black                                  alpha4    0.140 -0.127  0.407 0.134     1.045 81 0.299
+## is_not_latino_and_other                                  alpha5    0.141 -0.225  0.507 0.184     0.766 81 0.446
+## baseline_tobacco_history                                 alpha6    0.001 -0.013  0.014 0.007     0.087 81 0.931
+## has_partner                                              alpha7    0.002 -0.206  0.210 0.105     0.019 81 0.985
+## income_val                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 81 0.798
+## hour_coinflip_local                                      alpha9    0.062 -0.033  0.158 0.048     1.298 81 0.198
+## days_between_v1_and_coinflip_local                      alpha10    0.005 -0.011  0.020 0.008     0.628 81 0.532
+## any_response_2qs                                        alpha11    0.033 -0.100  0.166 0.067     0.492 81 0.624
+## any_recent_eligible_dp                                  alpha12   -1.049 -1.380 -0.719 0.166    -6.324 81 0.000
+## engagement_most_recent_eligible                         alpha13    0.874  0.614  1.134 0.131     6.684 81 0.000
+## hour_coinflip_local_squared                             alpha14   -0.002 -0.006  0.001 0.002    -1.243 81 0.218</code></pre>
+<pre><code>##                                             est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
+## Indicator for High vs. Low                  -0.283259528 -1.631070456  1.064551400 0.677398699         -0.4181578                 81 0.6769383
+## Indicator for High vs. Low x Hour            0.071292694 -0.127805258  0.270390645 0.100064995          0.7124639                 81 0.4782249
+## Indicator for High vs. Low x Square of Hour -0.002575469 -0.009581355  0.004430417 0.003521101         -0.7314386                 81 0.4666221</code></pre>
+</div>
+<div id="estimated-prevalence-by-group" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Estimated prevalence
+by group</h2>
+<pre><code>## # A tibble: 3 × 3
+## # Groups:   is_high_effort [2]
+##   is_high_effort is_low_effort  mu_Y
+##            &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+## 1              1             0 0.713
+## 2              0             1 0.602
+## 3              0             0 0.584</code></pre>
+</div>
 </div>
 <div id="h2-sensitivity-analysis" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> H2 Sensitivity
 Analysis</h1>
-<table>
-<colgroup>
-<col width="39%" />
-<col width="12%" />
-<col width="9%" />
-<col width="7%" />
-<col width="6%" />
-<col width="6%" />
-<col width="11%" />
-<col width="3%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort Prompt (versus Low Effort)</td>
-<td align="left">beta0</td>
-<td align="right">0.226</td>
-<td align="right">0.111</td>
-<td align="right">0.342</td>
-<td align="right">0.058</td>
-<td align="right">3.893</td>
-<td align="right">84</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="even">
-<td align="left">No Prompt (versus Low Effort)</td>
-<td align="left">beta1</td>
-<td align="right">0.056</td>
-<td align="right">-0.042</td>
-<td align="right">0.154</td>
-<td align="right">0.049</td>
-<td align="right">1.131</td>
-<td align="right">84</td>
-<td align="right">0.261</td>
-</tr>
-</tbody>
-</table>
-<table>
-<colgroup>
-<col width="43%" />
-<col width="16%" />
-<col width="23%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">exp(coefficient)</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">High Effort (versus Low Effort)</td>
-<td align="left">beta0</td>
-<td align="right">1.254</td>
-<td align="right">1.117</td>
-<td align="right">1.407</td>
-</tr>
-<tr class="even">
-<td align="left">None (versus Low Effort)</td>
-<td align="left">beta1</td>
-<td align="right">1.057</td>
-<td align="right">0.959</td>
-<td align="right">1.167</td>
-</tr>
-</tbody>
-</table>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="12%" />
-<col width="9%" />
-<col width="7%" />
-<col width="7%" />
-<col width="6%" />
-<col width="11%" />
-<col width="3%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">coefficient</th>
-<th align="right">estimate</th>
-<th align="right">LCL95</th>
-<th align="right">UCL95</th>
-<th align="right">SE</th>
-<th align="right">HotellingT</th>
-<th align="right">df</th>
-<th align="right">p</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Intercept</td>
-<td align="left">alpha0</td>
-<td align="right">-0.803</td>
-<td align="right">-1.396</td>
-<td align="right">-0.210</td>
-<td align="right">0.298</td>
-<td align="right">-2.692</td>
-<td align="right">84</td>
-<td align="right">0.009</td>
-</tr>
-<tr class="even">
-<td align="left">age</td>
-<td align="left">alpha1</td>
-<td align="right">0.001</td>
-<td align="right">-0.006</td>
-<td align="right">0.008</td>
-<td align="right">0.004</td>
-<td align="right">0.413</td>
-<td align="right">84</td>
-<td align="right">0.680</td>
-</tr>
-<tr class="odd">
-<td align="left">is_female</td>
-<td align="left">alpha2</td>
-<td align="right">0.124</td>
-<td align="right">-0.153</td>
-<td align="right">0.401</td>
-<td align="right">0.139</td>
-<td align="right">0.888</td>
-<td align="right">84</td>
-<td align="right">0.377</td>
-</tr>
-<tr class="even">
-<td align="left">is_latino</td>
-<td align="left">alpha3</td>
-<td align="right">0.199</td>
-<td align="right">-0.086</td>
-<td align="right">0.484</td>
-<td align="right">0.143</td>
-<td align="right">1.392</td>
-<td align="right">84</td>
-<td align="right">0.168</td>
-</tr>
-<tr class="odd">
-<td align="left">is_not_latino_and_black</td>
-<td align="left">alpha4</td>
-<td align="right">0.133</td>
-<td align="right">-0.134</td>
-<td align="right">0.400</td>
-<td align="right">0.134</td>
-<td align="right">0.992</td>
-<td align="right">84</td>
-<td align="right">0.324</td>
-</tr>
-<tr class="even">
-<td align="left">is_not_latino_and_other</td>
-<td align="left">alpha5</td>
-<td align="right">0.142</td>
-<td align="right">-0.223</td>
-<td align="right">0.508</td>
-<td align="right">0.184</td>
-<td align="right">0.774</td>
-<td align="right">84</td>
-<td align="right">0.441</td>
-</tr>
-<tr class="odd">
-<td align="left">baseline_tobacco_history</td>
-<td align="left">alpha6</td>
-<td align="right">0.000</td>
-<td align="right">-0.013</td>
-<td align="right">0.014</td>
-<td align="right">0.007</td>
-<td align="right">0.021</td>
-<td align="right">84</td>
-<td align="right">0.983</td>
-</tr>
-<tr class="even">
-<td align="left">has_partner</td>
-<td align="left">alpha7</td>
-<td align="right">0.003</td>
-<td align="right">-0.208</td>
-<td align="right">0.214</td>
-<td align="right">0.106</td>
-<td align="right">0.028</td>
-<td align="right">84</td>
-<td align="right">0.978</td>
-</tr>
-<tr class="odd">
-<td align="left">income_val</td>
-<td align="left">alpha8</td>
-<td align="right">-0.006</td>
-<td align="right">-0.037</td>
-<td align="right">0.025</td>
-<td align="right">0.016</td>
-<td align="right">-0.375</td>
-<td align="right">84</td>
-<td align="right">0.708</td>
-</tr>
-<tr class="even">
-<td align="left">hour_coinflip_local</td>
-<td align="left">alpha9</td>
-<td align="right">0.000</td>
-<td align="right">-0.010</td>
-<td align="right">0.010</td>
-<td align="right">0.005</td>
-<td align="right">0.005</td>
-<td align="right">84</td>
-<td align="right">0.996</td>
-</tr>
-<tr class="odd">
-<td align="left">days_between_v1_and_coinflip_local</td>
-<td align="left">alpha10</td>
-<td align="right">0.005</td>
-<td align="right">-0.008</td>
-<td align="right">0.019</td>
-<td align="right">0.007</td>
-<td align="right">0.792</td>
-<td align="right">84</td>
-<td align="right">0.430</td>
-</tr>
-<tr class="even">
-<td align="left">any_response_2qs</td>
-<td align="left">alpha11</td>
-<td align="right">0.038</td>
-<td align="right">-0.088</td>
-<td align="right">0.164</td>
-<td align="right">0.063</td>
-<td align="right">0.594</td>
-<td align="right">84</td>
-<td align="right">0.554</td>
-</tr>
-<tr class="odd">
-<td align="left">any_recent_eligible_dp</td>
-<td align="left">alpha12</td>
-<td align="right">-0.698</td>
-<td align="right">-1.034</td>
-<td align="right">-0.363</td>
-<td align="right">0.169</td>
-<td align="right">-4.142</td>
-<td align="right">84</td>
-<td align="right">0.000</td>
-</tr>
-<tr class="even">
-<td align="left">engagement_most_recent_eligible</td>
-<td align="left">alpha13</td>
-<td align="right">0.887</td>
-<td align="right">0.638</td>
-<td align="right">1.135</td>
-<td align="right">0.125</td>
-<td align="right">7.091</td>
-<td align="right">84</td>
-<td align="right">0.000</td>
-</tr>
-</tbody>
-</table>
+<div id="estimated-effect-on-the-log-risk-ratio-scale-1" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Estimated effect on
+the log risk ratio scale</h2>
+<pre><code>##                                        coefficient estimate  LCL95  UCL95    SE test_stat df     p
+## High Effort Prompt (versus Low Effort)       beta0    0.226  0.111  0.342 0.058     3.893 84 0.000
+## No Prompt (versus Low Effort)                beta1    0.056 -0.042  0.154 0.049     1.131 84 0.261
+## Intercept                                   alpha0   -0.679 -1.178 -0.180 0.251    -2.706 84 0.008
+## age                                         alpha1    0.001 -0.006  0.008 0.004     0.413 84 0.680
+## is_male                                     alpha2   -0.124 -0.401  0.153 0.139    -0.888 84 0.377
+## is_latino                                   alpha3    0.199 -0.086  0.484 0.143     1.392 84 0.168
+## is_not_latino_and_black                     alpha4    0.133 -0.134  0.400 0.134     0.992 84 0.324
+## is_not_latino_and_other                     alpha5    0.142 -0.223  0.508 0.184     0.774 84 0.441
+## baseline_tobacco_history                    alpha6    0.000 -0.013  0.014 0.007     0.021 84 0.983
+## has_partner                                 alpha7    0.003 -0.208  0.214 0.106     0.028 84 0.978
+## income_val                                  alpha8   -0.006 -0.037  0.025 0.016    -0.375 84 0.708
+## hour_coinflip_local                         alpha9    0.000 -0.010  0.010 0.005     0.005 84 0.996
+## days_between_v1_and_coinflip_local         alpha10    0.005 -0.008  0.019 0.007     0.792 84 0.430
+## any_response_2qs                           alpha11    0.038 -0.088  0.164 0.063     0.594 84 0.554
+## any_recent_eligible_dp                     alpha12   -0.698 -1.034 -0.363 0.169    -4.142 84 0.000
+## engagement_most_recent_eligible            alpha13    0.887  0.638  1.135 0.125     7.091 84 0.000</code></pre>
+<pre><code>##               est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom      p_value
+## High vs. None   0.22604885   0.11057773    0.3415200  0.05806625           3.892947                 84 0.0001978535
+## Low vs. None    0.05588754  -0.04235451    0.1541296  0.04940238           1.131272                 84 0.2611599372
+## High vs. Low    0.17016131   0.07150178    0.2688208  0.04961232           3.429820                 84 0.0009385823</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-ratio-scale-1" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##   exp_estimates  stderr_rr    rrLB95   rrUB95
+## 1      1.253637 0.07279400 1.1088781 1.398396
+## 2      1.057479 0.05224197 0.9535899 1.161368
+## 3      1.185496 0.05881521 1.0685356 1.302457</code></pre>
+</div>
+<div id="estimated-prevalence-by-group-1" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Estimated prevalence
+by group</h2>
+<pre><code>## # A tibble: 3 × 3
+## # Groups:   is_high_effort [2]
+##   is_high_effort is_low_effort  mu_Y
+##            &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
+## 1              1             0 0.725
+## 2              0             1 0.602
+## 3              0             0 0.576</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-difference-scale-1" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Estimated effect on
+the risk difference scale</h2>
+<pre><code>##                              variable     estimates       LCL95      UCL95    std_err
+## 1                         (Intercept) -0.3677020859 -1.78654316 1.05113899 0.72391181
+## 2                      is_high_effort  0.6758227012  0.36919475 0.98245065 0.15644571
+## 3                       is_low_effort  0.0827939155 -0.16814944 0.33373727 0.12803467
+## 4                                 age  0.0061110976 -0.02162735 0.03384955 0.01415253
+## 5                             is_male -0.4947099955 -1.29987361 0.31045362 0.41080531
+## 6                           is_latino  0.8202259958 -0.07101954 1.71147153 0.45472547
+## 7             is_not_latino_and_black  0.5909469189 -0.21268200 1.39457584 0.41002229
+## 8             is_not_latino_and_other  0.5624695511 -0.65750736 1.78244646 0.62244864
+## 9            baseline_tobacco_history -0.0001666009 -0.04644025 0.04610705 0.02360944
+## 10                        has_partner -0.0978794417 -0.79164996 0.59589108 0.35397105
+## 11                         income_val -0.0354337683 -0.14207785 0.07121032 0.05441125
+## 12                hour_coinflip_local -0.0033289073 -0.03470618 0.02804837 0.01600911
+## 13 days_between_v1_and_coinflip_local  0.0312580511 -0.02797787 0.09049397 0.03022296
+## 14                   any_response_2qs  0.2750763438 -0.11618374 0.66633643 0.19962616</code></pre>
+<pre><code>##       contrast est_contrast       LB95      UB95 est_stderr_contrast
+## 1 high vs none   0.67582270  0.3691947 0.9824507           0.1564457
+## 2  low vs none   0.08279392 -0.1681494 0.3337373           0.1280347
+## 3  high vs low   0.59302879  0.2924314 0.8936262           0.1533688</code></pre>
+</div>
 </div>
 
 

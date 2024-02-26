@@ -1,0 +1,4 @@
+"","est_contrast","lcl_contrast","ucl_contrast","se_contrast","test_stat_contrast","degrees_of_freedom","p_value"
+"Indicator for High vs. Low","-0.283259528","-1.631070456","1.064551400","0.677398699","-0.4181578","81.000","0.6769383"
+"Indicator for High vs. Low x Hour"," 0.071292694","-0.127805258","0.270390645","0.100064995"," 0.7124639","81.000","0.4782249"
+"Indicator for High vs. Low x Square of Hour","-0.002575469","-0.009581355","0.004430417","0.003521101","-0.7314386","81.000","0.4666221"

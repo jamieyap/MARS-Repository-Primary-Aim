@@ -27,9 +27,25 @@ options(width = 7000)
 source("paths.R")
 library(knitr)
 library(tidyverse)
+library(geepack)
 source(file = file.path("custom-analysis-code-emee-estimator", "emee_categorical_trt_with_Delta.R"))
 source(file = file.path("custom-analysis-code-emee-estimator", "helper-functions.R"))
 source(file = file.path("custom-analysis-code-emee-estimator", "emee-categorical-verbose-output.R"))
+```
+
+
+```{r}
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output"))
+}
+
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "H2"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output", "H2"))
+}
 ```
 
 ```{r}
@@ -52,8 +68,10 @@ dat_for_analysis <- dat_primary_aim %>%
          Y,
          hour_coinflip_local, days_between_v1_and_coinflip_local,
          any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
+
+## Estimated effect on the log risk ratio scale
 
 ```{r}
 # We will set up the dataset so that in analysis, we may have the following comparisons:
@@ -89,7 +107,7 @@ logical_vec_cc <- dat_for_analysis_elig %>%
   select(Y,
          hour_coinflip_local, days_between_v1_and_coinflip_local,
          any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
   complete.cases(.)
 
 # The next line says: among rows corresponding to blocks in which a participant 
@@ -105,7 +123,7 @@ fit1 <- emee_categorical_trt_with_Delta(
   decision_time_varname = "decision_point",
   treatment_varname = "treatment_cate",
   outcome_varname = "Y",
-  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
   moderator_varname = NULL,
   rand_prob_varname = "rand_prob",
   rand_prob_A0_varname = "rand_prob_A0",
@@ -139,7 +157,7 @@ dat_causal <- data.frame(coefficient = c("beta0", "beta1"),
                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
                          SE = round(fit1_causal[,"StdErr"], 3),
-                         HotellingT = round(fit1_causal[,"t_value"], 3),
+                         test_stat = round(fit1_causal[,"t_value"], 3),
                          df = round(fit1_causal[, "df"], 3),
                          p = round(fit1_causal[,"p-value"], 3))
 ```
@@ -153,50 +171,111 @@ row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
-knitr::kable(dat_causal)
-```
-
-```{r}
-fit1_causal <- fit1_results$causal_excursion_effect
-exp_fit1_results <- data.frame(exp_beta = exp(fit1_causal[,"Estimate"]),
-                               exp_95LCL = exp(fit1_causal[,"95% LCL"]),
-                               exp_95UCL = exp(fit1_causal[,"95% UCL"]))
-row.names(exp_fit1_results) <- c("High Effort Prompt (versus No Prompt)", "Low Effort Prompt (versus No Prompt)")
-exp_fit1_results <- exp_fit1_results %>%
-  mutate(exp_beta = round(exp_beta, 3),
-         exp_95LCL = round(exp_95LCL, 3),
-         exp_95UCL = round(exp_95UCL, 3)) %>%
-  mutate(coefficient = c("beta0", "beta1")) %>%
-  select(coefficient, everything())
-```
-
-```{r}
-knitr::kable(exp_fit1_results, col.names = c("coefficient", "exp(coefficient)", "LCL95", "UCL95"))
-```
-
-```{r}
 dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
                           estimate = round(fit1_control[,"Estimate"], 3),
                           LCL95 = round(fit1_control[,"95% LCL"], 3),
                           UCL95 = round(fit1_control[,"95% UCL"], 3),
                           SE = round(fit1_control[,"StdErr"], 3),
-                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
                           df = round(fit1_control[,"df"], 3),
                           p = round(fit1_control[,"p-value"], 3))
 ```
 
 ```{r}
-knitr::kable(dat_control)
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+# Format output to 3 decimal places
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2.csv"), row.names = TRUE)
 ```
 
 ```{r}
-# Format output to 3 decimal places
-dat_causal %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_causal.csv"), row.names = TRUE)
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
 
-dat_control %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_control.csv"), row.names = TRUE)
+Lmat <- matrix(c(1,0,
+                 0,1,
+                 1,-1), nrow = 3, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("High vs. None", "Low vs. None", "High vs. Low")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk ratio scale
+
+```{r}
+exp_estimates <- exp(results_contrast$est_contrast)
+var_rr <- diag(exp_estimates) %*% vcov_contrast %*% t(diag(exp_estimates))
+stderr_rr <- sqrt(diag(var_rr))
+rrLB95 <- exp_estimates - critical_value * stderr_rr
+rrUB95 <- exp_estimates + critical_value * stderr_rr
+
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, stderr_rr = stderr_rr, rrLB95 = rrLB95, rrUB95 = rrUB95)
+
+dat_exp_scale
+
+# Format output to 3 decimal places
+dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk difference scale
+
+```{r}
+fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "binomial", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
+
+dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
+                         estimates = summary(fit)$coefficients[,"Estimate"],
+                         LCL95 = summary(fit)$coefficients[,"Estimate"] - qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
+                         UCL95 = summary(fit)$coefficients[,"Estimate"] + qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
+                         std_err = summary(fit)$coefficients[,"Std.err"])
+
+dat_result
+
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_H2.csv"), row.names = TRUE)
+```
+
+```{r}
+Lmat <- matrix(c(0,1,0, rep(0,11),
+                 0,0,1, rep(0,11),
+                 0,1,-1, rep(0,11)), 
+               ncol = 14, byrow = TRUE)
+
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+LB95 <- c(est_contrast) - qnorm(0.975) * est_stderr_contrast
+UB95 <- c(est_contrast) + qnorm(0.975) * est_stderr_contrast
+
+dat_result <- data.frame(contrast = c("high vs none", "low vs none", "high vs low"), est_contrast = est_contrast, LB95 = LB95, UB95 = UB95, est_stderr_contrast = est_stderr_contrast)
+
+dat_result
+
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_contrast_H2.csv"), row.names = TRUE)
 ```
 
 # Exploratory Analysis (Linear Effect of Time)
+
+## Day in study
 
 ```{r}
 fit1 <- emee_categorical_trt_with_Delta(
@@ -205,7 +284,7 @@ fit1 <- emee_categorical_trt_with_Delta(
   decision_time_varname = "decision_point",
   treatment_varname = "treatment_cate",
   outcome_varname = "Y",
-  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
   moderator_varname = c("days_between_v1_and_coinflip_local"),
   rand_prob_varname = "rand_prob",
   rand_prob_A0_varname = "rand_prob_A0",
@@ -239,7 +318,7 @@ dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3"),
                           LCL95 = round(fit1_causal[,"95% LCL"], 3),
                           UCL95 = round(fit1_causal[,"95% UCL"], 3),
                           SE = round(fit1_causal[,"StdErr"], 3),
-                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          test_stat = round(fit1_causal[,"t_value"], 3),
                           df = round(fit1_causal[, "df"], 3),
                           p = round(fit1_causal[,"p-value"], 3))
 ```
@@ -255,7 +334,114 @@ row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
-knitr::kable(dat_causal)
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_day.csv"), row.names = TRUE)
+```
+
+
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+
+Lmat <- matrix(c(1,0,-1,0,
+                 0,1,0,-1), nrow = 2, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_day_contrast.csv"), row.names = TRUE)
+```
+
+## Hour of day
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,  # The same dataset from the analysis above is simple carried over to this analysis
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  moderator_varname = c("hour_coinflip_local"),
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.50, 0.25, 0.25),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          test_stat = round(fit1_causal[,"t_value"], 3),
+                          df = round(fit1_causal[, "df"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt) x Hour")
+row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
@@ -264,20 +450,50 @@ dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"
                           LCL95 = round(fit1_control[,"95% LCL"], 3),
                           UCL95 = round(fit1_control[,"95% UCL"], 3),
                           SE = round(fit1_control[,"StdErr"], 3),
-                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
                           df = round(fit1_control[,"df"], 3),
                           p = round(fit1_control[,"p-value"], 3))
 ```
 
 ```{r}
-knitr::kable(dat_control)
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_hour.csv"), row.names = TRUE)
 ```
 
 ```{r}
-# Format output to 3 decimal places
-dat_causal %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_causal_linear_time.csv"), row.names = TRUE)
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
 
-dat_control %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_control_linear_time.csv"), row.names = TRUE)
+Lmat <- matrix(c(1,0,-1,0,
+                 0,1,0,-1), nrow = 2, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("Indicator for High vs. Low", "Indicator for High vs. Low x Hour")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_hour_contrast.csv"), row.names = TRUE)
 ```
 
 # Exploratory Analysis (Quadratic Effect of Time)
@@ -287,8 +503,12 @@ dat_control %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-compl
 # but this time, we create a new variable for the square of day in study since
 # the function emee_categorical_trt_with_Delta does not take in formulas but
 # rather takes in individually specified variables
-dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(days_between_v1_and_coinflip_local_squared = days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) 
+dat_for_analysis_elig <- dat_for_analysis_elig %>% 
+  mutate(days_between_v1_and_coinflip_local_squared = days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local,
+         hour_coinflip_local_squared = hour_coinflip_local * hour_coinflip_local) 
 ```
+
+## Day in study
 
 ```{r}
 fit1 <- emee_categorical_trt_with_Delta(
@@ -297,7 +517,7 @@ fit1 <- emee_categorical_trt_with_Delta(
   decision_time_varname = "decision_point",
   treatment_varname = "treatment_cate",
   outcome_varname = "Y",
-  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible", "days_between_v1_and_coinflip_local_squared"),
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible", "days_between_v1_and_coinflip_local_squared"),
   moderator_varname = c("days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared"),
   rand_prob_varname = "rand_prob",
   rand_prob_A0_varname = "rand_prob_A0",
@@ -331,7 +551,7 @@ dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3", "bet
                          LCL95 = round(fit1_causal[,"95% LCL"], 3),
                          UCL95 = round(fit1_causal[,"95% UCL"], 3),
                          SE = round(fit1_causal[,"StdErr"], 3),
-                         HotellingT = round(fit1_causal[,"t_value"], 3),
+                         test_stat = round(fit1_causal[,"t_value"], 3),
                          df = round(fit1_causal[, "df"], 3),
                          p = round(fit1_causal[,"p-value"], 3))
 ```
@@ -349,7 +569,117 @@ row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
-knitr::kable(dat_causal)
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL95 = round(fit1_control[,"95% LCL"], 3),
+                          UCL95 = round(fit1_control[,"95% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_day.csv"), row.names = TRUE)
+```
+
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+
+Lmat <- matrix(c(1,0,0,-1,0,0,
+                 0,1,0,0,-1,0,
+                 0,0,1,0,0,-1), nrow = 3, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study", "Indicator for High vs. Low x Square of Day in Study")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_day_contrast.csv"), row.names = TRUE)
+```
+
+## Hour of day
+
+```{r}
+fit1 <- emee_categorical_trt_with_Delta(
+  dta = dat_for_analysis_elig,
+  id_varname = "participant_id",
+  decision_time_varname = "decision_point",
+  treatment_varname = "treatment_cate",
+  outcome_varname = "Y",
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible", "hour_coinflip_local_squared"),
+  moderator_varname = c("hour_coinflip_local", "hour_coinflip_local_squared"),
+  rand_prob_varname = "rand_prob",
+  rand_prob_A0_varname = "rand_prob_A0",
+  avail_varname = NULL,
+  rand_prob_tilde_varname = NULL,
+  # For MRT with constant randomization probability, 
+  # simply set rand_prob_tilde to be equal to the actual randomization probabilities
+  # Here, what ever you coded as 0, 1, 2 in treatment_cate
+  # specify the randomization probabilities in that order
+  rand_prob_tilde = c(0.50, 0.25, 0.25),  
+  estimator_initial_value = NULL,
+  Delta = 1,
+  # Number of treatment categories (important: this must exclude the reference category)
+  num_trt = 2  
+)
+```
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3", "beta4", "beta5"),
+                         estimate = round(fit1_causal[,"Estimate"], 3),
+                         LCL95 = round(fit1_causal[,"95% LCL"], 3),
+                         UCL95 = round(fit1_causal[,"95% UCL"], 3),
+                         SE = round(fit1_causal[,"StdErr"], 3),
+                         test_stat = round(fit1_causal[,"t_value"], 3),
+                         df = round(fit1_causal[, "df"], 3),
+                         p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "High Effort Prompt (versus No Prompt) x Hour x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "5", "Low Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "6", "Low Effort Prompt (versus No Prompt) x Hour x Hour")
+row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
@@ -358,20 +688,69 @@ dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"
                           LCL95 = round(fit1_control[,"95% LCL"], 3),
                           UCL95 = round(fit1_control[,"95% UCL"], 3),
                           SE = round(fit1_control[,"StdErr"], 3),
-                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
                           df = round(fit1_control[,"df"], 3),
                           p = round(fit1_control[,"p-value"], 3))
 ```
 
+
 ```{r}
-knitr::kable(dat_control)
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_hour.csv"), row.names = TRUE)
+```
+
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+
+Lmat <- matrix(c(1,0,0,-1,0,0,
+                 0,1,0,0,-1,0,
+                 0,0,1,0,0,-1), nrow = 3, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("Indicator for High vs. Low", "Indicator for High vs. Low x Hour", "Indicator for High vs. Low x Square of Hour")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_hour_contrast.csv"), row.names = TRUE)
+```
+
+## Estimated prevalence by group
+
+```{r}
+dat_prevalence <- dat_for_analysis %>%
+  filter(eligibility == 1) %>%
+  group_by(is_high_effort, is_low_effort) %>%
+  summarise(mu_Y = mean(Y, na.rm = TRUE)) %>%
+  arrange(desc(is_high_effort), desc(is_low_effort))
+
+dat_prevalence
 ```
 
 ```{r}
 # Format output to 3 decimal places
-dat_causal %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_causal_quadratic_time.csv"), row.names = TRUE)
-
-dat_control %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2_control_quadratic_time.csv"), row.names = TRUE)
+dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "prevalence_by_group_H2.csv"), row.names = TRUE)
 ```
 
 # H2 Sensitivity Analysis
@@ -384,7 +763,7 @@ dat_for_analysis <- dat_primary_aim %>%
          Y,
          hour_coinflip_local, days_between_v1_and_coinflip_local,
          any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
 
 ```{r}
@@ -421,7 +800,7 @@ logical_vec_cc <- dat_for_analysis_elig %>%
   select(Y,
          hour_coinflip_local, days_between_v1_and_coinflip_local,
          any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val) %>%
   complete.cases(.)
 
 # The next line says: among rows corresponding to blocks in which a participant 
@@ -430,6 +809,8 @@ logical_vec_cc <- dat_for_analysis_elig %>%
 dat_for_analysis_elig <- dat_for_analysis_elig %>% filter(logical_vec_cc)
 ```
 
+## Estimated effect on the log risk ratio scale
+
 ```{r}
 fit1 <- emee_categorical_trt_with_Delta(
   dta = dat_for_analysis_elig,
@@ -437,7 +818,7 @@ fit1 <- emee_categorical_trt_with_Delta(
   decision_time_varname = "decision_point",
   treatment_varname = "treatment_cate",
   outcome_varname = "Y",
-  control_varname = c("age", "is_female", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+  control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
   moderator_varname = NULL,
   rand_prob_varname = "rand_prob",
   rand_prob_A0_varname = "rand_prob_A0",
@@ -471,7 +852,7 @@ dat_causal <- data.frame(coefficient = c("beta0", "beta1"),
                           LCL95 = round(fit1_causal[,"95% LCL"], 3),
                           UCL95 = round(fit1_causal[,"95% UCL"], 3),
                           SE = round(fit1_causal[,"StdErr"], 3),
-                          HotellingT = round(fit1_causal[,"t_value"], 3),
+                          test_stat = round(fit1_causal[,"t_value"], 3),
                           df = round(fit1_causal[, "df"], 3),
                           p = round(fit1_causal[,"p-value"], 3))
 ```
@@ -485,48 +866,123 @@ row.names(dat_causal) <- new_row_names
 ```
 
 ```{r}
-knitr::kable(dat_causal)
-```
-
-```{r}
-fit1_causal <- fit1_results$causal_excursion_effect
-exp_fit1_results <- data.frame(exp_beta = exp(fit1_causal[,"Estimate"]),
-                               exp_95LCL = exp(fit1_causal[,"95% LCL"]),
-                               exp_95UCL = exp(fit1_causal[,"95% UCL"]))
-row.names(exp_fit1_results) <- c("High Effort (versus Low Effort)", "None (versus Low Effort)")
-exp_fit1_results <- exp_fit1_results %>%
-  mutate(exp_beta = round(exp_beta, 3),
-         exp_95LCL = round(exp_95LCL, 3),
-         exp_95UCL = round(exp_95UCL, 3)) %>%
-  mutate(coefficient = c("beta0", "beta1")) %>%
-  select(coefficient, everything())
-```
-
-```{r}
-knitr::kable(exp_fit1_results, col.names = c("coefficient", "exp(coefficient)", "LCL95", "UCL95"))
-```
-
-```{r}
 dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
                           estimate = round(fit1_control[,"Estimate"], 3),
                           LCL95 = round(fit1_control[,"95% LCL"], 3),
                           UCL95 = round(fit1_control[,"95% UCL"], 3),
                           SE = round(fit1_control[,"StdErr"], 3),
-                          HotellingT = round(fit1_control[,"t_value"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
                           df = round(fit1_control[,"df"], 3),
                           p = round(fit1_control[,"p-value"], 3))
 ```
 
 ```{r}
-knitr::kable(dat_control)
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+# Format output to 3 decimal places
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_log_risk_ratio_scale_H2.csv"), row.names = TRUE)
+```
+
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+
+Lmat <- matrix(c(1,0,
+                 0,1,
+                 1,-1), nrow = 3, byrow = TRUE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+row.names(results_contrast) <- c("High vs. None", "Low vs. None", "High vs. Low")
+
+results_contrast
+
+# Format output to 3 decimal places
+results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_log_risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk ratio scale
+
+```{r}
+exp_estimates <- exp(results_contrast$est_contrast)
+var_rr <- diag(exp_estimates) %*% vcov_contrast %*% t(diag(exp_estimates))
+stderr_rr <- sqrt(diag(var_rr))
+rrLB95 <- exp_estimates - critical_value * stderr_rr
+rrUB95 <- exp_estimates + critical_value * stderr_rr
+
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, stderr_rr = stderr_rr, rrLB95 = rrLB95, rrUB95 = rrUB95)
+
+dat_exp_scale
+
+# Format output to 3 decimal places
+dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
+```
+
+## Estimated prevalence by group
+
+```{r}
+dat_prevalence <- dat_for_analysis %>%
+  filter(eligibility == 1) %>%
+  group_by(is_high_effort, is_low_effort) %>%
+  summarise(mu_Y = mean(Y, na.rm = TRUE)) %>%
+  arrange(desc(is_high_effort), desc(is_low_effort))
+
+dat_prevalence
 ```
 
 ```{r}
 # Format output to 3 decimal places
-dat_causal %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "sensitivity_H2_causal.csv"), row.names = TRUE)
-
-dat_control %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "sensitivity_H2_control.csv"), row.names = TRUE)
+dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_prevalence_by_group_H2.csv"), row.names = TRUE)
 ```
 
+## Estimated effect on the risk difference scale
+
+```{r}
+fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "binomial", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
+
+dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
+                         estimates = summary(fit)$coefficients[,"Estimate"],
+                         LCL95 = summary(fit)$coefficients[,"Estimate"] - qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
+                         UCL95 = summary(fit)$coefficients[,"Estimate"] + qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
+                         std_err = summary(fit)$coefficients[,"Std.err"])
+
+dat_result
+
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_H2.csv"), row.names = TRUE)
+```
+
+```{r}
+Lmat <- matrix(c(0,1,0, rep(0,11),
+                 0,0,1, rep(0,11),
+                 0,1,-1, rep(0,11)), 
+               ncol = 14, byrow = TRUE)
+
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+LB95 <- c(est_contrast) - qnorm(0.975) * est_stderr_contrast
+UB95 <- c(est_contrast) + qnorm(0.975) * est_stderr_contrast
+
+dat_result <- data.frame(contrast = c("high vs none", "low vs none", "high vs low"), est_contrast = est_contrast, LB95 = LB95, UB95 = UB95, est_stderr_contrast = est_stderr_contrast)
+
+dat_result
+
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_contrast_H2.csv"), row.names = TRUE)
+```
 
 
