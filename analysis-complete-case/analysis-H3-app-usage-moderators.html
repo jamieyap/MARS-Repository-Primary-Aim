@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2024-01-28" />
+<meta name="date" content="2024-03-07" />
 
-<title>MARS MRT: Additional analyses</title>
+<title>MARS MRT: H3 - App Usage</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,31 +349,26 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">MARS MRT: Additional analyses</h1>
-<h4 class="date">January 28, 2024</h4>
+<h1 class="title toc-ignore">MARS MRT: H3 - App Usage</h1>
+<h4 class="date">March 07, 2024</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#hour-of-day" id="toc-hour-of-day"><span class="toc-section-number">1</span> Hour of day</a></li>
-<li><a href="#prior-eligibility-for-micro-randomization" id="toc-prior-eligibility-for-micro-randomization"><span class="toc-section-number">2</span> Prior eligibility for
+<li><a href="#any-tracked-app-usage-between-prior-micro-randomization-to-current-micro-randomization" id="toc-any-tracked-app-usage-between-prior-micro-randomization-to-current-micro-randomization"><span class="toc-section-number">1</span> Any tracked app usage between prior
+micro-randomization to current micro-randomization</a></li>
+<li><a href="#any-tracked-app-usage-or-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization" id="toc-any-tracked-app-usage-or-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization"><span class="toc-section-number">2</span> Any tracked app usage or response to
+brief survey between prior micro-randomization to current
 micro-randomization</a></li>
-<li><a href="#whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point" id="toc-whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point"><span class="toc-section-number">3</span> Whether micro-randomized to prompt
-at most recent eligible decision point</a></li>
-<li><a href="#whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point-and-hours-elapsed-since-most-recent-eligible-decision-point" id="toc-whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point-and-hours-elapsed-since-most-recent-eligible-decision-point"><span class="toc-section-number">4</span> Whether micro-randomized to prompt
-at most recent eligible decision point and hours elapsed since most
-recent eligible decision point</a></li>
-<li><a href="#age" id="toc-age"><span class="toc-section-number">5</span> Age</a></li>
-<li><a href="#gender" id="toc-gender"><span class="toc-section-number">6</span> Gender</a></li>
-<li><a href="#raceethnicity" id="toc-raceethnicity"><span class="toc-section-number">7</span> Race/ethnicity</a></li>
-<li><a href="#baseline-tobacco-history" id="toc-baseline-tobacco-history"><span class="toc-section-number">8</span> Baseline tobacco history</a></li>
-<li><a href="#partner-status" id="toc-partner-status"><span class="toc-section-number">9</span> Partner Status</a></li>
-<li><a href="#socio-economic-status" id="toc-socio-economic-status"><span class="toc-section-number">10</span> Socio-economic status</a></li>
-<li><a href="#any-response-to-brief-survey" id="toc-any-response-to-brief-survey"><span class="toc-section-number">11</span> Any response to brief
-survey</a></li>
-<li><a href="#engagement-at-most-recent-eligible-decision-point" id="toc-engagement-at-most-recent-eligible-decision-point"><span class="toc-section-number">12</span> Engagement at most recent eligible
-decision point</a></li>
+<li><a href="#any-tracked-app-usage-or-self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization" id="toc-any-tracked-app-usage-or-self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization"><span class="toc-section-number">3</span> Any tracked app usage or
+self-reported engagement in self-regulatory strategies between prior
+micro-randomization to current micro-randomization</a></li>
+<li><a href="#any-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization" id="toc-any-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization"><span class="toc-section-number">4</span> Any response to brief survey between
+prior micro-randomization to current micro-randomization</a></li>
+<li><a href="#self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization" id="toc-self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization"><span class="toc-section-number">5</span> Self-reported engagement in
+self-regulatory strategies between prior micro-randomization to current
+micro-randomization</a></li>
 </ul>
 </div>
 
@@ -384,447 +379,186 @@ margin-left: auto;
 margin-right: auto;
 }
 </style>
-<p>The analyses in this document investigate whether there might be
-other moderators of the effect of prompt versus no prompt (aside from
-the ones investigated for Hypothesis 3a and 3b).</p>
-<div id="hour-of-day" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Hour of day</h1>
+<div id="any-tracked-app-usage-between-prior-micro-randomization-to-current-micro-randomization" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Any tracked app usage
+between prior micro-randomization to current micro-randomization</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1664                  1974</code></pre>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~hour_coinflip_local, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_app_usage_preblock, 
+##     control_formula = ~any_app_usage_preblock + age + is_male + 
+##         is_latino + is_not_latino_and_black + is_not_latino_and_other + 
+##         baseline_tobacco_history + has_partner + income_val + 
+##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;overall_eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                       Estimate     95% LCL    95% UCL      StdErr    t_value df   p-value
-## (Intercept)          0.1726676 -0.12788726 0.47322249 0.151111592  1.1426497 83 0.2564695
-## hour_coinflip_local -0.0046968 -0.02423327 0.01483967 0.009822455 -0.4781696 83 0.6337866
+##                           Estimate      95% LCL   95% UCL     StdErr    t_value df    p-value
+## (Intercept)             0.12354418 -0.004566597 0.2516550 0.06429510  1.9215179 74 0.05851756
+## any_app_usage_preblock -0.03312658 -0.181415809 0.1151626 0.07442208 -0.4451177 74 0.65753406
 ## 
 ## $control_variables
-##                                        Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.503155617 -1.086525538  0.080214305 0.293304031 -1.71547460 83 8.998924e-02
-## age                                 0.001398645 -0.005592051  0.008389341 0.003514750  0.39793588 83 6.916991e-01
-## is_female                           0.137964805 -0.146540405  0.422470015 0.143042214  0.96450412 83 3.375950e-01
-## is_latino                           0.210142914 -0.074154398  0.494440227 0.142937688  1.47017150 83 1.452961e-01
-## is_not_latino_and_black             0.139192857 -0.129972767  0.408358480 0.135329847  1.02854514 83 3.066816e-01
-## is_not_latino_and_other             0.131304587 -0.239039341  0.501648515 0.186199807  0.70518111 83 4.826719e-01
-## baseline_tobacco_history            0.000333214 -0.013143582  0.013810010 0.006775801  0.04917707 83 9.608963e-01
-## has_partner                         0.008543841 -0.200946834  0.218034516 0.105326753  0.08111748 83 9.355438e-01
-## income_val                         -0.005331166 -0.037160651  0.026498319 0.016003081 -0.33313375 83 7.398734e-01
-## hour_coinflip_local                 0.002857819 -0.011744006  0.017459644 0.007341438  0.38927232 83 6.980717e-01
-## days_between_v1_and_coinflip_local  0.003926092 -0.011259334  0.019111519 0.007634858  0.51423251 83 6.084559e-01
-## any_response_2qs                    0.043266150 -0.091230907  0.177763206 0.067621808  0.63982539 83 5.240483e-01
-## any_recent_eligible_dp             -1.010909606 -1.398139932 -0.623679280 0.194689872 -5.19240982 83 1.452526e-06
-## engagement_most_recent_eligible     0.867600338  0.607991333  1.127209343 0.130525015  6.64700432 83 2.948041e-09</code></pre>
+##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -1.4271963898 -1.951262403 -0.903130377 0.263013587 -5.42632190 74 6.961064e-07
+## any_app_usage_preblock              0.0775388522 -0.039262561  0.194340266 0.058619254  1.32275399 74 1.899905e-01
+## age                                 0.0020321859 -0.005068097  0.009132469 0.003563427  0.57028979 74 5.702087e-01
+## is_male                            -0.1405706976 -0.433659711  0.152518316 0.147092906 -0.95565926 74 3.423560e-01
+## is_latino                           0.2088256370 -0.088395930  0.506047204 0.149166915  1.39994607 74 1.657081e-01
+## is_not_latino_and_black             0.1340333153 -0.148999293  0.417065923 0.142045887  0.94359167 74 3.484490e-01
+## is_not_latino_and_other             0.1220997738 -0.264803899  0.509003446 0.194175772  0.62881055 74 5.314094e-01
+## baseline_tobacco_history            0.0001567106 -0.013332192  0.013645613 0.006769690  0.02314885 74 9.815938e-01
+## has_partner                         0.0077585375 -0.209130624  0.224647699 0.108850403  0.07127707 74 9.433695e-01
+## income_val                         -0.0038366848 -0.036664894  0.028991524 0.016475529 -0.23287172 74 8.165039e-01
+## hour_coinflip_local                 0.0019460806 -0.008690147  0.012582309 0.005338015  0.36457005 74 7.164721e-01
+## days_between_v1_and_coinflip_local  0.0062995897 -0.009083748  0.021682928 0.007720453  0.81596117 74 4.171411e-01
+## any_response_2qs                    0.0368598146 -0.101494512  0.175214141 0.069436038  0.53084559 74 5.971154e-01
+## engagement_most_recent_eligible     0.8605747135  0.599918708  1.121230720 0.130815717  6.57852690 74 5.939414e-09</code></pre>
 </div>
-<div id="prior-eligibility-for-micro-randomization" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Prior eligibility for
+<div id="any-tracked-app-usage-or-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Any tracked app usage
+or response to brief survey between prior micro-randomization to current
 micro-randomization</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1664                  1974</code></pre>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~eligibility_lag1, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_app_usage_and_brief_survey_preblock, 
+##     control_formula = ~any_app_usage_and_brief_survey_preblock + 
+##         age + is_male + is_latino + is_not_latino_and_black + 
 ##         is_not_latino_and_other + baseline_tobacco_history + 
 ##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible + 
-##         eligibility_lag1, availability = &quot;eligibility&quot;)
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;overall_eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                     Estimate    95% LCL   95% UCL    StdErr     t_value df   p-value
-## (Intercept)       0.12309650 -0.2913182 0.5375112 0.2083199  0.59090116 82 0.5562119
-## eligibility_lag1 -0.01700529 -0.4197456 0.3857350 0.2024514 -0.08399691 82 0.9332636
+##                                           Estimate    95% LCL   95% UCL    StdErr    t_value df   p-value
+## (Intercept)                             0.09913807 -0.1619729 0.3602491 0.1310441 0.75652467 74 0.4517365
+## any_app_usage_and_brief_survey_preblock 0.01018843 -0.2482511 0.2686280 0.1297033 0.07855176 74 0.9376012
 ## 
 ## $control_variables
-##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4695517709 -1.117964253  0.178860712 0.325947034 -1.44057691 82 1.535117e-01
-## age                                 0.0014279003 -0.005570724  0.008426525 0.003518101  0.40587240 82 6.858935e-01
-## is_female                           0.1381039629 -0.145696861  0.421904787 0.142662332  0.96804785 82 3.358671e-01
-## is_latino                           0.2099516042 -0.074603222  0.494506430 0.143041357  1.46776854 82 1.459925e-01
-## is_not_latino_and_black             0.1414850088 -0.128332179  0.411302196 0.135632972  1.04314612 82 2.999463e-01
-## is_not_latino_and_other             0.1315306198 -0.240040889  0.503102129 0.186783312  0.70418828 82 4.833106e-01
-## baseline_tobacco_history            0.0004255161 -0.013251278  0.014102310 0.006875115  0.06189222 82 9.507993e-01
-## has_partner                         0.0080144784 -0.201737899  0.217766856 0.105439311  0.07601035 82 9.395960e-01
-## income_val                         -0.0056316055 -0.037428605  0.026165394 0.015983865 -0.35233064 82 7.254943e-01
-## hour_coinflip_local                 0.0003784978 -0.009585027  0.010342022 0.005008511  0.07557093 82 9.399445e-01
-## days_between_v1_and_coinflip_local  0.0044716894 -0.010760794  0.019704173 0.007657136  0.58398978 82 5.608303e-01
-## any_response_2qs                    0.0417832079 -0.092044935  0.175611351 0.067273360  0.62109590 82 5.362592e-01
-## any_recent_eligible_dp             -1.1707879402 -1.660967341 -0.680608540 0.246405684 -4.75146482 82 8.493026e-06
-## engagement_most_recent_eligible     0.8664013120  0.607849576  1.124953048 0.129970001  6.66616375 82 2.825640e-09
-## eligibility_lag1                    0.1639290957 -0.234056963  0.561915155 0.200061502  0.81939351 82 4.149372e-01</code></pre>
+##                                             Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                             -1.429719872 -1.955152763 -0.904286981 0.263699584 -5.42177523 74 7.088898e-07
+## any_app_usage_and_brief_survey_preblock  0.090227449 -0.143617925  0.324072823 0.117360236  0.76880766 74 4.444543e-01
+## age                                      0.001979877 -0.005167670  0.009127424 0.003587147  0.55193629 74 5.826551e-01
+## is_male                                 -0.137627237 -0.431050469  0.155795996 0.147260641 -0.93458263 74 3.530432e-01
+## is_latino                                0.209609543 -0.083860572  0.503079659 0.147284170  1.42316410 74 1.588910e-01
+## is_not_latino_and_black                  0.133407382 -0.144498276  0.411313041 0.139472819  0.95651169 74 3.419283e-01
+## is_not_latino_and_other                  0.120274484 -0.263287083  0.503836051 0.192498466  0.62480749 74 5.340193e-01
+## baseline_tobacco_history                 0.000150947 -0.013292713  0.013594607 0.006746984  0.02237251 74 9.822110e-01
+## has_partner                              0.003507920 -0.213604710  0.220620551 0.108962555  0.03219382 74 9.744042e-01
+## income_val                              -0.003685260 -0.036051878  0.028681358 0.016243870 -0.22687082 74 8.211498e-01
+## hour_coinflip_local                      0.001969780 -0.008650991  0.012590551 0.005330258  0.36954684 74 7.127756e-01
+## days_between_v1_and_coinflip_local       0.005516756 -0.009814937  0.020848450 0.007694534  0.71697082 74 4.756491e-01
+## any_response_2qs                        -0.012626852 -0.165679052  0.140425349 0.076812477 -0.16438543 74 8.698759e-01
+## engagement_most_recent_eligible          0.867091649  0.607790001  1.126393298 0.130136004  6.66296506 74 4.149706e-09</code></pre>
 </div>
-<div id="whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Whether
-micro-randomized to prompt at most recent eligible decision point</h1>
+<div id="any-tracked-app-usage-or-self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Any tracked app usage
+or self-reported engagement in self-regulatory strategies between prior
+micro-randomization to current micro-randomization</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1664                  1974</code></pre>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_recent_eligible_dp + 
-##         coinflip_most_recent_eligible, control_formula = ~age + 
-##         is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_app_usage_and_ema_preblock, 
+##     control_formula = ~any_app_usage_and_ema_preblock + age + 
+##         is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
 ##         baseline_tobacco_history + has_partner + income_val + 
 ##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible + 
-##         coinflip_most_recent_eligible, availability = &quot;eligibility&quot;)
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;overall_eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                                  Estimate    95% LCL    95% UCL     StdErr     t_value df   p-value
-## (Intercept)                   -0.04110168 -1.9050849 1.82288155 0.93682266 -0.04387349 81 0.9651132
-## any_recent_eligible_dp         0.17771515 -1.7225964 2.07802674 0.95508099  0.18607338 81 0.8528524
-## coinflip_most_recent_eligible -0.06445923 -0.2063798 0.07746137 0.07132813 -0.90370003 81 0.3688343
-## 
-## $control_variables
-##                                         Estimate      95% LCL     95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.3951319737 -1.567515188 0.777251241 0.589230172 -0.67059019 81 5.043892e-01
-## age                                 0.0013518263 -0.005618671 0.008322324 0.003503315  0.38587063 81 7.006041e-01
-## is_female                           0.1423170977 -0.142444945 0.427079141 0.143119063  0.99439651 81 3.229912e-01
-## is_latino                           0.2116311920 -0.074818710 0.498081094 0.143967367  1.46999418 81 1.454371e-01
-## is_not_latino_and_black             0.1381963102 -0.131890023 0.408282643 0.135743172  1.01807191 81 3.116751e-01
-## is_not_latino_and_other             0.1271730448 -0.244181318 0.498527407 0.186639652  0.68138278 81 4.975728e-01
-## baseline_tobacco_history            0.0003576760 -0.013069980 0.013785332 0.006748630  0.05299980 81 9.578626e-01
-## has_partner                         0.0085977331 -0.202271400 0.219466866 0.105981094  0.08112516 81 9.355425e-01
-## income_val                         -0.0053779283 -0.037270338 0.026514481 0.016028863 -0.33551527 81 7.381039e-01
-## hour_coinflip_local                 0.0008612986 -0.009027363 0.010749960 0.004969960  0.17330090 81 8.628473e-01
-## days_between_v1_and_coinflip_local  0.0043243187 -0.011057032 0.019705670 0.007730541  0.55938115 81 5.774451e-01
-## any_response_2qs                    0.0407816168 -0.091996454 0.173559687 0.066733167  0.61111466 81 5.428349e-01
-## any_recent_eligible_dp             -1.0896056337 -2.217589280 0.038378012 0.566915314 -1.92199012 81 5.812327e-02
-## engagement_most_recent_eligible     0.8696670141  0.610587343 1.128746685 0.130211314  6.67888977 81 2.790115e-09
-## coinflip_most_recent_eligible      -0.0074383751 -0.124439377 0.109562627 0.058803742 -0.12649493 81 8.996536e-01</code></pre>
-</div>
-<div id="whether-micro-randomized-to-prompt-at-most-recent-eligible-decision-point-and-hours-elapsed-since-most-recent-eligible-decision-point" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Whether
-micro-randomized to prompt at most recent eligible decision point and
-hours elapsed since most recent eligible decision point</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_recent_eligible_dp + 
-##         coinflip_most_recent_eligible + hours_elapsed_since_most_recent_eligible + 
-##         I(coinflip_most_recent_eligible * hours_elapsed_since_most_recent_eligible), 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible + 
-##         coinflip_most_recent_eligible + hours_elapsed_since_most_recent_eligible + 
-##         I(coinflip_most_recent_eligible * hours_elapsed_since_most_recent_eligible), 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                                                                                 Estimate     95% LCL    95% UCL     StdErr     t_value df   p-value
-## (Intercept)                                                                 -0.052290745 -4.38099149 4.27641000 2.17385622 -0.02405437 77 0.9808715
-## any_recent_eligible_dp                                                       0.158256413 -4.18153908 4.49805191 2.17942795  0.07261374 77 0.9423018
-## coinflip_most_recent_eligible                                               -0.035732620 -0.20223520 0.13076996 0.08361693 -0.42733714 77 0.6703265
-## hours_elapsed_since_most_recent_eligible                                     0.008609488 -0.01725518 0.03447416 0.01298914  0.66282227 77 0.5094237
-## I(coinflip_most_recent_eligible * hours_elapsed_since_most_recent_eligible) -0.007917690 -0.03904548 0.02321010 0.01563225 -0.50649714 77 0.6139550
-## 
-## $control_variables
-##                                                                                  Estimate      95% LCL     95% UCL      StdErr     t_value df      p-value
-## (Intercept)                                                                 -0.3640327774 -4.447900606 3.719835051 2.050902104 -0.17749886 77 8.595827e-01
-## age                                                                          0.0012871438 -0.005745114 0.008319402 0.003531572  0.36446770 77 7.165078e-01
-## is_female                                                                    0.1425271773 -0.144455845 0.429510200 0.144121727  0.98893609 77 3.257919e-01
-## is_latino                                                                    0.2090696834 -0.079102338 0.497241705 0.144718837  1.44466116 77 1.526103e-01
-## is_not_latino_and_black                                                      0.1391135441 -0.133717521 0.411944609 0.137014671  1.01531860 77 3.131337e-01
-## is_not_latino_and_other                                                      0.1296105543 -0.249515896 0.508737005 0.190395788  0.68074276 77 4.980763e-01
-## baseline_tobacco_history                                                     0.0002680750 -0.013298358 0.013834508 0.006813008  0.03934752 77 9.687152e-01
-## has_partner                                                                  0.0063692324 -0.207380934 0.220119399 0.107344479  0.05933451 77 9.528394e-01
-## income_val                                                                  -0.0049833187 -0.037156482 0.027189844 0.016157234 -0.30842647 77 7.585907e-01
-## hour_coinflip_local                                                         -0.0009606755 -0.012539494 0.010618143 0.005814836 -0.16521110 77 8.692108e-01
-## days_between_v1_and_coinflip_local                                           0.0043258138 -0.010927525 0.019579153 0.007660166  0.56471542 77 5.739089e-01
-## any_response_2qs                                                             0.0414855800 -0.093204328 0.176175488 0.067640734  0.61332244 77 5.414707e-01
-## any_recent_eligible_dp                                                      -1.0431324460 -5.101738186 3.015473294 2.038215584 -0.51178710 77 6.102647e-01
-## engagement_most_recent_eligible                                              0.8724578048  0.612739665 1.132175944 0.130429412  6.68911861 77 3.204456e-09
-## coinflip_most_recent_eligible                                               -0.0669218428 -0.202210628 0.068366942 0.067941487 -0.98499232 77 3.277128e-01
-## hours_elapsed_since_most_recent_eligible                                    -0.0139168343 -0.040926813 0.013093144 0.013564303 -1.02598961 77 3.081089e-01
-## I(coinflip_most_recent_eligible * hours_elapsed_since_most_recent_eligible)  0.0161502039 -0.014133349 0.046433757 0.015208279  1.06193498 77 2.915846e-01</code></pre>
-</div>
-<div id="age" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Age</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~age, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                  Estimate     95% LCL    95% UCL      StdErr    t_value df   p-value
-## (Intercept)  0.1425487960 -0.24598249 0.53108009 0.195343965  0.7297323 83 0.4676083
-## age         -0.0008140248 -0.00848153 0.00685348 0.003855033 -0.2111590 83 0.8332808
-## 
-## $control_variables
-##                                         Estimate      95% LCL     95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4792814274 -1.131703447  0.17314059 0.328021726 -1.46112708 83 1.477561e-01
-## age                                 0.0017832173 -0.007572568  0.01113900 0.004703858  0.37909674 83 7.055841e-01
-## is_female                           0.1377033552 -0.147395150  0.42280186 0.143340508  0.96067300 83 3.395069e-01
-## is_latino                           0.2103755083 -0.074269502  0.49502052 0.143112502  1.47000091 83 1.453422e-01
-## is_not_latino_and_black             0.1377865029 -0.131950740  0.40752375 0.135617244  1.01599545 83 3.125841e-01
-## is_not_latino_and_other             0.1298780633 -0.239592238  0.49934837 0.185760570  0.69916917 83 4.864010e-01
-## baseline_tobacco_history            0.0003361825 -0.013149233  0.01382160 0.006780135  0.04958345 83 9.605735e-01
-## has_partner                         0.0093529214 -0.201550537  0.22025638 0.106037066  0.08820427 83 9.299268e-01
-## income_val                         -0.0055279720 -0.037419145  0.02636320 0.016034096 -0.34476355 83 7.311442e-01
-## hour_coinflip_local                 0.0006836146 -0.009235727  0.01060296 0.004987201  0.13707380 83 8.913044e-01
-## days_between_v1_and_coinflip_local  0.0041611195 -0.011065460  0.01938770 0.007655549  0.54354291 83 5.882130e-01
-## any_response_2qs                    0.0420421718 -0.091695709  0.17578005 0.067240113  0.62525433 83 5.335195e-01
-## any_recent_eligible_dp             -1.0192276614 -1.407724404 -0.63073092 0.195326596 -5.21806904 83 1.308918e-06
-## engagement_most_recent_eligible     0.8658991804  0.607410922  1.12438744 0.129961531  6.66273453 83 2.749541e-09</code></pre>
-</div>
-<div id="gender" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> Gender</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~is_female, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##               Estimate     95% LCL   95% UCL     StdErr   t_value df   p-value
-## (Intercept) 0.09418249 -0.09638578 0.2847508 0.09581304 0.9829820 83 0.3284730
-## is_female   0.01598906 -0.19696449 0.2289426 0.10706780 0.1493358 83 0.8816509
-## 
-## $control_variables
-##                                         Estimate     95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4575217518 -1.07027286  0.155229353 0.308076167 -1.48509298 83 1.413075e-01
-## age                                 0.0014157575 -0.00574057  0.008572085 0.003598025  0.39348182 83 6.949726e-01
-## is_female                           0.1306736998 -0.21215962  0.473507022 0.172368152  0.75810814 83 4.505335e-01
-## is_latino                           0.2106075301 -0.07520813  0.496423193 0.143701077  1.46559465 83 1.465369e-01
-## is_not_latino_and_black             0.1374123994 -0.13641867  0.411243464 0.137675516  0.99808886 83 3.211372e-01
-## is_not_latino_and_other             0.1301188828 -0.24246731  0.502705075 0.187327163  0.69460766 83 4.892411e-01
-## baseline_tobacco_history            0.0003400573 -0.01324114  0.013921251 0.006828290  0.04980125 83 9.604004e-01
-## has_partner                         0.0086053789 -0.20256079  0.219771543 0.106169147  0.08105348 83 9.355946e-01
-## income_val                         -0.0054154118 -0.03720665  0.026375829 0.015983853 -0.33880515 83 7.356122e-01
-## hour_coinflip_local                 0.0006402999 -0.00927193  0.010552530 0.004983625  0.12848076 83 8.980793e-01
-## days_between_v1_and_coinflip_local  0.0041437687 -0.01111127  0.019398811 0.007669860  0.54026655 83 5.904600e-01
-## any_response_2qs                    0.0422204151 -0.09235198  0.176792808 0.067659685  0.62401140 83 5.343315e-01
-## any_recent_eligible_dp             -1.0192379546 -1.41109137 -0.627384542 0.197014247 -5.17342259 83 1.568611e-06
-## engagement_most_recent_eligible     0.8665473877  0.60425588  1.128838898 0.131873713  6.57103960 83 4.125340e-09</code></pre>
-</div>
-<div id="raceethnicity" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> Race/ethnicity</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~is_latino + 
-##         is_not_latino_and_black + is_not_latino_and_other, control_formula = ~age + 
-##         is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
-##         baseline_tobacco_history + has_partner + income_val + 
-##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                           Estimate     95% LCL   95% UCL    StdErr   t_value df    p-value
-## (Intercept)              0.2354430 -0.02339581 0.4942818 0.1300902  1.809843 81 0.07402918
-## is_latino               -0.1824323 -0.47169207 0.1068275 0.1453796 -1.254868 81 0.21313516
-## is_not_latino_and_black -0.1832011 -0.48017205 0.1137699 0.1492552 -1.227435 81 0.22321430
-## is_not_latino_and_other -0.1389787 -0.45076007 0.1728028 0.1566988 -0.886916 81 0.37774995
-## 
-## $control_variables
-##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.5326912693 -1.177947601  0.112565062 0.324300531 -1.64258525 81 1.043456e-01
-## age                                 0.0013780728 -0.005674308  0.008430453 0.003544469  0.38879533 81 6.984477e-01
-## is_female                           0.1378306805 -0.148725906  0.424387267 0.144020986  0.95701803 81 3.414059e-01
-## is_latino                           0.3002841611 -0.104066152  0.704634474 0.203223145  1.47760808 81 1.433906e-01
-## is_not_latino_and_black             0.2286276710 -0.150732247  0.607987589 0.190663178  1.19911812 81 2.339782e-01
-## is_not_latino_and_other             0.1989610043 -0.285086244  0.683008253 0.243278170  0.81783336 81 4.158516e-01
-## baseline_tobacco_history            0.0003361221 -0.013192351  0.013864595 0.006799299  0.04943482 81 9.606945e-01
-## has_partner                         0.0095050435 -0.203705785  0.222715872 0.107158011  0.08870119 81 9.295383e-01
-## income_val                         -0.0052936346 -0.037677379  0.027090110 0.016275804 -0.32524566 81 7.458338e-01
-## hour_coinflip_local                 0.0009414121 -0.008982951  0.010865775 0.004987903  0.18873904 81 8.507694e-01
-## days_between_v1_and_coinflip_local  0.0043124569 -0.010573095  0.019198009 0.007481356  0.57642717 81 5.659249e-01
-## any_response_2qs                    0.0434644189 -0.092299474  0.179228311 0.068233817  0.63699234 81 5.259261e-01
-## any_recent_eligible_dp             -1.0206735532 -1.361389170 -0.679957936 0.171240870 -5.96045531 81 6.257970e-08
-## engagement_most_recent_eligible     0.8687996931  0.607521170  1.130078216 0.131316439  6.61607716 81 3.676563e-09</code></pre>
-</div>
-<div id="baseline-tobacco-history" class="section level1" number="8">
-<h1><span class="header-section-number">8</span> Baseline tobacco
-history</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~baseline_tobacco_history, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                             Estimate     95% LCL     95% UCL      StdErr    t_value df   p-value
-## (Intercept)               0.14561810 -0.03934416 0.330580364 0.092994470  1.5658792 83 0.1211818
-## baseline_tobacco_history -0.00300005 -0.01456325 0.008563155 0.005813694 -0.5160315 83 0.6072044
-## 
-## $control_variables
-##                                        Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.474011506 -1.075443111  0.127420099 0.302385001 -1.56757612 83 1.207849e-01
-## age                                 0.001375493 -0.005619247  0.008370232 0.003516783  0.39112252 83 6.967089e-01
-## is_female                           0.139075321 -0.145021408  0.423172049 0.142836839  0.97366563 83 3.330517e-01
-## is_latino                           0.211067833 -0.073699563  0.495835230 0.143174035  1.47420469 83 1.442094e-01
-## is_not_latino_and_black             0.136414607 -0.133241725  0.406070939 0.135576564  1.00618133 83 3.172527e-01
-## is_not_latino_and_other             0.130445114 -0.239234372  0.500124600 0.185865742  0.70182440 83 4.847521e-01
-## baseline_tobacco_history            0.001725845 -0.014585629  0.018037319 0.008201008  0.21044303 83 8.338377e-01
-## has_partner                         0.008448419 -0.201342017  0.218238856 0.105477465  0.08009691 83 9.363530e-01
-## income_val                         -0.005385313 -0.037293974  0.026523349 0.016042889 -0.33568221 83 7.379576e-01
-## hour_coinflip_local                 0.000625110 -0.009318611  0.010568830 0.004999458  0.12503555 83 9.007978e-01
-## days_between_v1_and_coinflip_local  0.004228595 -0.011049794  0.019506985 0.007681598  0.55048382 83 5.834661e-01
-## any_response_2qs                    0.041962251 -0.092466624  0.176391125 0.067587528  0.62085790 83 5.363944e-01
-## any_recent_eligible_dp             -1.025543689 -1.416145951 -0.634941427 0.196385199 -5.22210276 83 1.287644e-06
-## engagement_most_recent_eligible     0.866372451  0.607417084  1.125327817 0.130196382  6.65435122 83 2.853622e-09</code></pre>
-</div>
-<div id="partner-status" class="section level1" number="9">
-<h1><span class="header-section-number">9</span> Partner Status</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~has_partner, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##               Estimate      95% LCL   95% UCL     StdErr   t_value df    p-value
-## (Intercept) 0.09172801 -0.009573216 0.1930292 0.05093176 1.8009982 83 0.07533519
-## has_partner 0.03263767 -0.175379537 0.2406549 0.10458593 0.3120656 83 0.75577327
-## 
-## $control_variables
-##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4538039919 -1.071873875  0.164265891 0.310750318 -1.46034925 83 1.479692e-01
-## age                                 0.0013111716 -0.005843360  0.008465703 0.003597122  0.36450572 83 7.164074e-01
-## is_female                           0.1387415292 -0.147615489  0.425098547 0.143973257  0.96366181 83 3.380148e-01
-## is_latino                           0.2104286752 -0.075830877  0.496688228 0.143924254  1.46207932 83 1.474956e-01
-## is_not_latino_and_black             0.1382281304 -0.132965925  0.409422186 0.136349693  1.01377661 83 3.136355e-01
-## is_not_latino_and_other             0.1298848467 -0.242649861  0.502419554 0.187301277  0.69345414 83 4.899607e-01
-## baseline_tobacco_history            0.0003885242 -0.013171527  0.013948575 0.006817660  0.05698791 83 9.546918e-01
-## has_partner                        -0.0077738266 -0.287940878  0.272393225 0.140861095 -0.05518789 83 9.561214e-01
-## income_val                         -0.0054878788 -0.037526672  0.026550915 0.016108316 -0.34068605 83 7.342008e-01
-## hour_coinflip_local                 0.0006317538 -0.009246302  0.010509810 0.004966443  0.12720448 83 8.990862e-01
-## days_between_v1_and_coinflip_local  0.0041937042 -0.011117119  0.019504527 0.007697905  0.54478515 83 5.873621e-01
-## any_response_2qs                    0.0435153792 -0.088883766  0.175914525 0.066567030  0.65370769 83 5.151072e-01
-## any_recent_eligible_dp             -1.0176570439 -1.427444416 -0.607869672 0.206031000 -4.93933944 83 4.004332e-06
-## engagement_most_recent_eligible     0.8649724206  0.604551683  1.125393159 0.130933134  6.60621489 83 3.531387e-09</code></pre>
-</div>
-<div id="socio-economic-status" class="section level1" number="10">
-<h1><span class="header-section-number">10</span> Socio-economic
-status</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~income_val, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                Estimate     95% LCL    95% UCL     StdErr   t_value df   p-value
-## (Intercept) 0.097120124 -0.04434897 0.23858922 0.07112718 1.3654432 83 0.1758031
-## income_val  0.001927089 -0.02427427 0.02812845 0.01317340 0.1462863 83 0.8840501
-## 
-## $control_variables
-##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4607594356 -1.055729437  0.134210566 0.299136266 -1.54029948 83 1.272914e-01
-## age                                 0.0013760568 -0.005635273  0.008387386 0.003525124  0.39035701 83 6.972726e-01
-## is_female                           0.1389247994 -0.145103888  0.422953487 0.142802630  0.97284482 83 3.334571e-01
-## is_latino                           0.2102821978 -0.075454517  0.496018912 0.143661384  1.46373502 83 1.470434e-01
-## is_not_latino_and_black             0.1378573231 -0.132579706  0.408294353 0.135969079  1.01388731 83 3.135830e-01
-## is_not_latino_and_other             0.1298861372 -0.241426889  0.501199164 0.186687046  0.69574263 83 4.885336e-01
-## baseline_tobacco_history            0.0003582093 -0.013246030  0.013962448 0.006839876  0.05237073 83 9.583591e-01
-## has_partner                         0.0085389367 -0.201823114  0.218900987 0.105764859  0.08073510 83 9.358470e-01
-## income_val                         -0.0063828367 -0.044971555  0.032205882 0.019401457 -0.32898749 83 7.429938e-01
-## hour_coinflip_local                 0.0006270845 -0.009298194  0.010552363 0.004990186  0.12566356 83 9.003021e-01
-## days_between_v1_and_coinflip_local  0.0041264110 -0.011156848  0.019409670 0.007684046  0.53701019 83 5.926973e-01
-## any_response_2qs                    0.0424042603 -0.091686228  0.176494748 0.067417395  0.62898099 83 5.310888e-01
-## any_recent_eligible_dp             -1.0154584911 -1.386857500 -0.644059482 0.186730276 -5.43810308 83 5.311923e-07
-## engagement_most_recent_eligible     0.8660510311  0.607171084  1.124930978 0.130158462  6.65382039 83 2.860343e-09</code></pre>
-</div>
-<div id="any-response-to-brief-survey" class="section level1" number="11">
-<h1><span class="header-section-number">11</span> Any response to brief
-survey</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_response_2qs, 
-##     control_formula = ~age + is_female + is_latino + is_not_latino_and_black + 
-##         is_not_latino_and_other + baseline_tobacco_history + 
-##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                    Estimate    95% LCL   95% UCL     StdErr   t_value df   p-value
-## (Intercept)      0.06342460 -0.1220348 0.2488840 0.09324443 0.6801972 83 0.4982726
-## any_response_2qs 0.05546292 -0.1441773 0.2551031 0.10037417 0.5525616 83 0.5820487
-## 
-## $control_variables
-##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
-## (Intercept)                        -0.4437890245 -1.036578730  0.149000681 0.298040067 -1.48902471 83 1.402709e-01
-## age                                 0.0014272365 -0.005613699  0.008468172 0.003540009  0.40317310 83 6.878576e-01
-## is_female                           0.1386005580 -0.146038704  0.423239820 0.143109612  0.96849231 83 3.356123e-01
-## is_latino                           0.2108992202 -0.074322943  0.496121384 0.143402680  1.47067837 83 1.451591e-01
-## is_not_latino_and_black             0.1367816793 -0.133601288  0.407164647 0.135941898  1.00617750 83 3.172546e-01
-## is_not_latino_and_other             0.1305597020 -0.239419415  0.500538819 0.186016389  0.70187204 83 4.847225e-01
-## baseline_tobacco_history            0.0003466064 -0.013168187  0.013861400 0.006794905  0.05100975 83 9.594403e-01
-## has_partner                         0.0105522006 -0.199170022  0.220274424 0.105443169  0.10007477 83 9.205263e-01
-## income_val                         -0.0054673826 -0.037402005  0.026467240 0.016055942 -0.34052083 83 7.343247e-01
-## hour_coinflip_local                 0.0005050302 -0.009346513  0.010356574 0.004953113  0.10196217 83 9.190326e-01
-## days_between_v1_and_coinflip_local  0.0045909701 -0.010831147  0.020013087 0.007753861  0.59208829 83 5.554010e-01
-## any_response_2qs                    0.0153073559 -0.163990535  0.194605247 0.090146564  0.16980521 83 8.655765e-01
-## any_recent_eligible_dp             -1.0197098654 -1.417550826 -0.621868904 0.200024639 -5.09792130 83 2.126887e-06
-## engagement_most_recent_eligible     0.8665625283  0.607641691  1.125483366 0.130179021  6.65669876 83 2.824090e-09</code></pre>
-</div>
-<div id="engagement-at-most-recent-eligible-decision-point" class="section level1" number="12">
-<h1><span class="header-section-number">12</span> Engagement at most
-recent eligible decision point</h1>
-<pre><code>## $call
-## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_recent_eligible_dp + 
-##         engagement_most_recent_eligible, control_formula = ~age + 
-##         is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
-##         baseline_tobacco_history + has_partner + income_val + 
-##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
-## 
-## $causal_excursion_effect
-##                                    Estimate     95% LCL     95% UCL    StdErr   t_value df    p-value
-## (Intercept)                     -0.03988444 -0.34800362  0.26823474 0.1548868 -0.257507 82 0.79743250
-## any_recent_eligible_dp           0.41033868 -0.04299105  0.86366841 0.2278819  1.800664 82 0.07543273
-## engagement_most_recent_eligible -0.32891177 -0.63922808 -0.01859547 0.1559913 -2.108527 82 0.03803746
+##                                  Estimate     95% LCL   95% UCL    StdErr   t_value df    p-value
+## (Intercept)                     0.4528801  0.04468503 0.8610752 0.2048613  2.210667 74 0.03014949
+## any_app_usage_and_ema_preblock -0.3883666 -0.79925533 0.0225222 0.2062132 -1.883325 74 0.06358584
 ## 
 ## $control_variables
 ##                                         Estimate      95% LCL      95% UCL      StdErr    t_value df      p-value
-## (Intercept)                        -0.3983763826 -0.881317936  0.084565171 0.242767330 -1.6409802 82 1.046320e-01
-## age                                 0.0013209087 -0.005556848  0.008198665 0.003457343  0.3820589 82 7.034060e-01
-## is_female                           0.1299337534 -0.151659338  0.411526845 0.141552539  0.9179189 82 3.613534e-01
-## is_latino                           0.2165105633 -0.069498549  0.502519676 0.143772405  1.5059257 82 1.359289e-01
-## is_not_latino_and_black             0.1380904579 -0.128808037  0.404988953 0.134165790  1.0292524 82 3.063875e-01
-## is_not_latino_and_other             0.1460346563 -0.214114750  0.506184063 0.181041596  0.8066359 82 4.222096e-01
-## baseline_tobacco_history            0.0006189891 -0.012531270  0.013769248 0.006610434  0.0936382 82 9.256250e-01
-## has_partner                         0.0140066133 -0.192344120  0.220357347 0.103729356  0.1350304 82 8.929188e-01
-## income_val                         -0.0058780565 -0.037684246  0.025928133 0.015988485 -0.3676431 82 7.140866e-01
-## hour_coinflip_local                 0.0015404716 -0.008187593  0.011268536 0.004890149  0.3150152 82 7.535503e-01
-## days_between_v1_and_coinflip_local  0.0059387195 -0.009411510  0.021288949 0.007716325  0.7696305 82 4.437305e-01
-## any_response_2qs                    0.0379418858 -0.093073204  0.168956975 0.065859281  0.5761054 82 5.661219e-01
-## any_recent_eligible_dp             -1.2409316431 -1.646063962 -0.835799324 0.203653818 -6.0933385 82 3.433845e-08
-## engagement_most_recent_eligible     1.0383155234  0.697650178  1.378980868 0.171247256  6.0632535 82 3.907608e-08</code></pre>
+## (Intercept)                        -1.7589901687 -2.369514990 -1.148465347 0.306404765 -5.7407403 74 1.951825e-07
+## any_app_usage_and_ema_preblock      0.6504754831  0.286971652  1.013979314 0.182432068  3.5655764 74 6.405786e-04
+## age                                 0.0015628955 -0.005244621  0.008370412 0.003416496  0.4574557 74 6.486838e-01
+## is_male                            -0.1253321527 -0.407728811  0.157064506 0.141726722 -0.8843227 74 3.793863e-01
+## is_latino                           0.2140170255 -0.074048643  0.502082694 0.144571834  1.4803508 74 1.430248e-01
+## is_not_latino_and_black             0.1350574408 -0.136642973  0.406757855 0.136358586  0.9904579 74 3.251780e-01
+## is_not_latino_and_other             0.1318125484 -0.236741422  0.500366519 0.184966587  0.7126290 74 4.783164e-01
+## baseline_tobacco_history            0.0007255594 -0.012037475  0.013488593 0.006405398  0.1132731 74 9.101208e-01
+## has_partner                         0.0171808254 -0.192135283  0.226496933 0.105049706  0.1635495 74 8.705317e-01
+## income_val                         -0.0043476382 -0.036385499  0.027690223 0.016078877 -0.2703944 74 7.876096e-01
+## hour_coinflip_local                 0.0026576585 -0.007527937  0.012843254 0.005111856  0.5199009 74 6.046845e-01
+## days_between_v1_and_coinflip_local  0.0073178503 -0.008029872  0.022665573 0.007702579  0.9500520 74 3.451784e-01
+## any_response_2qs                    0.0288211687 -0.104632974  0.162275312 0.066976778  0.4303158 74 6.682166e-01
+## engagement_most_recent_eligible     0.5986652429  0.353400226  0.843930259 0.123091424  4.8635821 74 6.314695e-06</code></pre>
+</div>
+<div id="any-response-to-brief-survey-between-prior-micro-randomization-to-current-micro-randomization" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Any response to brief
+survey between prior micro-randomization to current
+micro-randomization</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1664                  1974</code></pre>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
-##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_recent_eligible_dp + 
-##         engagement_most_recent_eligible, control_formula = ~age + 
-##         is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
-##         baseline_tobacco_history + has_partner + income_val + 
-##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
-##         any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-##     availability = &quot;eligibility&quot;)
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~any_response_2qs, 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;overall_eligibility&quot;)
 ## 
 ## $causal_excursion_effect
-##                                                             Estimate     95% LCL     95% UCL    StdErr    t_value df    p-value
-## (Intercept)                                              -0.03988444 -0.34800362  0.26823474 0.1548868 -0.2575070 82 0.79743250
-## any_recent_eligible_dp                                    0.41033868 -0.04299105  0.86366841 0.2278819  1.8006636 82 0.07543273
-## engagement_most_recent_eligible                          -0.32891177 -0.63922808 -0.01859547 0.1559913 -2.1085270 82 0.03803746
-## any_recent_eligible_dp + engagement_most_recent_eligible  0.08142691 -0.25424120  0.41709502 0.1687352  0.4825721 82 0.63068538</code></pre>
+##                    Estimate    95% LCL   95% UCL     StdErr   t_value df   p-value
+## (Intercept)      0.07351962 -0.1078825 0.2549218 0.09106067 0.8073697 75 0.4220067
+## any_response_2qs 0.04371619 -0.1532214 0.2406538 0.09885918 0.4422067 75 0.6596122
+## 
+## $control_variables
+##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -1.3745073994 -1.877544007 -0.871470792 0.252515468 -5.44326021 75 6.331069e-07
+## age                                 0.0020296604 -0.005113754  0.009173075 0.003585867  0.56601659 75 5.730722e-01
+## is_male                            -0.1440628204 -0.438244157  0.150118517 0.147673821 -0.97554746 75 3.324249e-01
+## is_latino                           0.2087901130 -0.085396320  0.502976546 0.147676379  1.41383554 75 1.615478e-01
+## is_not_latino_and_black             0.1287599452 -0.150324714  0.407844604 0.140095556  0.91908658 75 3.609968e-01
+## is_not_latino_and_other             0.1172928905 -0.264444579  0.499030360 0.191625449  0.61209454 75 5.423265e-01
+## baseline_tobacco_history            0.0001097312 -0.013385275  0.013604738 0.006774254  0.01619827 75 9.871192e-01
+## has_partner                         0.0073587292 -0.208357581  0.223075039 0.108285767  0.06795657 75 9.460011e-01
+## income_val                         -0.0041260617 -0.036455596  0.028203473 0.016228854 -0.25424234 75 8.000041e-01
+## hour_coinflip_local                 0.0019565494 -0.008628278  0.012541377 0.005313396  0.36822954 75 7.137394e-01
+## days_between_v1_and_coinflip_local  0.0055262351 -0.009746088  0.020798558 0.007666436  0.72083498 75 4.732520e-01
+## any_response_2qs                    0.0153067736 -0.163879870  0.194493417 0.089948522  0.17017260 75 8.653326e-01
+## engagement_most_recent_eligible     0.8737334948  0.611773058  1.135693932 0.131499500  6.64438644 75 4.275591e-09</code></pre>
+</div>
+<div id="self-reported-engagement-in-self-regulatory-strategies-between-prior-micro-randomization-to-current-micro-randomization" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Self-reported
+engagement in self-regulatory strategies between prior
+micro-randomization to current micro-randomization</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1664                  1974</code></pre>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~engagement_most_recent_eligible, 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;overall_eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                                   Estimate     95% LCL    95% UCL    StdErr   t_value df    p-value
+## (Intercept)                      0.3482515  0.03851279 0.65799022 0.1554833  2.239799 75 0.02806688
+## engagement_most_recent_eligible -0.3001104 -0.61388417 0.01366336 0.1575089 -1.905356 75 0.06056704
+## engagement_most_recent_eligible -0.3001104 -0.61388417 0.01366336 0.1575089 -1.905356 75 0.06056704
+## 
+## $control_variables
+##                                         Estimate      95% LCL      95% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -1.5400939701 -2.127487019 -0.952700921 0.294860907 -5.22312023 75 1.524304e-06
+## age                                 0.0019408024 -0.005044620  0.008926225 0.003506559  0.55347781 75 5.815825e-01
+## is_male                            -0.1361842373 -0.426886348  0.154517874 0.145927311 -0.93323338 75 3.536942e-01
+## is_latino                           0.2122486043 -0.081127650  0.505624859 0.147269684  1.44122401 75 1.536837e-01
+## is_not_latino_and_black             0.1287835162 -0.146306652  0.403873685 0.138090392  0.93260301 75 3.540176e-01
+## is_not_latino_and_other             0.1295359789 -0.242722128  0.501794086 0.186866977  0.69319888 75 4.903259e-01
+## baseline_tobacco_history            0.0005292644 -0.012624420  0.013682949 0.006602917  0.08015615 75 9.363266e-01
+## has_partner                         0.0129089612 -0.199748420  0.225566342 0.106750239  0.12092677 75 9.040724e-01
+## income_val                         -0.0048789976 -0.037101021  0.027343026 0.016174885 -0.30164033 75 7.637611e-01
+## hour_coinflip_local                 0.0027982248 -0.007658202  0.013254652 0.005248941  0.53310272 75 5.955387e-01
+## days_between_v1_and_coinflip_local  0.0068505486 -0.008286317  0.021987414 0.007598438  0.90157324 75 3.701698e-01
+## any_response_2qs                    0.0327140311 -0.102016394  0.167444456 0.067632287  0.48370434 75 6.300050e-01
+## engagement_most_recent_eligible     1.0304564143  0.681646857  1.379265972 0.175096220  5.88508657 75 1.043571e-07</code></pre>
 </div>
 
 
