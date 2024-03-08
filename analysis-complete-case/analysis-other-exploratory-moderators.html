@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-03-07" />
+<meta name="date" content="2024-03-08" />
 
 <title>MARS MRT: Additional analyses</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">MARS MRT: Additional analyses</h1>
-<h4 class="date">March 07, 2024</h4>
+<h4 class="date">March 08, 2024</h4>
 
 </div>
 
@@ -383,8 +383,18 @@ response</a></li>
 <li><a href="#cigarette-availability-and-negative-affect-self-reported-in-brief-survey" id="toc-cigarette-availability-and-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">15</span> Cigarette availability and negative
 affect self-reported in brief survey</a>
 <ul>
+<li><a href="#confidence-intervals" id="toc-confidence-intervals"><span class="toc-section-number">15.0.1</span> 95% Confidence
+Intervals</a></li>
+<li><a href="#confidence-intervals-1" id="toc-confidence-intervals-1"><span class="toc-section-number">15.0.2</span> 90% Confidence
+Intervals</a></li>
 <li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">15.1</span> Estimated effect on the risk
-ratio scale</a></li>
+ratio scale</a>
+<ul>
+<li><a href="#confidence-intervals-2" id="toc-confidence-intervals-2"><span class="toc-section-number">15.1.1</span> 95% Confidence
+Intervals</a></li>
+<li><a href="#confidence-intervals-3" id="toc-confidence-intervals-3"><span class="toc-section-number">15.1.2</span> 90% Confidence
+Intervals</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -935,6 +945,9 @@ survey response</h1>
 and negative affect self-reported in brief survey</h1>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
 ## 1                  99                                 87                                 12   3858                  1282                  2576</code></pre>
+<div id="confidence-intervals" class="section level3" number="15.0.1">
+<h3><span class="header-section-number">15.0.1</span> 95% Confidence
+Intervals</h3>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~cig_available + 
@@ -975,14 +988,72 @@ and negative affect self-reported in brief survey</h1>
 ## cig_available                      -0.0579210523 -0.264418842  0.14857674 0.103455374 -0.55986509 67 5.774385e-01
 ## negative_affect                    -0.0297098648 -0.324386966  0.26496724 0.147633200 -0.20124108 67 8.411198e-01
 ## I(cig_available * negative_affect)  0.1307018901 -0.284129700  0.54553348 0.207830588  0.62888669 67 5.315616e-01</code></pre>
+</div>
+<div id="confidence-intervals-1" class="section level3" number="15.0.2">
+<h3><span class="header-section-number">15.0.2</span> 90% Confidence
+Intervals</h3>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~cig_available + 
+##         negative_affect + I(cig_available * negative_affect), 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_recent_eligible_dp + engagement_most_recent_eligible + 
+##         cig_available + negative_affect + I(cig_available * negative_affect), 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                                                                                       Estimate     90% LCL     90% UCL     StdErr    t_value df    p-value
+## (Intercept)                                                                         0.02759862 -0.07083224  0.12602948 0.05901428  0.4676601 67 0.64154527
+## cig_available                                                                       0.18732636  0.01610493  0.35854778 0.10265590  1.8247988 67 0.07248975
+## negative_affect                                                                     0.14743921 -0.13806567  0.43294409 0.17117460  0.8613381 67 0.39212401
+## I(cig_available * negative_affect)                                                 -0.32504488 -0.64434646 -0.00574329 0.19143744 -1.6979170 67 0.09416381
+## (Intercept)                                                                         0.02759862 -0.07083224  0.12602948 0.05901428  0.4676601 67 0.64154527
+## (Intercept) + negative_affect                                                       0.17503783 -0.09433342  0.44440908 0.16150168  1.0838143 67 0.28233197
+## (Intercept) + cig_available                                                         0.21492498  0.05822247  0.37162749 0.09395107  2.2876267 67 0.02532264
+## (Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)  0.03731931 -0.18241960  0.25705823 0.13174459  0.2832702 67 0.77784315
+## 
+## $control_variables
+##                                         Estimate      90% LCL      90% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -0.1267395358 -0.514830358  0.261351287 0.232680061 -0.54469444 67 5.877722e-01
+## age                                -0.0018261330 -0.008056445  0.004404179 0.003735387 -0.48887390 67 6.265275e-01
+## is_male                            -0.0862326586 -0.367498380  0.195033063 0.168633014 -0.51136285 67 6.107782e-01
+## is_latino                           0.2150984490 -0.067490814  0.497687712 0.169426544  1.26956759 67 2.086308e-01
+## is_not_latino_and_black             0.1669003196 -0.107299384  0.441100023 0.164396579  1.01522988 67 3.136485e-01
+## is_not_latino_and_other             0.1747346486 -0.190903901  0.540373198 0.219218788  0.79707880 67 4.282209e-01
+## baseline_tobacco_history            0.0001031868 -0.014244027  0.014450401 0.008601880  0.01199585 67 9.904646e-01
+## has_partner                        -0.0168488796 -0.215027392  0.181329633 0.118818033 -0.14180406 67 8.876603e-01
+## income_val                         -0.0064314801 -0.038637554  0.025774594 0.019309169 -0.33307907 67 7.401146e-01
+## hour_coinflip_local                 0.0024043005 -0.006796312  0.011604913 0.005516232  0.43585919 67 6.643400e-01
+## days_between_v1_and_coinflip_local  0.0029820645 -0.013006197  0.018970326 0.009585770  0.31109283 67 7.566959e-01
+## any_recent_eligible_dp             -1.0480930009 -1.408050355 -0.688135647 0.215812625 -4.85649532 67 7.501517e-06
+## engagement_most_recent_eligible     0.8746499335  0.625220271  1.124079596 0.149545688  5.84871384 67 1.622327e-07
+## cig_available                      -0.0579210523 -0.230475937  0.114633832 0.103455374 -0.55986509 67 5.774385e-01
+## negative_affect                    -0.0297098648 -0.275949659  0.216529929 0.147633200 -0.20124108 67 8.411198e-01
+## I(cig_available * negative_affect)  0.1307018901 -0.215942097  0.477345877 0.207830588  0.62888669 67 5.315616e-01</code></pre>
+</div>
 <div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="15.1">
 <h2><span class="header-section-number">15.1</span> Estimated effect on
 the risk ratio scale</h2>
+<div id="confidence-intervals-2" class="section level3" number="15.1.1">
+<h3><span class="header-section-number">15.1.1</span> 95% Confidence
+Intervals</h3>
 <pre><code>##                                                                                    exp_estimates    rrLB95   rrUB95
 ## (Intercept)                                                                             1.027983 0.9137536 1.156492
 ## (Intercept) + negative_affect                                                           1.191291 0.8630170 1.644434
 ## (Intercept) + cig_available                                                             1.239769 1.0277766 1.495487
 ## (Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)      1.038024 0.7980022 1.350240</code></pre>
+</div>
+<div id="confidence-intervals-3" class="section level3" number="15.1.2">
+<h3><span class="header-section-number">15.1.2</span> 90% Confidence
+Intervals</h3>
+<pre><code>##                                                                                    exp_estimates      rrLB     rrUB
+## (Intercept)                                                                             1.027983 0.9316182 1.134316
+## (Intercept) + negative_affect                                                           1.191291 0.9099793 1.559568
+## (Intercept) + cig_available                                                             1.239769 1.0599508 1.450093
+## (Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)      1.038024 0.8332516 1.293120</code></pre>
+</div>
 </div>
 </div>
 

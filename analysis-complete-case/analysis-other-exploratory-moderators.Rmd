@@ -1815,26 +1815,50 @@ Lmat <- rbind(c(1,0,0,0), # not vulnerable and receptive
               c(1,0,1,0), # not vulnerable and not receptive
               c(1,1,0,0), # vulnerable and receptive
               c(1,1,1,1)) # vulnerable and not receptive
-summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
 
 # Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
 ```
 
+### 95% Confidence Intervals
+
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
+```
+
+```{r}
+dat_result_causal <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
 # Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect_CI95.csv"), row.names = TRUE)
+```
+
+### 90% Confidence Intervals
+
+```{r}
+summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)
+```
+
+```{r}
+dat_result_causal <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
+
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect_CI90.csv"), row.names = TRUE)
 ```
 
 ## Estimated effect on the risk ratio scale
 
+### 95% Confidence Intervals
+
 ```{r}
 dat_results_contrast <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)$causal_excursion_effect[5:8,]
 ```
+
 ```{r}
 exp_estimates <- exp(dat_results_contrast[,"Estimate"])
 rrLB95 <- exp(dat_results_contrast[,"95% LCL"])
@@ -1845,7 +1869,26 @@ dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB
 dat_exp_scale
 
 # Format output to 3 decimal places
-dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect_CI95.csv"), row.names = TRUE)
+```
+
+### 90% Confidence Intervals
+
+```{r}
+dat_results_contrast <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)$causal_excursion_effect[5:8,]
+```
+
+```{r}
+exp_estimates <- exp(dat_results_contrast[,"Estimate"])
+rrLB <- exp(dat_results_contrast[,"90% LCL"])
+rrUB <- exp(dat_results_contrast[,"90% UCL"])
+
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB = rrLB, rrUB = rrUB)
+
+dat_exp_scale
+
+# Format output to 3 decimal places
+dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect_CI90.csv"), row.names = TRUE)
 ```
 
 
