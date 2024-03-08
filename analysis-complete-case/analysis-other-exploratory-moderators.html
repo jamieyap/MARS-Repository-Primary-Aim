@@ -380,6 +380,12 @@ self-reported in brief survey</a></li>
 brief survey</a></li>
 <li><a href="#dichotomized-brief-survey-response" id="toc-dichotomized-brief-survey-response"><span class="toc-section-number">14</span> Dichotomized brief survey
 response</a></li>
+<li><a href="#cigarette-availability-and-negative-affect-self-reported-in-brief-survey" id="toc-cigarette-availability-and-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">15</span> Cigarette availability and negative
+affect self-reported in brief survey</a>
+<ul>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">15.1</span> Estimated effect on the risk
+ratio scale</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -923,6 +929,61 @@ survey response</h1>
 ## any_recent_eligible_dp             -1.0568877899 -1.444594569 -0.669181010 0.194442222 -5.43548504 71 7.300819e-07
 ## engagement_most_recent_eligible     0.8739527534  0.575869254  1.172036252 0.149494466  5.84605422 71 1.408813e-07
 ## dichotomized_2qs_response           0.0617785679 -0.141310200  0.264867335 0.101852826  0.60654741 71 5.460859e-01</code></pre>
+</div>
+<div id="cigarette-availability-and-negative-affect-self-reported-in-brief-survey" class="section level1" number="15">
+<h1><span class="header-section-number">15</span> Cigarette availability
+and negative affect self-reported in brief survey</h1>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 87                                 12   3858                  1282                  2576</code></pre>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~cig_available + 
+##         negative_affect + I(cig_available * negative_affect), 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_recent_eligible_dp + engagement_most_recent_eligible + 
+##         cig_available + negative_affect + I(cig_available * negative_affect), 
+##     availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                                                                                       Estimate     95% LCL    95% UCL     StdErr    t_value df    p-value
+## (Intercept)                                                                         0.02759862 -0.09019436 0.14539161 0.05901428  0.4676601 67 0.64154527
+## cig_available                                                                       0.18732636 -0.01757567 0.39222838 0.10265590  1.8247988 67 0.07248975
+## negative_affect                                                                     0.14743921 -0.19422673 0.48910515 0.17117460  0.8613381 67 0.39212401
+## I(cig_available * negative_affect)                                                 -0.32504488 -0.70715560 0.05706585 0.19143744 -1.6979170 67 0.09416381
+## (Intercept)                                                                         0.02759862 -0.09019436 0.14539161 0.05901428  0.4676601 67 0.64154527
+## (Intercept) + negative_affect                                                       0.17503783 -0.14732087 0.49739653 0.16150168  1.0838143 67 0.28233197
+## (Intercept) + cig_available                                                         0.21492498  0.02739785 0.40245211 0.09395107  2.2876267 67 0.02532264
+## (Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)  0.03731931 -0.22564398 0.30028261 0.13174459  0.2832702 67 0.77784315
+## 
+## $control_variables
+##                                         Estimate      95% LCL     95% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -0.1267395358 -0.591170881  0.33769181 0.232680061 -0.54469444 67 5.877722e-01
+## age                                -0.0018261330 -0.009281996  0.00562973 0.003735387 -0.48887390 67 6.265275e-01
+## is_male                            -0.0862326586 -0.422825563  0.25036025 0.168633014 -0.51136285 67 6.107782e-01
+## is_latino                           0.2150984490 -0.123078348  0.55327525 0.169426544  1.26956759 67 2.086308e-01
+## is_not_latino_and_black             0.1669003196 -0.161236626  0.49503727 0.164396579  1.01522988 67 3.136485e-01
+## is_not_latino_and_other             0.1747346486 -0.262827884  0.61229718 0.219218788  0.79707880 67 4.282209e-01
+## baseline_tobacco_history            0.0001031868 -0.017066237  0.01727261 0.008601880  0.01199585 67 9.904646e-01
+## has_partner                        -0.0168488796 -0.254010667  0.22031291 0.118818033 -0.14180406 67 8.876603e-01
+## income_val                         -0.0064314801 -0.044972742  0.03210978 0.019309169 -0.33307907 67 7.401146e-01
+## hour_coinflip_local                 0.0024043005 -0.008606145  0.01341475 0.005516232  0.43585919 67 6.643400e-01
+## days_between_v1_and_coinflip_local  0.0029820645 -0.016151213  0.02211534 0.009585770  0.31109283 67 7.566959e-01
+## any_recent_eligible_dp             -1.0480930009 -1.478856803 -0.61732920 0.215812625 -4.85649532 67 7.501517e-06
+## engagement_most_recent_eligible     0.8746499335  0.576155491  1.17314438 0.149545688  5.84871384 67 1.622327e-07
+## cig_available                      -0.0579210523 -0.264418842  0.14857674 0.103455374 -0.55986509 67 5.774385e-01
+## negative_affect                    -0.0297098648 -0.324386966  0.26496724 0.147633200 -0.20124108 67 8.411198e-01
+## I(cig_available * negative_affect)  0.1307018901 -0.284129700  0.54553348 0.207830588  0.62888669 67 5.315616e-01</code></pre>
+<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="15.1">
+<h2><span class="header-section-number">15.1</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##                                                                                    exp_estimates    rrLB95   rrUB95
+## (Intercept)                                                                             1.027983 0.9137536 1.156492
+## (Intercept) + negative_affect                                                           1.191291 0.8630170 1.644434
+## (Intercept) + cig_available                                                             1.239769 1.0277766 1.495487
+## (Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)      1.038024 0.7980022 1.350240</code></pre>
+</div>
 </div>
 
 

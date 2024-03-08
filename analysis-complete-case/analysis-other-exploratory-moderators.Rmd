@@ -1709,3 +1709,145 @@ dat_result <- rbind(dat_result_causal, dat_result_control)
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response.csv"), row.names = TRUE)
 ```
+
+# Cigarette availability and negative affect self-reported in brief survey
+
+```{r}
+use_these_moderators <- c("cig_available", "negative_affect")
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis %>% 
+  select(Y, eligibility,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+n_participants_included_among_elig <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility == 1 & is_complete == 1) %>% 
+  summarise(total = length(unique(participant_id))) %>%
+  .[["total"]]
+
+n_participants_elig <- dat_for_analysis %>%
+  filter(eligibility == 1) %>%
+  .[["participant_id"]] %>%
+  unique(.) %>%
+  length(.)
+
+n_participants_excluded_among_elig <- n_participants_elig - n_participants_included_among_elig
+
+dat_summary <- data.frame(n_participants_elig = n_participants_elig,
+                          n_participants_included_among_elig = n_participants_included_among_elig,
+                          n_participants_excluded_among_elig = n_participants_excluded_among_elig,
+                          n_elig = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+participants_fully_dropped <- dat_for_analysis %>% 
+  group_by(participant_id) %>% 
+  summarise(count_elig = sum(eligibility)) %>%
+  arrange(count_elig) %>%
+  filter(count_elig == 0) %>%
+  .[["participant_id"]]
+
+if(length(participants_fully_dropped) > 0){
+  dat_for_analysis <- dat_for_analysis %>% filter(!(participant_id %in% participants_fully_dropped))
+}
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ cig_available + negative_affect + I(cig_available * negative_affect),  
+  control_formula = ~ age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_recent_eligible_dp + engagement_most_recent_eligible +  cig_available + negative_affect + I(cig_available * negative_affect), 
+  availability = "eligibility"
+)
+
+Lmat <- rbind(c(1,0,0,0), # not vulnerable and receptive
+              c(1,0,1,0), # not vulnerable and not receptive
+              c(1,1,0,0), # vulnerable and receptive
+              c(1,1,1,1)) # vulnerable and not receptive
+summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
+
+# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
+```
+
+```{r}
+dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk ratio scale
+
+```{r}
+dat_results_contrast <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)$causal_excursion_effect[5:8,]
+```
+```{r}
+exp_estimates <- exp(dat_results_contrast[,"Estimate"])
+rrLB95 <- exp(dat_results_contrast[,"95% LCL"])
+rrUB95 <- exp(dat_results_contrast[,"95% UCL"])
+
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
+
+dat_exp_scale
+
+# Format output to 3 decimal places
+dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+```
+
+
+
+
