@@ -187,7 +187,7 @@ keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(
 ################################################################################
 # Bring in variables on app usage at current block
 ################################################################################
-dat_app_usage <- readRDS(file = file.path(path_app_usage_data, "app_usage_for_mainpipeline_updated1106.rds"))
+dat_app_usage <- readRDS(file = file.path(path_app_usage_data, "app_usage_for_mainpipeline_updated0212.rds")) 
 
 dat_app_usage <- dat_app_usage %>%
   filter(!is.na(A)) %>%

@@ -110,24 +110,50 @@ dat_analysis <- rename(dat_analysis, all_of(lookup))
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
 ################################################################################
+# Create time-varying moderators: cigarette availability
+################################################################################
+column_names_availability_items <- c("Q41_response")  # Q41 -- cigarette availability
+
+lookup <- c(cigarette_availability = "Q41_response_cleaned")
+
+dat_analysis <- dat_analysis %>%
+  mutate(across(.cols = all_of(column_names_availability_items), 
+                .fns = ~ case_when(
+                  .x == "0 Not at all" ~ 0,
+                  .x == "1" ~ 1,
+                  .x == "2" ~ 2,
+                  .x == "3" ~ 3,
+                  .x == "4 Very easily" ~ 4,
+                  .default = NULL
+                ),
+                .names = "{.col}_cleaned")
+  )
+
+dat_analysis <- rename(dat_analysis, all_of(lookup))
+keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
+
+################################################################################
 # Create time-varying moderators: aggregate measure over the past 24 hours
 # For affect items, the aggregate measure is the mean
 ################################################################################
 lookup <- c(ashamed_mean_past24hrs = "ashamed_mean_past24hrs",
             guilty_mean_past24hrs = "guilty_mean_past24hrs",
             happy_mean_past24hrs = "happy_mean_past24hrs",
-            src_scored_mean_past24hrs = "src_scored_mean_past24hrs")
+            src_scored_mean_past24hrs = "src_scored_mean_past24hrs",
+            cigarette_availability_mean_past24hrs = "cigarette_availability_mean_past24hrs")
 
 list_all_dat <- list()
 dat_analysis[["ashamed_mean_past24hrs"]] <- NA
 dat_analysis[["guilty_mean_past24hrs"]] <- NA
 dat_analysis[["happy_mean_past24hrs"]] <- NA
 dat_analysis[["src_scored_mean_past24hrs"]] <- NA
+dat_analysis[["cigarette_availability_mean_past24hrs"]] <- NA
 
 dat_analysis[["ashamed_nreported_past24hrs"]] <- NA
 dat_analysis[["guilty_nreported_past24hrs"]] <- NA
 dat_analysis[["happy_nreported_past24hrs"]] <- NA
 dat_analysis[["src_scored_nreported_past24hrs"]] <- NA
+dat_analysis[["cigarette_availability_nreported_past24hrs"]] <- NA
 
 for(i in 1:n_ids){
   current_participant <- all_ids[i]
@@ -148,6 +174,7 @@ for(i in 1:n_ids){
         dat_current_participant[j,"guilty_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["guilty"]]))
         dat_current_participant[j,"happy_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["happy"]]))
         dat_current_participant[j,"src_scored_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["src_scored"]]))
+        dat_current_participant[j,"cigarette_availability_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["cigarette_availability"]]))
         
         # Note that checking whether number of micro-randomizations is equal to
         # the number of completed EMA will not count partially completed EMAs; 
@@ -167,6 +194,10 @@ for(i in 1:n_ids){
         
         if(n_rand_past24hrs == dat_current_participant[j,"src_scored_nreported_past24hrs"]){
           dat_current_participant[j,"src_scored_mean_past24hrs"] <- mean(dat_within_range[["src_scored"]], na.rm = TRUE)
+        }
+        
+        if(n_rand_past24hrs == dat_current_participant[j,"cigarette_availability_nreported_past24hrs"]){
+          dat_current_participant[j,"cigarette_availability_mean_past24hrs"] <- mean(dat_within_range[["cigarette_availability"]], na.rm = TRUE)
         }
         
       }  # This if-then statement only executes if a block had any micro-randomization in the past 24 hours PRIOR TO the current micro-randomization
@@ -269,6 +300,26 @@ dat_analysis <- rename(dat_analysis, all_of(lookup))
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
 ################################################################################
+# Create time-varying moderators: patch wearing
+################################################################################
+column_names_patch_items <- c("Q45_response")  # Q45 -- RIGHT NOW, are you wearing the patch?
+
+lookup <- c(wearing_patch = "Q45_response_cleaned")
+
+dat_analysis <- dat_analysis %>%
+  mutate(across(.cols = all_of(column_names_patch_items), 
+                .fns = ~ case_when(
+                  .x == "No" ~ 0,
+                  .x == "Yes" ~ 1,
+                  .default = NULL
+                ),
+                .names = "{.col}_cleaned")
+  )
+
+dat_analysis <- rename(dat_analysis, all_of(lookup))
+keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
+
+################################################################################
 # Create time-varying moderators: aggregate measure over the past 24 hours
 # For cigarette and alcohol count items, the aggregate measure is the sum
 ################################################################################
@@ -279,7 +330,8 @@ lookup <- c(stressor_is_any_sum_past24hrs = "stressor_is_any_sum_past24hrs",
             substance_is_any_nicotine_sum_past24hrs = "substance_is_any_nicotine_sum_past24hrs",
             substance_is_marijuana_or_cannabis_sum_past24hrs = "substance_is_marijuana_or_cannabis_sum_past24hrs",
             substance_is_alcohol_sum_past24hrs = "substance_is_alcohol_sum_past24hrs",
-            substance_is_cigarettes_sum_past24hrs = "substance_is_cigarettes_sum_past24hrs")
+            substance_is_cigarettes_sum_past24hrs = "substance_is_cigarettes_sum_past24hrs",
+            wearing_patch_sum_past24hrs = "wearing_patch_sum_past24hrs")
 
 list_all_dat <- list()
 dat_analysis[["stressor_is_any_sum_past24hrs"]] <- NA
@@ -290,6 +342,7 @@ dat_analysis[["substance_is_any_nicotine_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_cigarettes_sum_past24hrs"]] <- NA
+dat_analysis[["wearing_patch_sum_past24hrs"]] <- NA
 
 dat_analysis[["stressor_is_any_nreported_past24hrs"]] <- NA
 dat_analysis[["cigarette_counts_nreported_past24hrs"]] <- NA
@@ -299,6 +352,7 @@ dat_analysis[["substance_is_any_nicotine_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_cigarettes_nreported_past24hrs"]] <- NA
+dat_analysis[["wearing_patch_nreported_past24hrs"]] <- NA
 
 
 for(i in 1:n_ids){
@@ -324,6 +378,7 @@ for(i in 1:n_ids){
         dat_current_participant[j,"substance_is_marijuana_or_cannabis_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_marijuana_or_cannabis"]]))
         dat_current_participant[j,"substance_is_alcohol_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_alcohol"]]))
         dat_current_participant[j,"substance_is_cigarettes_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_cigarettes"]]))
+        dat_current_participant[j,"wearing_patch_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["wearing_patch"]]))
         
         # Note that checking whether number of micro-randomizations is equal to
         # the number of completed EMA will not count partially completed EMAs; 
@@ -357,9 +412,12 @@ for(i in 1:n_ids){
           dat_current_participant[j,"substance_is_alcohol_sum_past24hrs"] <- sum(dat_within_range[["substance_is_alcohol"]], na.rm = TRUE)
         }
         
-        
         if(n_rand_past24hrs == dat_current_participant[j,"substance_is_cigarettes_nreported_past24hrs"]){
           dat_current_participant[j,"substance_is_cigarettes_sum_past24hrs"] <- sum(dat_within_range[["substance_is_cigarettes"]], na.rm = TRUE)
+        }
+        
+        if(n_rand_past24hrs == dat_current_participant[j,"wearing_patch_nreported_past24hrs"]){
+          dat_current_participant[j,"wearing_patch_sum_past24hrs"] <- sum(dat_within_range[["wearing_patch"]], na.rm = TRUE)
         }
         
       }  # This if-then statement only executes if a block had any micro-randomization in the past 24 hours PRIOR TO the current micro-randomization
