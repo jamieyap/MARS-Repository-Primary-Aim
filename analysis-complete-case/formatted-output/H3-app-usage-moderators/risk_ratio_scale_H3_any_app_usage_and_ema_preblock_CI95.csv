@@ -1,0 +1,3 @@
+"","exp_estimates","rrLB95","rrUB95"
+"(Intercept)","1.573","1.046","2.366"
+"(Intercept) + any_app_usage_and_ema_preblock","1.067","0.986","1.154"

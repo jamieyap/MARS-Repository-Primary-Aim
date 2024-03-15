@@ -1,0 +1,278 @@
+---
+title: "MARS MRT: Block-Level Analyses"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(geepack)
+library(tvem)
+
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, cluster_id, decision_point,
+         Y, substance_is_any_nicotine, eligibility, coinflip, is_high_effort, is_low_effort) %>% 
+  mutate(coinflip = replace(coinflip, eligibility == 0, 0),
+         is_high_effort = replace(is_high_effort, eligibility == 0, 0)) %>% 
+  group_by(participant_id) %>% 
+  mutate(substance_is_any_nicotine_lead1 = lead(substance_is_any_nicotine),
+         eligibility_lead1 = lead(eligibility)) %>%
+  ungroup(.) %>%
+  filter((decision_point >= 7) & (decision_point <= 54))
+```
+
+
+# Marginal association between engagement in self-regulatory strategies and tobacco use on current person-block
+
+$$
+\mathrm{logit} Pr \left( S_{i,j} = 1 \Big| I_{i, j} = 1 \right) = \beta_0 + \beta_1 X_{i,j}
+$$
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter(eligibility == 1) %>% 
+  select(participant_id, decision_point, substance_is_any_nicotine, Y) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_nicotine ~ Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+
+summary(fit)
+```
+
+# Estimate the prevalence
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter(eligibility == 1) %>% 
+  select(participant_id, decision_point, substance_is_any_nicotine, Y) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_nicotine ~ Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+```
+
+```{r}
+Lmat <- matrix(c(1,0,
+                 1,1), ncol = 2, byrow = TRUE)
+
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+LB95 <- est_contrast - qnorm(0.975) * est_stderr_contrast
+UB95 <- est_contrast + qnorm(0.975) * est_stderr_contrast
+
+expit <- function(x){
+  exp(x)/(1 + exp(x))
+}
+
+dat_result <- data.frame(engaged = c(0,1), est_contrast = expit(est_contrast), LB95 = expit(LB95), UB95 = expit(UB95))
+```
+
+```{r}
+print(dat_result)
+```
+
+```{r, fig.height = 5, fig.width = 7}
+plot(dat_result$engaged, dat_result$est_contrast, type = "b", yaxt = "n", xaxt = "n", ylim = c(0,1), xlab = "Whether engaged in self-regulatory strategies on block j", ylab = "Prevalance of tobacco use on block j")
+axis(1, at = c(0,1))
+axis(2, at = seq(0,1,0.2))
+lines(dat_result$engaged, dat_result$LB, type = "b", lty = 2)
+lines(dat_result$engaged, dat_result$UB, type = "b", lty = 2)
+```
+
+
+# Time-varying association between engagement in self-regulatory strategies and tobacco use on current person-block
+
+$$
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right)
+$$
+```{r}
+dat_tvem <- dat_logreg
+```
+
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=substance_is_any_nicotine ~ Y,
+                     id=participant_id,
+                     time=decision_point,
+                     invar_effects=NULL,
+                     family = binomial(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=substance_is_any_nicotine ~ Y,
+                   id=participant_id,
+                   time=decision_point,
+                   invar_effects=NULL,
+                   family = binomial(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+# Marginal association between engagement in self-regulatory strategies and tobacco use on next person-block
+
+$$
+\mathrm{logit} Pr \left( S_{i,j + 1} = 1 \Big| \left\{I_{i, j} = 1\right\} \cap \left\{I_{i, j+1} = 1\right\} \right) = \beta_0 + \beta_1 \text{WHETHER ENGAGED}_{i,j} + \beta_2 S_{i, j}
+$$
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter((eligibility == 1) & (eligibility_lead1 == 1)) %>% 
+  select(participant_id, decision_point, substance_is_any_nicotine_lead1, substance_is_any_nicotine, Y) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+
+summary(fit)
+```
+
+# Estimate the prevalence
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter((eligibility == 1) & (eligibility_lead1 == 1)) %>% 
+  select(participant_id, decision_point, substance_is_any_nicotine_lead1, substance_is_any_nicotine, Y) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_nicotine_lead1 ~ Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1,0,
+                 1,1), ncol = 2, byrow = TRUE)
+
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+LB95 <- est_contrast - qnorm(0.975) * est_stderr_contrast
+UB95 <- est_contrast + qnorm(0.975) * est_stderr_contrast
+
+expit <- function(x){
+  exp(x)/(1 + exp(x))
+}
+
+dat_result <- data.frame(engaged = c(0,1), est_contrast = expit(est_contrast), LB95 = expit(LB95), UB95 = expit(UB95))
+```
+
+```{r}
+print(dat_result)
+```
+
+```{r, fig.height = 5, fig.width = 7}
+plot(dat_result$engaged, dat_result$est_contrast, type = "b", yaxt = "n", xaxt = "n", ylim = c(0,1), xlab = "Whether engaged in self-regulatory strategies on block j", ylab = "Prevalance of tobacco use on block j+1")
+axis(1, at = c(0,1))
+axis(2, at = seq(0,1,0.2))
+lines(dat_result$engaged, dat_result$LB, type = "b", lty = 2)
+lines(dat_result$engaged, dat_result$UB, type = "b", lty = 2)
+```
+
+# Time-varying association between engagement in self-regulatory strategies and tobacco use on current person-block
+
+$$
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right) + \text{ANY TOBACCO USE}_{i} \left(t_{i,j} \right)
+$$
+
+```{r}
+dat_tvem <- dat_logreg
+```
+
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine,
+                     id=participant_id,
+                     time=decision_point,
+                     invar_effects=NULL,
+                     family = binomial(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine,
+                   id=participant_id,
+                   time=decision_point,
+                   invar_effects=NULL,
+                   family = binomial(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+
+plot(model_tvem)
+```
+
+

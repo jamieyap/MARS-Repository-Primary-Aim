@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-03-08" />
+<meta name="date" content="2024-03-15" />
 
 <title>MARS MRT: H2 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H2 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">March 08, 2024</h4>
+<h4 class="date">March 15, 2024</h4>
 
 </div>
 
@@ -413,34 +413,34 @@ day in study is modeled in a linear or quadratic manner.</p>
 <h2><span class="header-section-number">1.1</span> Estimated effect on
 the log risk ratio scale</h2>
 <pre><code>##                                       coefficient estimate  LCL95  UCL95    SE test_stat df     p
-## High Effort Prompt (versus No Prompt)       beta0    0.189  0.078  0.300 0.056     3.378 84 0.001
-## Low Effort Prompt (versus No Prompt)        beta1    0.020 -0.087  0.128 0.054     0.378 84 0.706
-## Intercept                                  alpha0   -0.276 -0.724  0.171 0.225    -1.228 84 0.223
-## age                                        alpha1    0.002 -0.005  0.009 0.004     0.449 84 0.654
-## is_male                                    alpha2   -0.139 -0.421  0.142 0.141    -0.985 84 0.328
-## is_latino                                  alpha3    0.210 -0.072  0.491 0.142     1.480 84 0.143
-## is_not_latino_and_black                    alpha4    0.138 -0.131  0.406 0.135     1.021 84 0.310
-## is_not_latino_and_other                    alpha5    0.134 -0.233  0.501 0.184     0.726 84 0.470
-## baseline_tobacco_history                   alpha6    0.001 -0.013  0.014 0.007     0.086 84 0.932
-## has_partner                                alpha7    0.003 -0.205  0.211 0.105     0.029 84 0.977
-## income_val                                 alpha8   -0.004 -0.036  0.027 0.016    -0.282 84 0.779
-## hour_coinflip_local                        alpha9    0.000 -0.010  0.010 0.005     0.013 84 0.990
-## days_between_v1_and_coinflip_local        alpha10    0.005 -0.010  0.021 0.008     0.697 84 0.488
-## any_response_2qs                          alpha11    0.034 -0.099  0.167 0.067     0.503 84 0.616
-## any_recent_eligible_dp                    alpha12   -1.074 -1.399 -0.749 0.164    -6.567 84 0.000
-## engagement_most_recent_eligible           alpha13    0.869  0.611  1.127 0.130     6.703 84 0.000</code></pre>
+## High Effort Prompt (versus No Prompt)       beta0    0.189  0.078  0.301 0.056     3.378 75 0.001
+## Low Effort Prompt (versus No Prompt)        beta1    0.020 -0.087  0.128 0.054     0.378 75 0.706
+## Intercept                                  alpha0   -0.276 -0.725  0.172 0.225    -1.228 75 0.223
+## age                                        alpha1    0.002 -0.005  0.009 0.004     0.449 75 0.655
+## is_male                                    alpha2   -0.139 -0.421  0.143 0.141    -0.985 75 0.328
+## is_latino                                  alpha3    0.210 -0.073  0.492 0.142     1.480 75 0.143
+## is_not_latino_and_black                    alpha4    0.138 -0.131  0.406 0.135     1.021 75 0.311
+## is_not_latino_and_other                    alpha5    0.134 -0.233  0.501 0.184     0.726 75 0.470
+## baseline_tobacco_history                   alpha6    0.001 -0.013  0.014 0.007     0.086 75 0.932
+## has_partner                                alpha7    0.003 -0.206  0.212 0.105     0.029 75 0.977
+## income_val                                 alpha8   -0.004 -0.036  0.027 0.016    -0.282 75 0.779
+## hour_coinflip_local                        alpha9    0.000 -0.010  0.010 0.005     0.013 75 0.990
+## days_between_v1_and_coinflip_local        alpha10    0.005 -0.010  0.021 0.008     0.697 75 0.488
+## any_response_2qs                          alpha11    0.034 -0.100  0.167 0.067     0.503 75 0.616
+## any_recent_eligible_dp                    alpha12   -1.074 -1.399 -0.748 0.164    -6.567 75 0.000
+## engagement_most_recent_eligible           alpha13    0.869  0.611  1.127 0.130     6.703 75 0.000</code></pre>
 <pre><code>##               est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom     p_value
-## High vs. None   0.18912374   0.07778065    0.3004668  0.05599042          3.3777875                 84 0.001109376
-## Low vs. None    0.02041765  -0.08698887    0.1278242  0.05401086          0.3780285                 84 0.706363000
-## High vs. Low    0.16870610   0.06439596    0.2730162  0.05245380          3.2162796                 84 0.001844620</code></pre>
+## High vs. None   0.18912374   0.07758510    0.3006624  0.05599042          3.3777875                 75 0.001161292
+## Low vs. None    0.02041765  -0.08717750    0.1280128  0.05401086          0.3780285                 75 0.706477213
+## High vs. Low    0.16870610   0.06421276    0.2731994  0.05245380          3.2162796                 75 0.001917521</code></pre>
 </div>
 <div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="1.2">
 <h2><span class="header-section-number">1.2</span> Estimated effect on
 the risk ratio scale</h2>
 <pre><code>##   exp_estimates  stderr_rr    rrLB95   rrUB95
-## 1      1.208190 0.06764709 1.0736668 1.342714
-## 2      1.020628 0.05512497 0.9110055 1.130250
-## 3      1.183772 0.06209335 1.0602927 1.307252</code></pre>
+## 1      1.208190 0.06764709 1.0734305 1.342950
+## 2      1.020628 0.05512497 0.9108129 1.130442
+## 3      1.183772 0.06209335 1.0600759 1.307468</code></pre>
 </div>
 <div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Estimated effect on
@@ -472,52 +472,52 @@ the risk difference scale</h2>
 <div id="day-in-study" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Day in study</h2>
 <pre><code>##                                                      coefficient estimate  LCL95  UCL95    SE test_stat df     p
-## High Effort Prompt (versus No Prompt)                      beta0    0.289  0.069  0.509 0.111     2.613 83 0.011
-## High Effort Prompt (versus No Prompt) x Day in Study       beta1   -0.020 -0.055  0.014 0.017    -1.180 83 0.241
-## Low Effort Prompt (versus No Prompt)                       beta2    0.056 -0.160  0.272 0.109     0.517 83 0.606
-## Low Effort Prompt (versus No Prompt) x Day in Study        beta3   -0.007 -0.045  0.031 0.019    -0.375 83 0.708
-## Intercept                                                 alpha0   -0.295 -0.759  0.169 0.233    -1.266 83 0.209
-## age                                                       alpha1    0.002 -0.005  0.009 0.004     0.442 83 0.659
-## is_male                                                   alpha2   -0.138 -0.419  0.144 0.142    -0.972 83 0.334
-## is_latino                                                 alpha3    0.210 -0.072  0.492 0.142     1.484 83 0.142
-## is_not_latino_and_black                                   alpha4    0.139 -0.129  0.408 0.135     1.030 83 0.306
-## is_not_latino_and_other                                   alpha5    0.135 -0.231  0.502 0.184     0.733 83 0.466
-## baseline_tobacco_history                                  alpha6    0.001 -0.013  0.014 0.007     0.091 83 0.928
-## has_partner                                               alpha7    0.003 -0.206  0.211 0.105     0.027 83 0.979
-## income_val                                                alpha8   -0.004 -0.036  0.027 0.016    -0.277 83 0.782
-## hour_coinflip_local                                       alpha9    0.000 -0.010  0.010 0.005    -0.010 83 0.992
-## days_between_v1_and_coinflip_local                       alpha10    0.012 -0.010  0.035 0.011     1.077 83 0.284
-## any_response_2qs                                         alpha11    0.030 -0.104  0.164 0.067     0.447 83 0.656
-## any_recent_eligible_dp                                   alpha12   -1.088 -1.440 -0.737 0.177    -6.166 83 0.000
-## engagement_most_recent_eligible                          alpha13    0.873  0.613  1.132 0.130     6.694 83 0.000</code></pre>
+## High Effort Prompt (versus No Prompt)                      beta0    0.289  0.069  0.509 0.111     2.613 74 0.011
+## High Effort Prompt (versus No Prompt) x Day in Study       beta1   -0.020 -0.055  0.014 0.017    -1.180 74 0.242
+## Low Effort Prompt (versus No Prompt)                       beta2    0.056 -0.160  0.273 0.109     0.517 74 0.606
+## Low Effort Prompt (versus No Prompt) x Day in Study        beta3   -0.007 -0.045  0.031 0.019    -0.375 74 0.708
+## Intercept                                                 alpha0   -0.295 -0.760  0.169 0.233    -1.266 74 0.210
+## age                                                       alpha1    0.002 -0.005  0.009 0.004     0.442 74 0.660
+## is_male                                                   alpha2   -0.138 -0.420  0.144 0.142    -0.972 74 0.334
+## is_latino                                                 alpha3    0.210 -0.072  0.493 0.142     1.484 74 0.142
+## is_not_latino_and_black                                   alpha4    0.139 -0.130  0.408 0.135     1.030 74 0.306
+## is_not_latino_and_other                                   alpha5    0.135 -0.232  0.502 0.184     0.733 74 0.466
+## baseline_tobacco_history                                  alpha6    0.001 -0.013  0.014 0.007     0.091 74 0.928
+## has_partner                                               alpha7    0.003 -0.206  0.212 0.105     0.027 74 0.979
+## income_val                                                alpha8   -0.004 -0.036  0.027 0.016    -0.277 74 0.782
+## hour_coinflip_local                                       alpha9    0.000 -0.010  0.010 0.005    -0.010 74 0.992
+## days_between_v1_and_coinflip_local                       alpha10    0.012 -0.010  0.035 0.011     1.077 74 0.285
+## any_response_2qs                                         alpha11    0.030 -0.104  0.164 0.067     0.447 74 0.656
+## any_recent_eligible_dp                                   alpha12   -1.088 -1.440 -0.737 0.177    -6.166 74 0.000
+## engagement_most_recent_eligible                          alpha13    0.873  0.613  1.132 0.130     6.694 74 0.000</code></pre>
 <pre><code>##                                           est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom    p_value
-## Indicator for High vs. Low                  0.23257985  0.004000646   0.46115905  0.11492399          2.0237710                 83 0.04621087
-## Indicator for High vs. Low x Day in Study  -0.01316123 -0.052422120   0.02609965  0.01973941         -0.6667493                 83 0.50678157</code></pre>
+## Indicator for High vs. Low                  0.23257985  0.003588791   0.46157090  0.11492399          2.0237710                 74 0.04660471
+## Indicator for High vs. Low x Day in Study  -0.01316123 -0.052492860   0.02617039  0.01973941         -0.6667493                 74 0.50700592</code></pre>
 </div>
 <div id="hour-of-day" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> Hour of day</h2>
 <pre><code>##                                              coefficient estimate  LCL95  UCL95    SE test_stat df     p
-## High Effort Prompt (versus No Prompt)              beta0    0.292 -0.072  0.657 0.183     1.595 83 0.115
-## High Effort Prompt (versus No Prompt) x Hour       beta1   -0.007 -0.029  0.015 0.011    -0.639 83 0.525
-## Low Effort Prompt (versus No Prompt)               beta2    0.088 -0.278  0.454 0.184     0.480 83 0.632
-## Low Effort Prompt (versus No Prompt) x Hour        beta3   -0.005 -0.030  0.020 0.013    -0.382 83 0.703
-## Intercept                                         alpha0   -0.327 -0.806  0.153 0.241    -1.355 83 0.179
-## age                                               alpha1    0.002 -0.005  0.009 0.004     0.460 83 0.646
-## is_male                                           alpha2   -0.138 -0.419  0.142 0.141    -0.981 83 0.330
-## is_latino                                         alpha3    0.209 -0.072  0.491 0.141     1.482 83 0.142
-## is_not_latino_and_black                           alpha4    0.140 -0.127  0.407 0.134     1.040 83 0.302
-## is_not_latino_and_other                           alpha5    0.135 -0.231  0.502 0.184     0.735 83 0.464
-## baseline_tobacco_history                          alpha6    0.001 -0.013  0.014 0.007     0.081 83 0.936
-## has_partner                                       alpha7    0.003 -0.206  0.211 0.105     0.026 83 0.979
-## income_val                                        alpha8   -0.004 -0.036  0.027 0.016    -0.272 83 0.787
-## hour_coinflip_local                               alpha9    0.003 -0.012  0.017 0.007     0.391 83 0.697
-## days_between_v1_and_coinflip_local               alpha10    0.005 -0.010  0.020 0.008     0.667 83 0.506
-## any_response_2qs                                 alpha11    0.035 -0.098  0.168 0.067     0.521 83 0.604
-## any_recent_eligible_dp                           alpha12   -1.068 -1.408 -0.727 0.171    -6.236 83 0.000
-## engagement_most_recent_eligible                  alpha13    0.871  0.612  1.131 0.130     6.680 83 0.000</code></pre>
+## High Effort Prompt (versus No Prompt)              beta0    0.292 -0.073  0.658 0.183     1.595 74 0.115
+## High Effort Prompt (versus No Prompt) x Hour       beta1   -0.007 -0.030  0.015 0.011    -0.639 74 0.525
+## Low Effort Prompt (versus No Prompt)               beta2    0.088 -0.278  0.455 0.184     0.480 74 0.633
+## Low Effort Prompt (versus No Prompt) x Hour        beta3   -0.005 -0.030  0.020 0.013    -0.382 74 0.704
+## Intercept                                         alpha0   -0.327 -0.807  0.154 0.241    -1.355 74 0.180
+## age                                               alpha1    0.002 -0.005  0.009 0.004     0.460 74 0.647
+## is_male                                           alpha2   -0.138 -0.419  0.143 0.141    -0.981 74 0.330
+## is_latino                                         alpha3    0.209 -0.072  0.491 0.141     1.482 74 0.143
+## is_not_latino_and_black                           alpha4    0.140 -0.128  0.407 0.134     1.040 74 0.302
+## is_not_latino_and_other                           alpha5    0.135 -0.232  0.503 0.184     0.735 74 0.465
+## baseline_tobacco_history                          alpha6    0.001 -0.013  0.014 0.007     0.081 74 0.936
+## has_partner                                       alpha7    0.003 -0.206  0.212 0.105     0.026 74 0.979
+## income_val                                        alpha8   -0.004 -0.036  0.027 0.016    -0.272 74 0.787
+## hour_coinflip_local                               alpha9    0.003 -0.012  0.018 0.007     0.391 74 0.697
+## days_between_v1_and_coinflip_local               alpha10    0.005 -0.010  0.020 0.008     0.667 74 0.507
+## any_response_2qs                                 alpha11    0.035 -0.099  0.168 0.067     0.521 74 0.604
+## any_recent_eligible_dp                           alpha12   -1.068 -1.409 -0.727 0.171    -6.236 74 0.000
+## engagement_most_recent_eligible                  alpha13    0.871  0.611  1.131 0.130     6.680 74 0.000</code></pre>
 <pre><code>##                                   est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
-## Indicator for High vs. Low         0.204013406  -0.20640608   0.61443289   0.2063488          0.9886822                 83 0.3256921
-## Indicator for High vs. Low x Hour -0.002360726  -0.02849168   0.02377023   0.0131380         -0.1796869                 83 0.8578363</code></pre>
+## Indicator for High vs. Low         0.204013406  -0.20714557   0.61517239   0.2063488          0.9886822                 74 0.3260404
+## Indicator for High vs. Low x Hour -0.002360726  -0.02853876   0.02381731   0.0131380         -0.1796869                 74 0.8578895</code></pre>
 </div>
 </div>
 <div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="3">
@@ -526,60 +526,60 @@ the risk difference scale</h2>
 <div id="day-in-study-1" class="section level2" number="3.1">
 <h2><span class="header-section-number">3.1</span> Day in study</h2>
 <pre><code>##                                                                     coefficient estimate  LCL95  UCL95    SE test_stat df     p
-## High Effort Prompt (versus No Prompt)                                     beta0    0.484  0.029  0.939 0.229     2.115 81 0.038
-## High Effort Prompt (versus No Prompt) x Day in Study                      beta1   -0.117 -0.305  0.071 0.095    -1.240 81 0.219
-## High Effort Prompt (versus No Prompt) x Day in Study x Day in Study       beta2    0.010 -0.008  0.027 0.009     1.072 81 0.287
-## Low Effort Prompt (versus No Prompt)                                      beta3    0.077 -0.468  0.623 0.274     0.281 81 0.779
-## Low Effort Prompt (versus No Prompt) x Day in Study                       beta4   -0.018 -0.256  0.220 0.120    -0.148 81 0.882
-## Low Effort Prompt (versus No Prompt) x Day in Study x Day in Study        beta5    0.001 -0.021  0.023 0.011     0.098 81 0.922
-## Intercept                                                                alpha0   -0.401 -0.931  0.130 0.267    -1.504 81 0.137
-## age                                                                      alpha1    0.002 -0.005  0.009 0.004     0.482 81 0.631
-## is_male                                                                  alpha2   -0.135 -0.419  0.148 0.142    -0.951 81 0.345
-## is_latino                                                                alpha3    0.210 -0.073  0.493 0.142     1.478 81 0.143
-## is_not_latino_and_black                                                  alpha4    0.137 -0.132  0.406 0.135     1.013 81 0.314
-## is_not_latino_and_other                                                  alpha5    0.133 -0.236  0.503 0.186     0.718 81 0.475
-## baseline_tobacco_history                                                 alpha6    0.001 -0.013  0.014 0.007     0.075 81 0.941
-## has_partner                                                              alpha7    0.002 -0.207  0.212 0.105     0.023 81 0.982
-## income_val                                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 81 0.798
-## hour_coinflip_local                                                      alpha9   -0.001 -0.011  0.009 0.005    -0.125 81 0.901
-## days_between_v1_and_coinflip_local                                      alpha10    0.094 -0.028  0.216 0.061     1.529 81 0.130
-## any_response_2qs                                                        alpha11    0.031 -0.104  0.165 0.068     0.454 81 0.651
-## any_recent_eligible_dp                                                  alpha12   -1.142 -1.507 -0.777 0.183    -6.224 81 0.000
-## engagement_most_recent_eligible                                         alpha13    0.867  0.608  1.126 0.130     6.662 81 0.000
-## days_between_v1_and_coinflip_local_squared                              alpha14   -0.008 -0.020  0.004 0.006    -1.387 81 0.169</code></pre>
+## High Effort Prompt (versus No Prompt)                                     beta0    0.484  0.028  0.940 0.229     2.115 72 0.038
+## High Effort Prompt (versus No Prompt) x Day in Study                      beta1   -0.117 -0.306  0.071 0.095    -1.240 72 0.219
+## High Effort Prompt (versus No Prompt) x Day in Study x Day in Study       beta2    0.010 -0.008  0.027 0.009     1.072 72 0.287
+## Low Effort Prompt (versus No Prompt)                                      beta3    0.077 -0.469  0.624 0.274     0.281 72 0.779
+## Low Effort Prompt (versus No Prompt) x Day in Study                       beta4   -0.018 -0.256  0.221 0.120    -0.148 72 0.882
+## Low Effort Prompt (versus No Prompt) x Day in Study x Day in Study        beta5    0.001 -0.021  0.023 0.011     0.098 72 0.922
+## Intercept                                                                alpha0   -0.401 -0.932  0.131 0.267    -1.504 72 0.137
+## age                                                                      alpha1    0.002 -0.005  0.009 0.004     0.482 72 0.632
+## is_male                                                                  alpha2   -0.135 -0.419  0.149 0.142    -0.951 72 0.345
+## is_latino                                                                alpha3    0.210 -0.073  0.493 0.142     1.478 72 0.144
+## is_not_latino_and_black                                                  alpha4    0.137 -0.133  0.407 0.135     1.013 72 0.315
+## is_not_latino_and_other                                                  alpha5    0.133 -0.237  0.504 0.186     0.718 72 0.475
+## baseline_tobacco_history                                                 alpha6    0.001 -0.013  0.014 0.007     0.075 72 0.941
+## has_partner                                                              alpha7    0.002 -0.208  0.212 0.105     0.023 72 0.982
+## income_val                                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 72 0.798
+## hour_coinflip_local                                                      alpha9   -0.001 -0.011  0.009 0.005    -0.125 72 0.901
+## days_between_v1_and_coinflip_local                                      alpha10    0.094 -0.029  0.216 0.061     1.529 72 0.131
+## any_response_2qs                                                        alpha11    0.031 -0.104  0.166 0.068     0.454 72 0.652
+## any_recent_eligible_dp                                                  alpha12   -1.142 -1.507 -0.776 0.183    -6.224 72 0.000
+## engagement_most_recent_eligible                                         alpha13    0.867  0.608  1.127 0.130     6.662 72 0.000
+## days_between_v1_and_coinflip_local_squared                              alpha14   -0.008 -0.020  0.004 0.006    -1.387 72 0.170</code></pre>
 <pre><code>##                                                     est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
-## Indicator for High vs. Low                           0.406545385  -0.16092580    0.9740166  0.28520636          1.4254429                 81 0.1578715
-## Indicator for High vs. Low x Day in Study           -0.099504104  -0.35598559    0.1569774  0.12890549         -0.7719152                 81 0.4424109
-## Indicator for High vs. Low x Square of Day in Study  0.008510267  -0.01531077    0.0323313  0.01197226          0.7108324                 81 0.4792300</code></pre>
+## Indicator for High vs. Low                           0.406545385  -0.16200310   0.97509387  0.28520636          1.4254429                 72 0.1583502
+## Indicator for High vs. Low x Day in Study           -0.099504104  -0.35647249   0.15746429  0.12890549         -0.7719152                 72 0.4426909
+## Indicator for High vs. Low x Square of Day in Study  0.008510267  -0.01535599   0.03237652  0.01197226          0.7108324                 72 0.4794845</code></pre>
 </div>
 <div id="hour-of-day-1" class="section level2" number="3.2">
 <h2><span class="header-section-number">3.2</span> Hour of day</h2>
 <pre><code>##                                                     coefficient estimate  LCL95  UCL95    SE test_stat df     p
-## High Effort Prompt (versus No Prompt)                     beta0    0.316 -0.787  1.419 0.554     0.570 81 0.570
-## High Effort Prompt (versus No Prompt) x Hour              beta1   -0.012 -0.167  0.143 0.078    -0.150 81 0.881
-## High Effort Prompt (versus No Prompt) x Hour x Hour       beta2    0.000 -0.005  0.006 0.003     0.071 81 0.944
-## Low Effort Prompt (versus No Prompt)                      beta3    0.599 -0.748  1.947 0.677     0.885 81 0.379
-## Low Effort Prompt (versus No Prompt) x Hour               beta4   -0.083 -0.283  0.117 0.100    -0.827 81 0.411
-## Low Effort Prompt (versus No Prompt) x Hour x Hour        beta5    0.003 -0.004  0.010 0.004     0.779 81 0.439
-## Intercept                                                alpha0   -0.730 -1.475  0.015 0.374    -1.950 81 0.055
-## age                                                      alpha1    0.002 -0.005  0.009 0.004     0.455 81 0.650
-## is_male                                                  alpha2   -0.137 -0.419  0.144 0.141    -0.970 81 0.335
-## is_latino                                                alpha3    0.208 -0.073  0.488 0.141     1.474 81 0.144
-## is_not_latino_and_black                                  alpha4    0.140 -0.127  0.407 0.134     1.045 81 0.299
-## is_not_latino_and_other                                  alpha5    0.141 -0.225  0.507 0.184     0.766 81 0.446
-## baseline_tobacco_history                                 alpha6    0.001 -0.013  0.014 0.007     0.087 81 0.931
-## has_partner                                              alpha7    0.002 -0.206  0.210 0.105     0.019 81 0.985
-## income_val                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 81 0.798
-## hour_coinflip_local                                      alpha9    0.062 -0.033  0.158 0.048     1.298 81 0.198
-## days_between_v1_and_coinflip_local                      alpha10    0.005 -0.011  0.020 0.008     0.628 81 0.532
-## any_response_2qs                                        alpha11    0.033 -0.100  0.166 0.067     0.492 81 0.624
-## any_recent_eligible_dp                                  alpha12   -1.049 -1.380 -0.719 0.166    -6.324 81 0.000
-## engagement_most_recent_eligible                         alpha13    0.874  0.614  1.134 0.131     6.684 81 0.000
-## hour_coinflip_local_squared                             alpha14   -0.002 -0.006  0.001 0.002    -1.243 81 0.218</code></pre>
+## High Effort Prompt (versus No Prompt)                     beta0    0.316 -0.789  1.421 0.554     0.570 72 0.570
+## High Effort Prompt (versus No Prompt) x Hour              beta1   -0.012 -0.167  0.144 0.078    -0.150 72 0.881
+## High Effort Prompt (versus No Prompt) x Hour x Hour       beta2    0.000 -0.005  0.006 0.003     0.071 72 0.944
+## Low Effort Prompt (versus No Prompt)                      beta3    0.599 -0.751  1.949 0.677     0.885 72 0.379
+## Low Effort Prompt (versus No Prompt) x Hour               beta4   -0.083 -0.283  0.117 0.100    -0.827 72 0.411
+## Low Effort Prompt (versus No Prompt) x Hour x Hour        beta5    0.003 -0.004  0.010 0.004     0.779 72 0.439
+## Intercept                                                alpha0   -0.730 -1.476  0.016 0.374    -1.950 72 0.055
+## age                                                      alpha1    0.002 -0.005  0.009 0.004     0.455 72 0.651
+## is_male                                                  alpha2   -0.137 -0.419  0.145 0.141    -0.970 72 0.335
+## is_latino                                                alpha3    0.208 -0.073  0.489 0.141     1.474 72 0.145
+## is_not_latino_and_black                                  alpha4    0.140 -0.127  0.408 0.134     1.045 72 0.299
+## is_not_latino_and_other                                  alpha5    0.141 -0.226  0.507 0.184     0.766 72 0.446
+## baseline_tobacco_history                                 alpha6    0.001 -0.013  0.014 0.007     0.087 72 0.931
+## has_partner                                              alpha7    0.002 -0.207  0.211 0.105     0.019 72 0.985
+## income_val                                               alpha8   -0.004 -0.036  0.028 0.016    -0.257 72 0.798
+## hour_coinflip_local                                      alpha9    0.062 -0.033  0.158 0.048     1.298 72 0.198
+## days_between_v1_and_coinflip_local                      alpha10    0.005 -0.011  0.020 0.008     0.628 72 0.532
+## any_response_2qs                                        alpha11    0.033 -0.101  0.167 0.067     0.492 72 0.624
+## any_recent_eligible_dp                                  alpha12   -1.049 -1.380 -0.719 0.166    -6.324 72 0.000
+## engagement_most_recent_eligible                         alpha13    0.874  0.613  1.134 0.131     6.684 72 0.000
+## hour_coinflip_local_squared                             alpha14   -0.002 -0.006  0.001 0.002    -1.243 72 0.218</code></pre>
 <pre><code>##                                             est_contrast lcl_contrast ucl_contrast se_contrast test_stat_contrast degrees_of_freedom   p_value
-## Indicator for High vs. Low                  -0.283259528 -1.631070456  1.064551400 0.677398699         -0.4181578                 81 0.6769383
-## Indicator for High vs. Low x Hour            0.071292694 -0.127805258  0.270390645 0.100064995          0.7124639                 81 0.4782249
-## Indicator for High vs. Low x Square of Hour -0.002575469 -0.009581355  0.004430417 0.003521101         -0.7314386                 81 0.4666221</code></pre>
+## Indicator for High vs. Low                  -0.283259528 -1.633629156  1.067110099 0.677398699         -0.4181578                 72 0.6770763
+## Indicator for High vs. Low x Hour            0.071292694 -0.128183228  0.270768615 0.100064995          0.7124639                 72 0.4784801
+## Indicator for High vs. Low x Square of Hour -0.002575469 -0.009594655  0.004443717 0.003521101         -0.7314386                 72 0.4668852</code></pre>
 </div>
 <div id="estimated-prevalence-by-group" class="section level2" number="3.3">
 <h2><span class="header-section-number">3.3</span> Estimated prevalence
@@ -588,9 +588,9 @@ by group</h2>
 ## # Groups:   is_high_effort [2]
 ##   is_high_effort is_low_effort  mu_Y
 ##            &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;
-## 1              1             0 0.713
-## 2              0             1 0.602
-## 3              0             0 0.584</code></pre>
+## 1              1             0 0.708
+## 2              0             1 0.591
+## 3              0             0 0.577</code></pre>
 </div>
 </div>
 <div id="h2-sensitivity-analysis" class="section level1" number="4">

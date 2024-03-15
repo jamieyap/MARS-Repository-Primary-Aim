@@ -71,7 +71,72 @@ dat_for_analysis <- dat_primary_aim %>%
          age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
 
+```{r}
+my_list <- list(Y = -1,
+                coinflip = -1,
+                hour_coinflip_local = -1, 
+                days_between_v1_and_coinflip_local = -1,
+                any_response_2qs = -1, 
+                any_recent_eligible_dp = -1, 
+                engagement_most_recent_eligible = -1,
+                age = -1, 
+                is_male = -1, 
+                is_latino = -1, 
+                is_not_latino_and_black = -1, 
+                is_not_latino_and_other = -1, 
+                baseline_tobacco_history = -1, 
+                has_partner = -1, 
+                income_val = -1)
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+participants_fully_dropped <- dat_for_analysis %>% 
+  group_by(participant_id) %>% 
+  summarise(count_elig = sum(eligibility)) %>%
+  arrange(count_elig) %>%
+  filter(count_elig == 0) %>%
+  .[["participant_id"]]
+```
+
 ## Estimated effect on the log risk ratio scale
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  filter(is_include_main == 1) %>%
+  select(participant_id, decision_point, eligibility, 
+         coinflip, is_high_effort, is_low_effort,
+         Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+```
 
 ```{r}
 # We will set up the dataset so that in analysis, we may have the following comparisons:
@@ -114,6 +179,12 @@ logical_vec_cc <- dat_for_analysis_elig %>%
 # was eligible for micro-randomization, drop the row if they had missing data 
 # in any of the variables we specified in logical_vec_cc
 dat_for_analysis_elig <- dat_for_analysis_elig %>% filter(logical_vec_cc)
+```
+
+```{r}
+if(length(participants_fully_dropped) > 0){
+  dat_for_analysis <- dat_for_analysis %>% filter(!(participant_id %in% participants_fully_dropped))
+}
 ```
 
 ```{r}

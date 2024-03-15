@@ -1695,19 +1695,37 @@ fit1 <- emee(
   availability = "eligibility"
 )
 
-summary(fit1, show_control_fit = TRUE, lincomb = c(1,1))
+Lmat <- rbind(c(1,1))
 
 # Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
 ```
 
+## 95% CI's
+
 ```{r}
+summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
+
 dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
 dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
 # Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response.csv"), row.names = TRUE)
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response_CI95.csv"), row.names = TRUE)
+```
+
+## 90% CI's
+
+```{r}
+summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)
+
+dat_result_causal <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response_CI90.csv"), row.names = TRUE)
 ```
 
 # Cigarette availability and negative affect self-reported in brief survey

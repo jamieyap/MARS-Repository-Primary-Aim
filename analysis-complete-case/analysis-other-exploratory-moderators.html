@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-03-08" />
+<meta name="date" content="2024-03-15" />
 
 <title>MARS MRT: Additional analyses</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">MARS MRT: Additional analyses</h1>
-<h4 class="date">March 08, 2024</h4>
+<h4 class="date">March 15, 2024</h4>
 
 </div>
 
@@ -379,7 +379,11 @@ self-reported in brief survey</a></li>
 <li><a href="#negative-affect-self-reported-in-brief-survey" id="toc-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">13</span> Negative affect self-reported in
 brief survey</a></li>
 <li><a href="#dichotomized-brief-survey-response" id="toc-dichotomized-brief-survey-response"><span class="toc-section-number">14</span> Dichotomized brief survey
-response</a></li>
+response</a>
+<ul>
+<li><a href="#cis" id="toc-cis"><span class="toc-section-number">14.1</span> 95% CI’s</a></li>
+<li><a href="#cis-1" id="toc-cis-1"><span class="toc-section-number">14.2</span> 90% CI’s</a></li>
+</ul></li>
 <li><a href="#cigarette-availability-and-negative-affect-self-reported-in-brief-survey" id="toc-cigarette-availability-and-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">15</span> Cigarette availability and negative
 affect self-reported in brief survey</a>
 <ul>
@@ -908,6 +912,8 @@ self-reported in brief survey</h1>
 survey response</h1>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
 ## 1                  99                                 87                                 12   3858                  1282                  2576</code></pre>
+<div id="cis" class="section level2" number="14.1">
+<h2><span class="header-section-number">14.1</span> 95% CI’s</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~dichotomized_2qs_response, 
@@ -939,6 +945,41 @@ survey response</h1>
 ## any_recent_eligible_dp             -1.0568877899 -1.444594569 -0.669181010 0.194442222 -5.43548504 71 7.300819e-07
 ## engagement_most_recent_eligible     0.8739527534  0.575869254  1.172036252 0.149494466  5.84605422 71 1.408813e-07
 ## dichotomized_2qs_response           0.0617785679 -0.141310200  0.264867335 0.101852826  0.60654741 71 5.460859e-01</code></pre>
+</div>
+<div id="cis-1" class="section level2" number="14.2">
+<h2><span class="header-section-number">14.2</span> 90% CI’s</h2>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~dichotomized_2qs_response, 
+##     control_formula = ~age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_recent_eligible_dp + engagement_most_recent_eligible + 
+##         dichotomized_2qs_response, availability = &quot;eligibility&quot;)
+## 
+## $causal_excursion_effect
+##                                            Estimate     90% LCL      90% UCL     StdErr    t_value df    p-value
+## (Intercept)                              0.21481195  0.05824009  0.371383817 0.09394689  2.2865253 71 0.02520899
+## dichotomized_2qs_response               -0.16801688 -0.32728789 -0.008745867 0.09556645 -1.7581157 71 0.08303749
+## (Intercept) + dichotomized_2qs_response  0.04679508 -0.04023830  0.133828453 0.05222212  0.8960776 71 0.37323944
+## 
+## $control_variables
+##                                         Estimate      90% LCL      90% UCL      StdErr     t_value df      p-value
+## (Intercept)                        -0.1562410617 -0.556796200  0.244314077 0.240342746 -0.65007604 71 5.177410e-01
+## age                                -0.0019837222 -0.008180196  0.004212751 0.003718033 -0.53354069 71 5.953257e-01
+## is_male                            -0.0948402416 -0.376912461  0.187231978 0.169250137 -0.56035548 71 5.770009e-01
+## is_latino                           0.2115668099 -0.066968432  0.490102052 0.167127865  1.26589788 71 2.096877e-01
+## is_not_latino_and_black             0.1594121854 -0.107200605  0.426024976 0.159974106  0.99648743 71 3.223975e-01
+## is_not_latino_and_other             0.1645040569 -0.189724920  0.518733034 0.212545932  0.77396945 71 4.415184e-01
+## baseline_tobacco_history            0.0006395721 -0.013157561  0.014436705 0.008278613  0.07725595 71 9.386372e-01
+## has_partner                        -0.0157738455 -0.210631932  0.179084241 0.116919553 -0.13491196 71 8.930632e-01
+## income_val                         -0.0069474945 -0.039057840  0.025162851 0.019266982 -0.36059070 71 7.194760e-01
+## hour_coinflip_local                 0.0020642732 -0.006962907  0.011091453 0.005416526  0.38110651 71 7.042622e-01
+## days_between_v1_and_coinflip_local  0.0015444601 -0.014290690  0.017379610 0.009501472  0.16254956 71 8.713349e-01
+## any_recent_eligible_dp             -1.0568877899 -1.380945131 -0.732830449 0.194442222 -5.43548504 71 7.300819e-07
+## engagement_most_recent_eligible     0.8739527534  0.624805327  1.123100179 0.149494466  5.84605422 71 1.408813e-07
+## dichotomized_2qs_response           0.0617785679 -0.107969318  0.231526453 0.101852826  0.60654741 71 5.460859e-01</code></pre>
+</div>
 </div>
 <div id="cigarette-availability-and-negative-affect-self-reported-in-brief-survey" class="section level1" number="15">
 <h1><span class="header-section-number">15</span> Cigarette availability
