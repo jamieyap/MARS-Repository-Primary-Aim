@@ -6,8 +6,15 @@ library(tidyverse)
 ################################################################################
 # Load datasets
 ################################################################################
-dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
-dat_analysis <- dat_primary_aim
+dat_mars_basic <- readRDS(file = file.path(path_manipulated_data, "dat_mars_basic.rds"))
+dat_mars_derived_time_vars <- readRDS(file = file.path(path_manipulated_data, "dat_mars_derived_time_vars.rds"))
+dat_mars_time_varying_noise_reduction_vars <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_noise_reduction_vars.rds"))
+dat_mars_time_varying_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_moderators.rds"))
+
+dat_analysis <- left_join(x = dat_mars_basic, y = dat_mars_derived_time_vars, by = join_by(mars_id == mars_id, decision_point == decision_point))
+dat_analysis <- left_join(x = dat_analysis, y = dat_mars_time_varying_noise_reduction_vars, by = join_by(mars_id == mars_id, decision_point == decision_point))
+dat_analysis <- left_join(x = dat_analysis, y = dat_mars_time_varying_moderators, by = join_by(mars_id == mars_id, decision_point == decision_point))
+
 all_ids <- unique(dat_analysis[["mars_id"]])
 n_ids <- length(all_ids)
 
@@ -15,21 +22,6 @@ n_ids <- length(all_ids)
 # Keep track of column names you will want to keep
 ################################################################################
 keep_these_columns_for_analysis <- list() 
-
-################################################################################
-# Create a categorical variable using 2qs responses
-################################################################################
-dat_analysis <- dat_analysis %>%
-  mutate(quick_survey_response = case_when(
-    (cig_available == 1) & (negative_affect == 1) ~ 1,
-    (cig_available == 1) & (negative_affect == 0) ~ 0,  # in the vast majority of observed values of cig_available and negative_affect, we see this combo
-    (cig_available == 0) & (negative_affect == 1) ~ 1,
-    (cig_available == 0) & (negative_affect == 0) ~ 1,
-    .default = NULL
-  ))
-
-lookup <- c(quick_survey_response = "quick_survey_response")
-keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
 ################################################################################
 # Read in dataset which already identifies micro-randomizations in the past
@@ -145,12 +137,14 @@ keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(
 ################################################################################
 lookup <- c(quick_survey_nreported_past24hrs = "quick_survey_nreported_past24hrs",
             negative_affect_sum_past24hrs = "negative_affect_sum_past24hrs",
-            cig_available_sum_past24hrs = "cig_available_sum_past24hrs")
+            cig_available_sum_past24hrs = "cig_available_sum_past24hrs",
+            dichotomized_2qs_response_sum_past24hrs = "dichotomized_2qs_response_sum_past24hrs")
 
 list_all_dat <- list()
 dat_analysis[["quick_survey_nreported_past24hrs"]] <- 0
 dat_analysis[["negative_affect_sum_past24hrs"]] <- NA
 dat_analysis[["cig_available_sum_past24hrs"]] <- NA
+dat_analysis[["dichotomized_2qs_response_sum_past24hrs"]] <- NA
 
 for(i in 1:n_ids){
   current_participant <- all_ids[i]
@@ -172,6 +166,7 @@ for(i in 1:n_ids){
         if(n_rand_past24hrs == dat_current_participant[j,"quick_survey_nreported_past24hrs"]){
           dat_current_participant[j,"negative_affect_sum_past24hrs"] <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["negative_affect"]] %>% sum(., na.rm = TRUE)
           dat_current_participant[j,"cig_available_sum_past24hrs"] <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["cig_available"]] %>% sum(., na.rm = TRUE)
+          dat_current_participant[j,"dichotomized_2qs_response_sum_past24hrs"] <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["dichotomized_2qs_response"]] %>% sum(., na.rm = TRUE)
         }
       }
     }  # This if-then statement only executes if a block had a micro-randomization
@@ -265,12 +260,5 @@ dat_analysis <- dat_analysis %>% select(mars_id, decision_point, eligibility, el
 ################################################################################
 # Save data frame
 ################################################################################
-this_location <- path_multiple_imputation_pipeline_data
-is_dir_exist <- file.exists(this_location)
-
-if(isFALSE(is_dir_exist)){
-  dir.create(this_location)
-}
-
-saveRDS(dat_analysis, file = file.path(path_multiple_imputation_pipeline_data, "dat_mars_mi_time_varying_covariates.rds"))
+saveRDS(dat_analysis, file = file.path(path_manipulated_data, "dat_mars_time_varying_covariates.rds"))
 

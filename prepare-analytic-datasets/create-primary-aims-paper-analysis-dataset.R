@@ -8,6 +8,7 @@ dat_mars_basic <- readRDS(file = file.path(path_manipulated_data, "dat_mars_basi
 dat_mars_derived_time_vars <- readRDS(file = file.path(path_manipulated_data, "dat_mars_derived_time_vars.rds"))
 dat_mars_time_varying_noise_reduction_vars <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_noise_reduction_vars.rds"))
 dat_mars_time_varying_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_moderators.rds"))
+dat_mars_time_varying_covariates <- readRDS(file = file.path(path_manipulated_data, "dat_mars_time_varying_covariates.rds"))
 dat_mars_coded_demogs <- readRDS(file = file.path(path_manipulated_data, "dat_mars_coded_demogs.rds"))
 dat_mars_baseline_moderators <- readRDS(file = file.path(path_manipulated_data, "dat_mars_baseline_moderators.rds"))
 dat_mars_proximal_cigarette_smoking <- readRDS(file = file.path(path_proximal_smoking_pipeline_data, "dat_mars_proximal_cigarette_smoking.rds"))
@@ -29,6 +30,11 @@ dat_primary_aim <- left_join(x = dat_primary_aim,
 
 dat_primary_aim <- left_join(x = dat_primary_aim, 
                              y = dat_mars_time_varying_moderators, 
+                             by = join_by(mars_id == mars_id,
+                                          decision_point == decision_point))
+
+dat_primary_aim <- left_join(x = dat_primary_aim, 
+                             y = dat_mars_time_varying_covariates, 
                              by = join_by(mars_id == mars_id,
                                           decision_point == decision_point))
 

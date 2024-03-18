@@ -284,6 +284,17 @@ source("prepare-analytic-datasets/create-time-varying-noise-reduction-variables-
 rm(list = ls())
 
 # Input:
+#   dat_mars_basic.rds
+#   dat_mars_derived_time_vars.rds
+#   dat_mars_time_varying_noise_reduction_vars.rds
+#   dat_mars_time_varying_moderators.rds
+#   scanned_decision_points_within_range.rds
+# Output:
+#   dat_mars_time_varying_covariates.rds
+source("prepare-analytic-datasets/create-time-varying-covariates-dataset.R")  
+rm(list = ls())
+
+# Input:
 #   dat_matched_to_decision_points.rds
 #   mars_ids_excluded_from_all_analytic_datasets.rds
 #   dat_master_ema_questions.rds

@@ -110,12 +110,19 @@ for(i in 1:n_ids){
 dat_analysis <- bind_rows(list_all_dat)
 
 ################################################################################
+# Majority class in the observed data is the reference category
+################################################################################
+dat_analysis <- dat_analysis %>%
+  mutate(dichotomized_2qs_response = if_else((cig_available == 1) & (negative_affect == 0), 0, 1))
+
+################################################################################
 # Select columns needed
 ################################################################################
 dat_analysis <- dat_analysis %>%
   select(mars_id, decision_point,
          status_survey_2qs_collapsed, total_2qs_items_with_response, 
-         any_response_2qs, cig_available, negative_affect,
+         any_response_2qs, 
+         cig_available, negative_affect, dichotomized_2qs_response,
          any_recent_eligible_dp, engagement_most_recent_eligible,
          coinflip_most_recent_eligible, hours_elapsed_since_most_recent_eligible)
 

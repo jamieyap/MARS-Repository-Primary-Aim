@@ -80,12 +80,6 @@ dat_primary_aim %>% filter(eligibility == 1) %>% group_by(cig_available, negativ
 ```
 
 ```{r}
-# Majority class is the reference category
-dat_primary_aim <- dat_primary_aim %>%
-  mutate(dichotomized_2qs_response = if_else((cig_available == 1) & (negative_affect == 0), 0, 1))
-```
-
-```{r}
 my_list <- list(Y = -1,
                 coinflip = -1,
                 hour_coinflip_local = -1, 

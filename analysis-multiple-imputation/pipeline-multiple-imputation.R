@@ -9,9 +9,6 @@ source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
 # These are data pre-processing steps
 ################################################################################
 
-source(file = file.path("analysis-multiple-imputation", "create-vars-for-mi.R"))
-rm(list = ls())
-
 source(file = file.path("analysis-multiple-imputation", "create-replicated-dataset.R"))
 rm(list = ls())
 
