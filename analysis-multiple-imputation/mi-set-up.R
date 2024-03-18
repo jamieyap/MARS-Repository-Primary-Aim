@@ -8,7 +8,7 @@
 #   impute-block-04.R
 #   impute-block-05.R
 
-.__total_imputed_datasets <- 50
+.__total_imputed_datasets <- 5
 
 .__par_maxit_value_baseline <- 100
 .__par_maxit_value <- 30

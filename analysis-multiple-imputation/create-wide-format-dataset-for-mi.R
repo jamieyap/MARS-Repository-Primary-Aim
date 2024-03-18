@@ -18,11 +18,13 @@ maximum_replicate_id <- max(all_replicate_ids)
 # Variables assessed at baseline which have missing values and hence will be
 # imputed
 ################################################################################
-these_vars <- c("has_partner", 
-                "income_val",
+dat_primary_aim <- dat_primary_aim %>% mutate(maas_total_squared = maas_total*maas_total)
+
+these_vars <- c("is_male",
                 "srq_mean",        # self-regulation: higher scores indicate higher self-regulation abilities
                 "mdes_pos_mean",   # mdes: higher scores indicate more intense positive emotions
-                "mdes_neg_mean",   # mdes: higher scores indicate more intense negative emotions
+                "maas_total",      # maas_total: higher scores indicate higher mindfulness
+                "maas_total_squared",
                 "gratitude")       # gratitude: higher scores indicate higher gratitude
 
 dat_baseline_wide <- dat_primary_aim %>%
@@ -58,7 +60,7 @@ dat_control_wide <- dat_primary_aim %>%
 ################################################################################
 # Time-varying variables which have missing values and hence will be imputed
 ################################################################################
-these_vars <- c("quick_survey_response",
+these_vars <- c("dichotomized_2qs_response",
                 "Y",
                 "cigarette_counts",
                 "src_scored")
@@ -126,7 +128,7 @@ dat_timevarying_long <- full_join(x = dat_timevarying_long_without_missing,
 # from numeric to factor
 ################################################################################
 dat_timevarying_long[["Y"]] <- as_factor(dat_timevarying_long[["Y"]])
-dat_timevarying_long[["quick_survey_response"]] <- as_factor(dat_timevarying_long[["quick_survey_response"]])
+dat_timevarying_long[["dichotomized_2qs_response"]] <- as_factor(dat_timevarying_long[["dichotomized_2qs_response"]])
 dat_baseline_wide[["has_partner"]] <- as_factor(dat_baseline_wide[["has_partner"]])
 
 ################################################################################
@@ -140,7 +142,7 @@ spec1 <- dat_timevarying_long %>%
                                    engagement_most_recent_eligible,
                                    src_scored, 
                                    cigarette_counts,
-                                   quick_survey_response,
+                                   dichotomized_2qs_response,
                                    eligibility, 
                                    elig24hrs, 
                                    counts_rand_past24hrs, 

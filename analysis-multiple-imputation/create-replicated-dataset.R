@@ -20,28 +20,11 @@ dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_
 all_ids <- unique(dat_primary_aim[["mars_id"]])
 
 ################################################################################
-# Load more datasets
-#
-# Note: Categorical variables in dat_mars_mi_time_varying_covariates that
-# will be imputed have already been converted from numeric to factor
-################################################################################
-dat_mars_mi_time_varying_covariates <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_mars_mi_time_varying_covariates.rds"))
-
-################################################################################
-# Create long format dataset that we will begin with in our workflow for
-# creating multiply imputed datasets
-################################################################################
-cols_dat_primary_aim <- colnames(dat_primary_aim)
-cols_dat_mars_mi_time_varying_covariates <- colnames(dat_mars_mi_time_varying_covariates)
-cols_in_common <- setdiff(intersect(cols_dat_primary_aim, cols_dat_mars_mi_time_varying_covariates), c("mars_id","decision_point"))
-
-dat_mars_mi_time_varying_covariates <- dat_mars_mi_time_varying_covariates %>% select(-any_of(cols_in_common))
-dat_primary_aim <- left_join(x = dat_primary_aim, y = dat_mars_mi_time_varying_covariates, by = join_by(mars_id == mars_id, decision_point == decision_point))
-
-################################################################################
 # Create replicates
 ################################################################################
-dat_primary_aim <- dat_primary_aim %>% mutate(replicate_id = 0) %>% select(replicate_id, everything())
+dat_primary_aim <- dat_primary_aim %>% 
+  mutate(replicate_id = 0) %>% 
+  select(replicate_id, everything())
 
 if(total_replicates > 0){
   list_dat_all <- list()

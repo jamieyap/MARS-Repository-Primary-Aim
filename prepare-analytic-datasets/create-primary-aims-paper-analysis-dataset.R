@@ -34,7 +34,7 @@ dat_primary_aim <- left_join(x = dat_primary_aim,
                                           decision_point == decision_point))
 
 dat_primary_aim <- left_join(x = dat_primary_aim, 
-                             y = dat_mars_time_varying_covariates, 
+                             y = dat_mars_time_varying_covariates %>% select(-eligibility), 
                              by = join_by(mars_id == mars_id,
                                           decision_point == decision_point))
 
