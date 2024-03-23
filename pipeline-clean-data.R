@@ -333,14 +333,16 @@ rm(list = ls())
 # Input:
 #   dat_mars_basic.rds
 #   dat_mars_derived_time_vars.rds
-#   dat_mars_time_varying_moderators.rds
 #   dat_mars_time_varying_noise_reduction_vars.rds
+#   dat_mars_time_varying_moderators.rds
+#   dat_mars_time_varying_covariates.rds
+#   dat_mars_coded_demogs.rds
+#   dat_mars_baseline_mdoerators.rds
 #   dat_mars_proximal_cigarette_smoking.rds
 #   dat_mars_proximal_vaping.rds
-#   dat_parsed_conditions.rds
+#   app_usage_for_mainpipeline_updated0212.rds
 # Output:
 #   dat_primary_aim.rds
-#   dat_conditions_for_analytic_sample.rds
 source("prepare-analytic-datasets/create-primary-aims-paper-analysis-dataset.R")
 rm(list = ls())
 
