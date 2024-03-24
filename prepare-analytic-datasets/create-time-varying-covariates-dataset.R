@@ -80,58 +80,6 @@ dat_analysis <- left_join(x = dat_analysis,
 
 ################################################################################
 # Create aggregate measure over the past 24 hours
-################################################################################
-lookup <- c(Y_nreported_past24hrs = "Y_nreported_past24hrs",
-            Y_sum_past24hrs = "Y_sum_past24hrs",
-            is_high_effort_sum_past24hrs = "is_high_effort_sum_past24hrs",
-            is_low_effort_sum_past24hrs = "is_low_effort_sum_past24hrs")
-
-list_all_dat <- list()
-dat_analysis[["Y_nreported_past24hrs"]] <- 0
-dat_analysis[["Y_sum_past24hrs"]] <- NA
-dat_analysis[["coinflip_sum_past24hrs"]] <- NA
-dat_analysis[["is_high_effort_sum_past24hrs"]] <- NA
-dat_analysis[["is_low_effort_sum_past24hrs"]] <- NA
-
-for(i in 1:n_ids){
-  current_participant <- all_ids[i]
-  dat_current_participant <- dat_analysis %>% filter(mars_id == current_participant)
-  n_blocks <- nrow(dat_current_participant)
-  
-  for(j in 1:n_blocks){
-    is_rand <- if_else(!is.na(dat_current_participant[j,"ts_coinflip_mountain"]), TRUE, FALSE)
-    
-    if(is_rand == TRUE){
-      n_rand_past24hrs <- dat_current_participant[j,"counts_rand_past24hrs"]
-      
-      if(n_rand_past24hrs > 0){
-        dp_within_range <- dat_current_participant[j,"decision_points_past24hrs"][[1]]
-        dat_within_range <- dat_current_participant %>% filter(decision_point %in% dp_within_range)
-        dat_current_participant[j,"Y_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["Y"]]))
-        dat_current_participant[j,"coinflip_sum_past24hrs"] <- sum(!is.na(dat_within_range[["coinflip"]]))
-        dat_current_participant[j,"is_high_effort_sum_past24hrs"] <- sum(!is.na(dat_within_range[["is_high_effort"]]))
-        dat_current_participant[j,"is_low_effort_sum_past24hrs"] <- sum(!is.na(dat_within_range[["is_low_effort"]]))
-        
-        # Note that checking whether number of micro-randomizations is equal to
-        # the number of completed EMA will not count partially completed EMAs; 
-        # although more verbose to implement in code, 
-        # checking each item one at a time is more accurate
-        if(n_rand_past24hrs == dat_current_participant[j,"Y_nreported_past24hrs"]){
-          dat_current_participant[j,"Y_sum_past24hrs"] <- sum(dat_within_range[["Y"]], na.rm = TRUE)
-        }
-      }
-    }  # This if-then statement only executes if a block had a micro-randomization
-  } # This loop completes checking each participant-block
-  
-  list_all_dat <- append(list_all_dat, list(dat_current_participant))
-}
-
-dat_analysis <- bind_rows(list_all_dat)
-
-keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
-
-################################################################################
-# Create aggregate measure over the past 24 hours
 # Note that these aggregate measures are only taken over decision points which
 # were eligible for micro-randomization
 ################################################################################
@@ -185,10 +133,12 @@ keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(
 dat_app_usage <- readRDS(file = file.path(path_app_usage_data, "app_usage_for_mainpipeline_updated0212.rds")) 
 
 dat_app_usage <- dat_app_usage %>%
-  filter(!is.na(A)) %>%
+  mutate(eligibility = if_else(!is.na(A), 1, 0)) %>%
+  filter(eligibility == 1) %>%
   filter(mars_id %in% all_ids) %>%
   mutate(emi_resp = replace(emi_resp, is.na(emi_resp), "none")) %>%
-  mutate(emi_resp_indicator = if_else(((A == "low_effort") | (A == "mars")) & ((read_tips == 1) | (activ_done == 1)), 1, 0)) %>%
+  mutate(emi_resp_indicator = if_else(emi_resp == "Ok", 1, 0)) %>%
+  mutate(emi_resp_indicator = replace(emi_resp_indicator, eligibility == 0, NA)) %>%
   select(mars_id, decision_point, A, emi_resp, emi_resp_indicator) %>%
   select(mars_id, decision_point, emi_resp_indicator)
 
@@ -201,14 +151,23 @@ dat_analysis <- dat_analysis %>%
 lookup <- c(emi_resp_indicator = "emi_resp_indicator")
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
-###############################################################################
-# App usage in the past 24 hours
-###############################################################################
+################################################################################
+# Create aggregate measure over the past 24 hours
+################################################################################
+lookup <- c(Y_nreported_past24hrs = "Y_nreported_past24hrs",
+            Y_sum_past24hrs = "Y_sum_past24hrs",
+            coinflip_sum_past24hrs = "coinflip_sum_past24hrs",
+            is_high_effort_sum_past24hrs = "is_high_effort_sum_past24hrs",
+            is_low_effort_sum_past24hrs = "is_low_effort_sum_past24hrs",
+            emi_resp_indicator_sum_past24hrs = "emi_resp_indicator_sum_past24hrs")
+
 list_all_dat <- list()
-dat_analysis[["emi_resp_indicator_sum_past24hrs"]] <- NA
+dat_analysis[["Y_nreported_past24hrs"]] <- 0
+dat_analysis[["Y_sum_past24hrs"]] <- NA
+dat_analysis[["coinflip_sum_past24hrs"]] <- NA
 dat_analysis[["is_high_effort_sum_past24hrs"]] <- NA
 dat_analysis[["is_low_effort_sum_past24hrs"]] <- NA
-dat_analysis[["coinflip_sum_past24hrs"]] <- NA
+dat_analysis[["emi_resp_indicator_sum_past24hrs"]] <- NA
 
 for(i in 1:n_ids){
   current_participant <- all_ids[i]
@@ -225,17 +184,20 @@ for(i in 1:n_ids){
         dp_within_range <- dat_current_participant[j,"decision_points_past24hrs"][[1]]
         dat_within_range <- dat_current_participant %>% filter(decision_point %in% dp_within_range)
         
-        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["emi_resp_indicator"]]
-        dat_current_participant[j,"emi_resp_indicator_sum_past24hrs"] <- sum(tmp)
+        dat_current_participant[j,"Y_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["Y"]]))
         
-        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["is_high_effort"]]
-        dat_current_participant[j,"is_high_effort_sum_past24hrs"] <- sum(tmp)
+        dat_current_participant[j,"coinflip_sum_past24hrs"] <- sum(dat_within_range[["coinflip"]], na.rm = TRUE)
+        dat_current_participant[j,"is_high_effort_sum_past24hrs"] <- sum(dat_within_range[["is_high_effort"]], na.rm = TRUE)
+        dat_current_participant[j,"is_low_effort_sum_past24hrs"] <- sum(dat_within_range[["is_low_effort"]], na.rm = TRUE)
+        dat_current_participant[j,"emi_resp_indicator_sum_past24hrs"] <- sum(dat_within_range[["emi_resp_indicator_sum_past24hrs"]], na.rm = TRUE)
         
-        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["is_low_effort"]]
-        dat_current_participant[j,"is_low_effort_sum_past24hrs"] <- sum(tmp)
-        
-        tmp <- dat_within_range %>% filter(!is.na(ts_coinflip_mountain)) %>% .[["coinflip"]]
-        dat_current_participant[j,"coinflip_sum_past24hrs"] <- sum(tmp)
+        # Note that checking whether number of micro-randomizations is equal to
+        # the number of completed EMA will not count partially completed EMAs; 
+        # although more verbose to implement in code, 
+        # checking each item one at a time is more accurate
+        if(n_rand_past24hrs == dat_current_participant[j,"Y_nreported_past24hrs"]){
+          dat_current_participant[j,"Y_sum_past24hrs"] <- sum(dat_within_range[["Y"]], na.rm = TRUE)
+        }
       }
     }  # This if-then statement only executes if a block had a micro-randomization
   } # This loop completes checking each participant-block
@@ -245,10 +207,22 @@ for(i in 1:n_ids){
 
 dat_analysis <- bind_rows(list_all_dat)
 
-lookup <- c(emi_resp_indicator_sum_past24hrs = "emi_resp_indicator_sum_past24hrs",
-            is_high_effort_sum_past24hrs = "is_high_effort_sum_past24hrs",
-            is_low_effort_sum_past24hrs = "is_low_effort_sum_past24hrs",
-            coinflip_sum_past24hrs = "coinflip_sum_past24hrs")
+keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
+
+################################################################################
+# Combinations of aggregate measures over the past 24 hours
+################################################################################
+lookup <- c(total_intervention_prompts_with_response_past24hrs = "total_intervention_prompts_with_response_past24hrs",
+            prop_intervention_prompts_with_response_past24hrs = "prop_intervention_prompts_with_response_past24hrs",
+            total_prompts_with_response_past24hrs = "total_prompts_with_response_past24hrs",
+            prop_prompts_with_response_past24hrs = "prop_prompts_with_response_past24hrs")
+
+dat_analysis <- dat_analysis %>% 
+  mutate(total_intervention_prompts_with_response_past24hrs = quick_survey_nreported_past24hrs + emi_resp_indicator_sum_past24hrs,
+         total_prompts_with_response_past24hrs = quick_survey_nreported_past24hrs + emi_resp_indicator_sum_past24hrs + Y_nreported_past24hrs) %>%
+  mutate(prop_intervention_prompts_with_response_past24hrs = total_intervention_prompts_with_response_past24hrs/(2 * n_rand_past24hrs),
+         prop_prompts_with_response_past24hrs = total_prompts_with_response_past24hrs/(3 * n_rand_past24hrs))
+
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 
 ################################################################################

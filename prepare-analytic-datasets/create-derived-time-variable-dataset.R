@@ -28,6 +28,7 @@ dat_analysis[["hour_coinflip_local"]] <- hour(dat_analysis[["ts_coinflip_local"]
 dat_analysis[["days_between_v1_and_coinflip_local"]] <- int_length(dat_analysis[["v1_date_began_local"]] %--% dat_analysis[["ts_coinflip_local"]])/(60*60*24)
 dat_analysis[["is_postquit_local"]] <- if_else(dat_analysis[["days_between_v1_and_coinflip_local"]] > 3.0, 1, 0)
 dat_analysis[["days_between_quit_and_coinflip_local"]] <- int_length((dat_analysis[["v1_date_began_local"]] + days(3.0)) %--% dat_analysis[["ts_coinflip_local"]])/(60*60*24)
+dat_analysis[["minutes_elapsed_between_block_start_and_rand"]] <- int_length(int_start(dat_analysis[["block_bounds_mountain"]]) %--% dat_analysis[["ts_coinflip_mountain"]])/60
 
 ################################################################################
 # Save variables
@@ -36,7 +37,8 @@ dat_analysis <- dat_analysis %>%
   select(mars_id, decision_point, olson, ts_coinflip_mountain,
          ts_coinflip_local,
          hour_coinflip_local, days_between_v1_and_coinflip_local, 
-         is_postquit_local, days_between_quit_and_coinflip_local)
+         is_postquit_local, days_between_quit_and_coinflip_local,
+         minutes_elapsed_between_block_start_and_rand)
 
 saveRDS(dat_analysis, file = file.path(path_manipulated_data, "dat_mars_derived_time_vars.rds"))
 
