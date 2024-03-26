@@ -3,7 +3,9 @@
 # R package
 ################################################################################
 
-convert_to_emee_fit_object <- function(current_fit, EMEE_final, id_string){
+convert_to_emee_fit_object <- function(current_fit, # output of the function emee_categorical_trt_with_Delta, e.g., current_fit = fit1 if fit1 is the name of the output of emee_categorical_trt_with_Delta
+                                       EMEE_final, # name of dataset, e.g., EMEE_final = data_for_analysis
+                                       id_string){ # variable name for participant ID's in a string format and must be a column within EMEE_final, e.g., id_string = "participant_id"
   output <- list(current_fit)
   names(output) <- c("fit")
   output$call <- match.call()

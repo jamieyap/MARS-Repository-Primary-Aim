@@ -263,7 +263,7 @@ dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-comple
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,
                  0,1,
@@ -429,7 +429,7 @@ dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path(
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,-1,0,
                  0,1,0,-1), nrow = 2, byrow = TRUE)
@@ -539,7 +539,7 @@ dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path(
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,-1,0,
                  0,1,0,-1), nrow = 2, byrow = TRUE)
@@ -664,7 +664,7 @@ dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path(
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,0,-1,0,0,
                  0,1,0,0,-1,0,
@@ -778,7 +778,7 @@ dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path(
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,0,-1,0,0,
                  0,1,0,0,-1,0,
@@ -958,7 +958,7 @@ dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-comple
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
-n_terms_total <- fit1_converted$fit$dims$q + 2 * (fit1_converted$fit$dims$p)
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(c(1,0,
                  0,1,

@@ -311,7 +311,7 @@ emee_categorical_trt_with_Delta <- function(
         beta_se_adjusted = beta_se_adjusted, alpha_se_adjusted = alpha_se_adjusted,
         varcov = varcov,
         varcov_adjusted = varcov_adjusted,
-        dims = list(p = p, q = q),
+        dims = list(p = num_trt * p, q = q),
         f.root = solution$f.root
     ))
 }
