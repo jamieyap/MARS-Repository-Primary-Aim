@@ -1287,6 +1287,19 @@
       ],
       "Hash": "47be9c32eb004c1945307eb318a6ef98"
     },
+    "pROC": {
+      "Package": "pROC",
+      "Version": "1.18.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "methods",
+        "plyr"
+      ],
+      "Hash": "82d32ebd548c6a4e7de73bab96411b3b"
+    },
     "pan": {
       "Package": "pan",
       "Version": "1.9",
@@ -1359,6 +1372,17 @@
         "withr"
       ],
       "Hash": "903d68319ae9923fb2e2ee7fa8230b91"
+    },
+    "plyr": {
+      "Package": "plyr",
+      "Version": "1.8.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "6b8177fd19982f0020743fadbfdbd933"
     },
     "praise": {
       "Package": "praise",
