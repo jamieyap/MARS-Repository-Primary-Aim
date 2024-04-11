@@ -189,7 +189,7 @@ for(i in 1:n_ids){
         dat_current_participant[j,"coinflip_sum_past24hrs"] <- sum(dat_within_range[["coinflip"]], na.rm = TRUE)
         dat_current_participant[j,"is_high_effort_sum_past24hrs"] <- sum(dat_within_range[["is_high_effort"]], na.rm = TRUE)
         dat_current_participant[j,"is_low_effort_sum_past24hrs"] <- sum(dat_within_range[["is_low_effort"]], na.rm = TRUE)
-        dat_current_participant[j,"emi_resp_indicator_sum_past24hrs"] <- sum(dat_within_range[["emi_resp_indicator_sum_past24hrs"]], na.rm = TRUE)
+        dat_current_participant[j,"emi_resp_indicator_sum_past24hrs"] <- sum(dat_within_range[["emi_resp_indicator"]], na.rm = TRUE)
         
         # Note that checking whether number of micro-randomizations is equal to
         # the number of completed EMA will not count partially completed EMAs; 
@@ -212,16 +212,10 @@ keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(
 ################################################################################
 # Combinations of aggregate measures over the past 24 hours
 ################################################################################
-lookup <- c(total_intervention_prompts_with_response_past24hrs = "total_intervention_prompts_with_response_past24hrs",
-            prop_intervention_prompts_with_response_past24hrs = "prop_intervention_prompts_with_response_past24hrs",
-            total_prompts_with_response_past24hrs = "total_prompts_with_response_past24hrs",
-            prop_prompts_with_response_past24hrs = "prop_prompts_with_response_past24hrs")
+lookup <- c(total_2qs_and_emi_with_response_past24hrs = "total_2qs_and_emi_with_response_past24hrs")
 
 dat_analysis <- dat_analysis %>% 
-  mutate(total_intervention_prompts_with_response_past24hrs = quick_survey_nreported_past24hrs + emi_resp_indicator_sum_past24hrs,
-         total_prompts_with_response_past24hrs = quick_survey_nreported_past24hrs + emi_resp_indicator_sum_past24hrs + Y_nreported_past24hrs) %>%
-  mutate(prop_intervention_prompts_with_response_past24hrs = total_intervention_prompts_with_response_past24hrs/(2 * n_rand_past24hrs),
-         prop_prompts_with_response_past24hrs = total_prompts_with_response_past24hrs/(3 * n_rand_past24hrs))
+  mutate(total_2qs_and_emi_with_response_past24hrs = quick_survey_nreported_past24hrs + emi_resp_indicator_sum_past24hrs)
 
 keep_these_columns_for_analysis <- append(keep_these_columns_for_analysis, list(names(lookup)))
 

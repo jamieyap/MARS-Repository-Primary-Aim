@@ -1,5 +1,5 @@
 ---
-title: "Explore Imputation Model Predictors: Stratum 1"
+title: "Explore Imputation Model Predictors: Primary proximal outcome among participant-decision points in stratum 1"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: 
   html_document:
@@ -186,7 +186,7 @@ list_dat_out <- append(list_dat_out, list(dat_out))
 ```
 
 ```{r}
-rhs <- "any_response_2qs"
+rhs <- "food_security_mean"
 lhs <- "Y"
 my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
 
@@ -228,7 +228,7 @@ list_dat_out <- append(list_dat_out, list(dat_out))
 ```
 
 ```{r}
-rhs <- "driving_data_not_found_combined"
+rhs <- "SSSladders"
 lhs <- "Y"
 my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
 
@@ -268,6 +268,134 @@ dat_out <- data.frame(predictor = rhs,
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
+
+```{r}
+rhs <- "pp1_1"
+lhs <- "income_val"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "FinancialStrain"
+lhs <- "income_val"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+
+```{r}
+rhs <- "nd_mean"
+lhs <- "income_val"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
 
 ```{r}
 rhs <- "srq_mean"
@@ -312,7 +440,386 @@ list_dat_out <- append(list_dat_out, list(dat_out))
 ```
 
 ```{r}
-rhs <- "gratitude"
+rhs <- "has_partner"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "sni_count"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+
+```{r}
+rhs <- "sni_people"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "sni_active"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_total"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_belonging"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_appraisal"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_tangible"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "any_response_2qs"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+L <- c(1,1)
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0)
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      rr = risk_ratio,
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "driving_data_not_found_combined"
 lhs <- "Y"
 my_formula <- formula(paste(lhs, "~", rhs, sep = ""))
 
@@ -492,6 +999,331 @@ list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
 ```
 
 ```{r}
+rhs <- "food_security_mean"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "SSSladders"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "pp1_1"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "FinancialStrain"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "nd_mean"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
 rhs <- "srq_mean"
 lhs <- "Y"
 my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
@@ -557,7 +1389,399 @@ list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
 ```
 
 ```{r}
-rhs <- "gratitude"
+rhs <- "sni_count"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "sni_people"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "sni_active"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_total"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+
+```{r}
+rhs <- "isel_belonging"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+
+```{r}
+rhs <- "isel_appraisal"
+lhs <- "Y"
+my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+mu <- mean(dat_for_analysis_cc[[rhs]])
+sig <- sd(dat_for_analysis_cc[[rhs]])
+
+L <- c(1,1, 1*(mu - 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu - 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_minus_1sd <- risk_ratio
+
+L <- c(1,1, 1*(mu + 0*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 0*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean <- risk_ratio
+
+L <- c(1,1, 1*(mu + 1*sig))
+prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+L <- c(1,0, 0*(mu + 1*sig))
+prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
+risk_ratio <- prob1/prob0
+risk_ratio_at_mean_plus_1sd <- risk_ratio
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
+                      rr_at_mean = risk_ratio_at_mean,
+                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
+                      auc = area_under_roc_curve)
+
+list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
+```
+
+```{r}
+rhs <- "isel_tangible"
 lhs <- "Y"
 my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
 
@@ -624,6 +1848,527 @@ list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
 ```{r}
 dat_all_out_quadratic <- bind_rows(list_dat_out_quadratic)
 
-dat_all_out_quadratic
+dat_all_out_quadratic %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
 ```
+
+# Predictors measured in the same EMA
+
+```{r}
+dat_included <- dat_primary_aim %>% 
+  group_by(participant_id) %>%
+  mutate(eligibility_lag1 = lag(eligibility)) %>%
+  ungroup(.) %>%
+  filter(eligibility == 1) %>% 
+  filter(any_recent_eligible_dp == 0)
+```
+
+## Dependent variable: Y
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "cigarette_counts"
+lhs <- "Y"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "wearing_patch"
+lhs <- "Y"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_availability"
+lhs <- "Y"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_all_out_same_ema <- bind_rows(list_dat_out)
+
+dat_all_out_same_ema %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
+```
+
+## Dependent variable: cigarette_counts
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "Y"
+lhs <- "cigarette_counts"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "wearing_patch"
+lhs <- "cigarette_counts"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_availability"
+lhs <- "cigarette_counts"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_all_out_same_ema <- bind_rows(list_dat_out)
+
+dat_all_out_same_ema %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
+```
+
+## Dependent variable: wearing_patch
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "Y"
+lhs <- "wearing_patch"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_counts"
+lhs <- "wearing_patch"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_availability"
+lhs <- "wearing_patch"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_all_out_same_ema <- bind_rows(list_dat_out)
+
+dat_all_out_same_ema %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
+```
+
+## Dependent variable: cigarette_availability
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "Y"
+lhs <- "cigarette_availability"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_counts"
+lhs <- "cigarette_availability"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "wearing_patch"
+lhs <- "cigarette_availability"
+my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), "days_between_v1_and_coinflip_local", rhs, sep = "+"))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+fitted_probabilities <- c(fit$fitted.values)
+roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
+area_under_roc_curve <- as.numeric(roc_obj$auc)
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3],
+                      auc = area_under_roc_curve)
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_all_out_same_ema <- bind_rows(list_dat_out)
+
+dat_all_out_same_ema %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
+```
+
+
+
+
+
+
 
