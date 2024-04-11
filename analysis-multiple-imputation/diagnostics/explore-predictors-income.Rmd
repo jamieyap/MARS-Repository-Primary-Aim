@@ -69,15 +69,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -86,8 +81,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -111,15 +106,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -128,8 +118,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -153,15 +143,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -170,8 +155,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -195,15 +180,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -212,8 +192,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -237,15 +217,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -254,8 +229,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -279,15 +254,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -296,8 +266,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -321,15 +291,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -338,8 +303,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -363,15 +328,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -380,8 +340,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -406,15 +366,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -423,8 +378,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -448,15 +403,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -465,8 +415,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -490,15 +440,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -507,8 +452,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -532,15 +477,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -549,8 +489,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -574,15 +514,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -591,8 +526,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -616,15 +551,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -633,8 +563,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -658,15 +588,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -675,8 +600,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -700,15 +625,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -717,8 +637,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -742,15 +662,10 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-L <- c(1,1)
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0)
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -759,8 +674,8 @@ dat_out <- data.frame(predictor = rhs,
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
                       conf_int_ub_beta1 = conf_int_ub[2],
-                      rr = risk_ratio,
-                      auc = area_under_roc_curve)
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -775,7 +690,7 @@ dat_all_out_income_val %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
 
 ```{r}
 rhs <- "age"
-lhs <- "Y"
+lhs <- "income_val"
 my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
 
 dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
@@ -786,39 +701,16 @@ fit <- geeglm(my_formula,
               data = dat_for_analysis_cc, 
               id = participant_id,
               waves = decision_point,
-              family = binomial)
+              family = gaussian)
 dat_fit_summary <- summary(fit)[["coefficients"]]
 
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-mu <- mean(dat_for_analysis_cc[[rhs]])
-sig <- sd(dat_for_analysis_cc[[rhs]])
-
-L <- c(1,1, 1*(mu - 1*sig))
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0, 0*(mu - 1*sig))
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-risk_ratio_at_mean_minus_1sd <- risk_ratio
-
-L <- c(1,1, 1*(mu + 0*sig))
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0, 0*(mu + 0*sig))
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-risk_ratio_at_mean <- risk_ratio
-
-L <- c(1,1, 1*(mu + 1*sig))
-prob1 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-L <- c(1,0, 0*(mu + 1*sig))
-prob0 <- exp(sum(L * dat_fit_summary[["Estimate"]]))/(1 + exp(sum(L * dat_fit_summary[["Estimate"]])))
-risk_ratio <- prob1/prob0
-risk_ratio_at_mean_plus_1sd <- risk_ratio
-
-fitted_probabilities <- c(fit$fitted.values)
-roc_obj <- roc(dat_for_analysis_cc[[lhs]], fitted_probabilities)
-area_under_roc_curve <- as.numeric(roc_obj$auc)
+fitted_vals <- c(fit$fitted.values)
+mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
+rmse <- sqrt(mse)
+std_dev <- sd(dat_for_analysis_cc[[lhs]])
 
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
@@ -829,11 +721,9 @@ dat_out <- data.frame(predictor = rhs,
                       conf_int_ub_beta1 = conf_int_ub[2],
                       est_beta2 = dat_fit_summary[["Estimate"]][3],
                       conf_int_lb_beta2 = conf_int_lb[3],
-                      conf_int_ub_beta2 = conf_int_ub[3],
-                      rr_at_mean_minus_1sd = risk_ratio_at_mean_minus_1sd,
-                      rr_at_mean = risk_ratio_at_mean,
-                      rr_at_mean_plus_1sd = risk_ratio_at_mean_plus_1sd,
-                      auc = area_under_roc_curve)
+                      conf_int_ub_beta2 = conf_int_ub[3],                      
+                      root_mean_squared_error = rmse,
+                      one_std_dev = 1*std_dev)
 
 list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
 ```

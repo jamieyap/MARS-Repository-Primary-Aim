@@ -374,30 +374,30 @@ margin-right: auto;
 <div id="enter-predictors-as-linear-main-effect" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Enter predictors as
 linear main effect</h1>
-<pre><code>##                   predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1    rr   auc
-## 1                   is_male     4.934             4.159             5.709    -0.034            -1.343             1.275 1.000 0.364
-## 2                       age     3.879             1.510             6.248     0.023            -0.029             0.076 1.000 0.603
-## 3  baseline_tobacco_history     4.200             2.996             5.404     0.055            -0.022             0.133 1.001 0.603
-## 4              Nicotine_dep     4.730             3.348             6.112     0.073            -0.411             0.557 1.001 0.570
-## 5        food_security_mean     7.767             6.296             9.238    -1.992            -2.820            -1.165 0.997 0.586
-## 6                SSSladders     8.637             6.568            10.705    -0.596            -0.895            -0.297 1.000 0.564
-## 7                     pp1_1     9.597             7.789            11.404    -1.648            -2.152            -1.145 1.000 0.488
-## 8           FinancialStrain    11.002             9.241            12.763    -3.299            -4.119            -2.479 1.000 0.521
-## 9                   nd_mean     6.940             5.258             8.621    -1.023            -1.787            -0.259 0.998 0.545
-## 10              has_partner     4.200             3.444             4.956     1.605             0.374             2.835 1.012 0.545
-## 11                sni_count     2.946             1.157             4.735     0.403             0.070             0.736 1.017 0.645
-## 12               sni_people     3.262             2.057             4.468     0.133             0.041             0.225 1.005 0.600
-## 13               sni_active     4.056             3.054             5.058     0.675             0.012             1.338 1.008 0.585
-## 14               isel_total     4.355             1.868             6.842     0.200            -0.623             1.023 1.002 0.670
-## 15           isel_belonging     4.798             2.402             7.195     0.053            -0.740             0.846 1.000 0.650
-## 16           isel_appraisal     4.466             2.222             6.710     0.158            -0.575             0.892 1.002 0.715
-## 17            isel_tangible     4.190             1.924             6.455     0.256            -0.487             0.999 1.003 0.550</code></pre>
+<pre><code>##                   predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 root_mean_squared_error one_std_dev
+## 1                   is_male     4.934             4.159             5.709    -0.034            -1.343             1.275                   3.043       3.060
+## 2                       age     3.879             1.510             6.248     0.023            -0.029             0.076                   3.031       3.060
+## 3  baseline_tobacco_history     4.200             2.996             5.404     0.055            -0.022             0.133                   3.015       3.060
+## 4              Nicotine_dep     4.730             3.348             6.112     0.073            -0.411             0.557                   3.041       3.060
+## 5        food_security_mean     7.767             6.296             9.238    -1.992            -2.820            -1.165                   2.824       3.061
+## 6                SSSladders     8.637             6.568            10.705    -0.596            -0.895            -0.297                   2.847       3.061
+## 7                     pp1_1     9.597             7.789            11.404    -1.648            -2.152            -1.145                   2.641       3.060
+## 8           FinancialStrain    11.002             9.241            12.763    -3.299            -4.119            -2.479                   2.347       3.060
+## 9                   nd_mean     6.940             5.258             8.621    -1.023            -1.787            -0.259                   2.975       3.061
+## 10              has_partner     4.200             3.444             4.956     1.605             0.374             2.835                   2.936       3.060
+## 11                sni_count     2.946             1.157             4.735     0.403             0.070             0.736                   2.955       3.062
+## 12               sni_people     3.262             2.057             4.468     0.133             0.041             0.225                   2.879       3.062
+## 13               sni_active     4.056             3.054             5.058     0.675             0.012             1.338                   2.958       3.062
+## 14               isel_total     4.355             1.868             6.842     0.200            -0.623             1.023                   3.041       3.062
+## 15           isel_belonging     4.798             2.402             7.195     0.053            -0.740             0.846                   3.044       3.062
+## 16           isel_appraisal     4.466             2.222             6.710     0.158            -0.575             0.892                   3.042       3.062
+## 17            isel_tangible     4.190             1.924             6.455     0.256            -0.487             0.999                   3.038       3.062</code></pre>
 </div>
 <div id="enter-predictors-as-quadratic-main-effect" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Enter predictors as
 quadratic main effect</h1>
-<pre><code>##   predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 rr_at_mean_minus_1sd rr_at_mean rr_at_mean_plus_1sd auc
-## 1       age     9.349           -10.579            29.277    -0.595             -1.76             0.569     0.009            -0.007             0.026                    1          1                   1 0.8</code></pre>
+<pre><code>##   predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 root_mean_squared_error one_std_dev
+## 1       age    -0.164            -8.501             8.172     0.213            -0.181             0.608    -0.002            -0.006             0.002                   3.019        3.06</code></pre>
 </div>
 
 
