@@ -1833,3 +1833,241 @@ dat_all_out_quadratic %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
 dat_all_out_quadratic <- dat_all_out_quadratic %>% mutate(across(-any_of("predictor"), ~round(.x, 3))) 
 write.csv(dat_all_out_quadratic, file.path(path_code, "analysis-multiple-imputation", "diagnostics", "stratum03_quadratic.csv"))
 ```
+
+# Among predictors that make it to the shortlist, see what variables could be associated with them
+
+## Wearing patch
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "wearing_patch_lag1"
+lhs <- "wearing_patch"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "wearing_patch_sum_past24hrs"
+lhs <- "wearing_patch"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = binomial)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_out <- bind_rows(list_dat_out)
+dat_out <- dat_out %>% mutate(screened_out = if_else((conf_int_lb_beta2 <=0) & (conf_int_ub_beta2 >=0), 1, 0))
+dat_out %>% mutate(across(-any_of("predictor"), ~round(.x, 3))) 
+```
+
+## Cigarette availability
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "cigarette_availability_lag1"
+lhs <- "cigarette_availability"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_availability_mean_past24hrs"
+lhs <- "cigarette_availability"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_out <- bind_rows(list_dat_out)
+dat_out <- dat_out %>% mutate(screened_out = if_else((conf_int_lb_beta2 <=0) & (conf_int_ub_beta2 >=0), 1, 0))
+dat_out %>% mutate(across(-any_of("predictor"), ~round(.x, 3))) 
+```
+
+## Cigarette counts
+
+```{r}
+list_dat_out <- list()
+```
+
+```{r}
+rhs <- "cigarette_counts_lag1"
+lhs <- "cigarette_counts"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+rhs <- "cigarette_counts_sum_past24hrs"
+lhs <- "cigarette_counts"
+my_formula <- formula(paste(lhs, "~", "days_between_v1_and_coinflip_local + ", rhs, sep = ""))
+
+dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", "days_between_v1_and_coinflip_local", lhs, rhs)))
+rows_no_miss <- dat_for_analysis %>% complete.cases(.)
+dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
+
+fit <- geeglm(my_formula, 
+              data = dat_for_analysis_cc, 
+              id = participant_id,
+              waves = decision_point,
+              family = gaussian)
+dat_fit_summary <- summary(fit)[["coefficients"]]
+
+conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
+
+dat_out <- data.frame(predictor = rhs,
+                      est_beta0 = dat_fit_summary[["Estimate"]][1],
+                      conf_int_lb_beta0 = conf_int_lb[1],
+                      conf_int_ub_beta0 = conf_int_ub[1],
+                      est_beta1 = dat_fit_summary[["Estimate"]][2],
+                      conf_int_lb_beta1 = conf_int_lb[2],
+                      conf_int_ub_beta1 = conf_int_ub[2],
+                      est_beta2 = dat_fit_summary[["Estimate"]][3],
+                      conf_int_lb_beta2 = conf_int_lb[3],
+                      conf_int_ub_beta2 = conf_int_ub[3])
+
+list_dat_out <- append(list_dat_out, list(dat_out))
+```
+
+```{r}
+dat_out <- bind_rows(list_dat_out)
+dat_out <- dat_out %>% mutate(screened_out = if_else((conf_int_lb_beta2 <=0) & (conf_int_ub_beta2 >=0), 1, 0))
+dat_out %>% mutate(across(-any_of("predictor"), ~round(.x, 3))) 
+```
+
+
