@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-04-11" />
+<meta name="date" content="2024-04-13" />
 
 <title>Explore Imputation Model Predictors: Primary proximal outcome among participant-decision points in stratum 3</title>
 
@@ -352,35 +352,17 @@ display: none;
 <h1 class="title toc-ignore">Explore Imputation Model Predictors:
 Primary proximal outcome among participant-decision points in stratum
 3</h1>
-<h4 class="date">April 11, 2024</h4>
+<h4 class="date">April 13, 2024</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#enter-predictors-as-a-linear-main-effect" id="toc-enter-predictors-as-a-linear-main-effect"><span class="toc-section-number">1</span> Enter predictors as a linear main
-effect</a></li>
+<li><a href="#enter-predictors-as-a-linear-main-effect-controlling-for-days_between_v1_and_coinflip_local" id="toc-enter-predictors-as-a-linear-main-effect-controlling-for-days_between_v1_and_coinflip_local"><span class="toc-section-number">1</span> Enter predictors as a linear main
+effect, controlling for
+<code>days_between_v1_and_coinflip_local</code></a></li>
 <li><a href="#enter-predictors-as-a-quadratic-main-effect" id="toc-enter-predictors-as-a-quadratic-main-effect"><span class="toc-section-number">2</span> Enter predictors as a quadratic main
 effect</a></li>
-<li><a href="#control-for-time" id="toc-control-for-time"><span class="toc-section-number">3</span> Control for time</a></li>
-<li><a href="#what-would-make-good-predictors-for-time-varying-variables-that-ended-up-in-the-shortlist" id="toc-what-would-make-good-predictors-for-time-varying-variables-that-ended-up-in-the-shortlist"><span class="toc-section-number">4</span> What would make good predictors for
-time-varying variables that ended up in the shortlist</a>
-<ul>
-<li><a href="#wearing-patch" id="toc-wearing-patch"><span class="toc-section-number">4.1</span> Wearing patch</a></li>
-<li><a href="#cigarette-availability" id="toc-cigarette-availability"><span class="toc-section-number">4.2</span> Cigarette availability</a></li>
-<li><a href="#cigarette-counts" id="toc-cigarette-counts"><span class="toc-section-number">4.3</span> Cigarette counts</a></li>
-</ul></li>
-<li><a href="#predictors-measured-in-the-same-ema" id="toc-predictors-measured-in-the-same-ema"><span class="toc-section-number">5</span> Predictors measured in the same
-EMA</a>
-<ul>
-<li><a href="#dependent-variable-y" id="toc-dependent-variable-y"><span class="toc-section-number">5.1</span> Dependent variable: Y</a></li>
-<li><a href="#dependent-variable-wearing_patch" id="toc-dependent-variable-wearing_patch"><span class="toc-section-number">5.2</span> Dependent variable:
-wearing_patch</a></li>
-<li><a href="#dependent-variable-cigarette_counts" id="toc-dependent-variable-cigarette_counts"><span class="toc-section-number">5.3</span> Dependent variable:
-cigarette_counts</a></li>
-<li><a href="#dependent-variable-cigarette_availability" id="toc-dependent-variable-cigarette_availability"><span class="toc-section-number">5.4</span> Dependent variable:
-cigarette_availability</a></li>
-</ul></li>
 </ul>
 </div>
 
@@ -391,158 +373,67 @@ margin-left: auto;
 margin-right: auto;
 }
 </style>
-<div id="enter-predictors-as-a-linear-main-effect" class="section level1" number="1">
+<div id="enter-predictors-as-a-linear-main-effect-controlling-for-days_between_v1_and_coinflip_local" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Enter predictors as a
-linear main effect</h1>
-<pre><code>##                                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1    rr   auc
-## 1                                    age    -0.192            -1.270             0.886     0.015            -0.008             0.039 1.008 0.543
-## 2                                is_male     0.712             0.394             1.030    -0.662            -1.299            -0.025 0.764 0.574
-## 3                             income_val     0.578             0.022             1.133    -0.027            -0.118             0.065 0.990 0.542
-## 4                     food_security_mean    -0.105            -0.879             0.670     0.410            -0.094             0.914 1.215 0.560
-## 5                             SSSladders     0.379            -0.648             1.407     0.020            -0.142             0.181 1.008 0.509
-## 6                                  pp1_1     0.172            -0.780             1.124     0.114            -0.192             0.421 1.052 0.517
-## 7                        FinancialStrain     0.220            -0.756             1.196     0.148            -0.346             0.642 1.065 0.529
-## 8                                nd_mean     0.436            -0.630             1.502     0.035            -0.501             0.571 1.014 0.520
-## 9                               srq_mean    -0.490            -1.534             0.554     0.246            -0.046             0.538 1.157 0.556
-## 10                           has_partner     0.640             0.267             1.013    -0.294            -0.874             0.287 0.895 0.537
-## 11                             sni_count     0.396            -0.364             1.157     0.010            -0.133             0.154 1.004 0.490
-## 12                            sni_people     0.750             0.195             1.305    -0.025            -0.065             0.014 0.992 0.566
-## 13                            sni_active     0.579             0.123             1.036    -0.113            -0.429             0.203 0.959 0.547
-## 14                            isel_total     1.252             0.153             2.351    -0.269            -0.656             0.117 0.936 0.562
-## 15                        isel_belonging     1.035             0.026             2.043    -0.205            -0.572             0.162 0.944 0.558
-## 16                        isel_appraisal     1.186             0.182             2.189    -0.238            -0.568             0.093 0.941 0.565
-## 17                         isel_tangible     1.022            -0.027             2.072    -0.192            -0.561             0.176 0.947 0.556
-## 18                      any_response_2qs     0.323            -0.018             0.664     0.226            -0.107             0.560 1.093 0.524
-## 19                any_app_usage_preblock     0.269            -0.044             0.582     0.503             0.283             0.723 1.207 0.561
-## 20   total_app_usage_time_spent_preblock     0.397             0.112             0.682     0.000             0.000             0.000 1.000 0.574
-## 21                    num_click_preblock     0.392             0.105             0.678     0.039             0.020             0.059 1.016 0.546
-## 22                coinflip_sum_past24hrs     0.455             0.107             0.804     0.011            -0.074             0.096 1.004 0.510
-## 23          is_high_effort_sum_past24hrs     0.372             0.058             0.685     0.093            -0.040             0.227 1.038 0.530
-## 24           is_low_effort_sum_past24hrs     0.564             0.244             0.884    -0.067            -0.172             0.038 0.976 0.516
-## 25      quick_survey_nreported_past24hrs     0.291            -0.153             0.736     0.057            -0.064             0.179 1.024 0.528
-## 26                 Y_nreported_past24hrs     0.103            -0.226             0.432     0.105             0.008             0.202 1.050 0.553
-## 27                   nreported_past24hrs     0.146            -0.260             0.553     0.048            -0.010             0.107 1.022 0.544
-## 28       driving_data_not_found_combined     0.480             0.176             0.785     0.003            -0.229             0.236 1.001 0.500
-## 29                         cig_available     0.634             0.204             1.063    -0.144            -0.595             0.308 0.949 0.517
-## 30                                Y_lag1    -0.728            -1.033            -0.423     2.112             1.709             2.515 2.456 0.736
-## 31                       src_scored_lag1     0.698            -0.139             1.534    -0.060            -0.321             0.201 0.980 0.518
-## 32           cigarette_availability_lag1     0.797             0.312             1.281    -0.120            -0.258             0.019 0.962 0.563
-## 33                    wearing_patch_lag1     0.262            -0.087             0.611     0.591             0.203             0.978 1.241 0.571
-## 34                 cigarette_counts_lag1     0.606             0.277             0.936    -0.168            -0.280            -0.055 0.940 0.560
-## 35           cig_available_sum_past24hrs     1.043             0.497             1.588    -0.124            -0.261             0.013 0.967 0.585
-## 36                       Y_sum_past24hrs    -1.251            -1.739            -0.763     0.711             0.561             0.861 1.655 0.834
-## 37             src_scored_mean_past24hrs     1.794             0.098             3.489    -0.297            -0.863             0.268 0.953 0.569
-## 38 cigarette_availability_mean_past24hrs     1.851             1.033             2.670    -0.393            -0.655            -0.131 0.939 0.676
-## 39           wearing_patch_sum_past24hrs     0.409            -0.139             0.958     0.231             0.116             0.346 1.090 0.637
-## 40        cigarette_counts_sum_past24hrs     1.105             0.665             1.545    -0.111            -0.187            -0.035 0.972 0.649</code></pre>
+linear main effect, controlling for
+<code>days_between_v1_and_coinflip_local</code></h1>
+<pre><code>##                                   predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 screened_out
+## 1                          any_response_2qs     0.081            -0.311             0.473     0.048            -0.001             0.097     0.240            -0.098             0.577            1
+## 2                    any_app_usage_preblock    -0.034            -0.404             0.335     0.059             0.008             0.110     0.545             0.311             0.779            0
+## 3       total_app_usage_time_spent_preblock     0.121            -0.202             0.445     0.056             0.006             0.105     0.002             0.001             0.003            0
+## 4                        num_click_preblock     0.107            -0.223             0.436     0.057             0.007             0.107     0.043             0.022             0.064            0
+## 5           driving_data_not_found_combined     0.244            -0.094             0.582     0.047            -0.002             0.095     0.027            -0.206             0.260            1
+## 6                       hour_coinflip_local    -0.073            -0.553             0.408     0.048            -0.001             0.097     0.023            -0.005             0.051            1
+## 7  hours_elapsed_since_most_recent_eligible     0.352             0.025             0.680     0.048            -0.001             0.097    -0.027            -0.050            -0.005            0
+## 8                                    Y_lag1    -0.835            -1.186            -0.485     0.023            -0.018             0.064     2.105             1.703             2.508            0
+## 9                           src_scored_lag1     0.483            -0.408             1.374     0.045            -0.013             0.102    -0.060            -0.323             0.204            1
+## 10              cigarette_availability_lag1     0.655             0.040             1.269     0.025            -0.038             0.088    -0.110            -0.256             0.036            1
+## 11                       wearing_patch_lag1     0.253            -0.120             0.627     0.002            -0.065             0.069     0.586             0.135             1.037            0
+## 12                    cigarette_counts_lag1     0.485             0.091             0.879     0.024            -0.033             0.081    -0.155            -0.269            -0.042            0
+## 13                          Y_sum_past24hrs    -1.064            -1.545            -0.583    -0.058            -0.116             0.000     0.734             0.577             0.891            0
+## 14                src_scored_mean_past24hrs     1.452            -0.201             3.105     0.081            -0.023             0.185    -0.304            -0.868             0.261            1
+## 15    cigarette_availability_mean_past24hrs     1.745             0.746             2.745     0.018            -0.096             0.132    -0.383            -0.654            -0.113            0
+## 16              wearing_patch_sum_past24hrs     0.524            -0.056             1.103    -0.035            -0.160             0.089     0.253             0.096             0.410            0
+## 17           cigarette_counts_sum_past24hrs     0.922             0.328             1.517     0.038            -0.062             0.137    -0.105            -0.184            -0.026            0
+## 18                     is_complete_v1_quest     0.386             0.013             0.760     0.048            -0.001             0.096    -0.394            -0.986             0.198            1
+## 19                                      age    -0.374            -1.436             0.688     0.043            -0.006             0.092     0.015            -0.008             0.038            1
+## 20                                  is_male     0.496             0.143             0.850     0.044            -0.005             0.093    -0.658            -1.295            -0.020            0
+## 21                               income_val     0.375            -0.198             0.947     0.043            -0.009             0.094    -0.028            -0.119             0.064            1
+## 22                       food_security_mean    -0.336            -1.157             0.485     0.050            -0.001             0.101     0.405            -0.100             0.910            1
+## 23                               SSSladders     0.141            -0.934             1.216     0.051             0.001             0.101     0.018            -0.143             0.179            1
+## 24                                    pp1_1    -0.057            -1.027             0.913     0.049            -0.001             0.099     0.111            -0.195             0.417            1
+## 25                          FinancialStrain    -0.007            -1.012             0.997     0.049             0.000             0.099     0.143            -0.352             0.637            1
+## 26                                  nd_mean     0.209            -0.881             1.299     0.051             0.002             0.101     0.024            -0.512             0.561            1
+## 27                                 srq_mean    -0.720            -1.772             0.332     0.047            -0.006             0.099     0.247            -0.046             0.541            1
+## 28                              has_partner     0.400            -0.028             0.828     0.049            -0.001             0.099    -0.291            -0.873             0.290            1
+## 29                                sni_count     0.170            -0.614             0.954     0.047            -0.005             0.098     0.010            -0.133             0.154            1
+## 30                               sni_people     0.527            -0.080             1.135     0.045            -0.006             0.097    -0.025            -0.065             0.015            1
+## 31                               sni_active     0.356            -0.158             0.870     0.045            -0.006             0.097    -0.109            -0.427             0.208            1
+## 32                               isel_total     1.030            -0.112             2.173     0.048            -0.004             0.099    -0.272            -0.658             0.114            1
+## 33                           isel_belonging     0.808            -0.227             1.844     0.046            -0.005             0.098    -0.204            -0.571             0.163            1
+## 34                           isel_appraisal     0.965            -0.088             2.018     0.048            -0.003             0.099    -0.241            -0.572             0.089            1
+## 35                            isel_tangible     0.803            -0.284             1.891     0.048            -0.003             0.099    -0.197            -0.565             0.172            1</code></pre>
 </div>
 <div id="enter-predictors-as-a-quadratic-main-effect" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Enter predictors as a
 quadratic main effect</h1>
-<pre><code>##             predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 rr_at_mean_minus_1sd rr_at_mean rr_at_mean_plus_1sd   auc
-## 1                 age     1.492            -2.609             5.594    -0.066            -0.257             0.125     0.001            -0.001             0.003                0.993      0.995               0.997 0.554
-## 2          income_val     1.355             0.435             2.275    -0.426            -0.794            -0.058     0.036             0.005             0.066                0.917      0.943               0.968 0.578
-## 3  food_security_mean     0.041            -2.011             2.092     0.215            -2.281             2.711     0.057            -0.616             0.729                1.129      1.146               1.162 0.560
-## 4          SSSladders    -0.444            -2.641             1.752     0.309            -0.424             1.043    -0.023            -0.082             0.036                1.126      1.100               1.075 0.524
-## 5               pp1_1     0.718            -2.155             3.590    -0.257            -2.026             1.511     0.057            -0.196             0.311                0.952      0.970               0.988 0.507
-## 6     FinancialStrain     0.355            -2.656             3.365    -0.009            -3.360             3.342     0.041            -0.833             0.916                1.018      1.029               1.039 0.529
-## 7             nd_mean    -0.852            -3.612             1.909     1.273            -1.380             3.925    -0.268            -0.870             0.334                1.725      1.582               1.441 0.547
-## 8            srq_mean    -0.582            -2.969             1.804     0.304            -1.289             1.898    -0.009            -0.255             0.238                1.186      1.181               1.177 0.556
-## 9           sni_count     0.852            -0.672             2.376    -0.188            -0.796             0.420     0.019            -0.036             0.074                0.961      0.971               0.982 0.497
-## 10         sni_people     1.289             0.273             2.305    -0.118            -0.277             0.041     0.003            -0.002             0.008                0.977      0.982               0.987 0.574
-## 11         sni_active     0.923             0.352             1.494    -0.879            -1.696            -0.061     0.239             0.004             0.474                0.729      0.811               0.890 0.561
-## 12         isel_total    -1.329            -3.810             1.151     1.766            -0.348             3.880    -0.372            -0.787             0.043                1.905      1.618               1.354 0.567
-## 13     isel_belonging    -0.864            -3.131             1.403     1.356            -0.547             3.259    -0.292            -0.666             0.081                1.586      1.400               1.221 0.591
-## 14     isel_appraisal    -0.545            -2.581             1.492     1.117            -0.615             2.849    -0.241            -0.572             0.091                1.377      1.245               1.116 0.562
-## 15      isel_tangible    -1.032            -3.355             1.291     1.438            -0.459             3.334    -0.296            -0.659             0.068                1.669      1.460               1.261 0.571</code></pre>
-</div>
-<div id="control-for-time" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Control for time</h1>
-<pre><code>##                                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2   auc
-## 1                                is_male     0.496             0.143             0.850     0.044            -0.005             0.093    -0.658            -1.295            -0.020 0.599
-## 2                            has_partner     0.400            -0.028             0.828     0.049            -0.001             0.099    -0.291            -0.873             0.290 0.556
-## 3                                  pp1_1    -0.057            -1.027             0.913     0.049            -0.001             0.099     0.111            -0.195             0.417 0.546
-## 4                                nd_mean     0.209            -0.881             1.299     0.051             0.002             0.101     0.024            -0.512             0.561 0.541
-## 5                                 Y_lag1    -0.835            -1.186            -0.485     0.023            -0.018             0.064     2.105             1.703             2.508 0.748
-## 6                     wearing_patch_lag1     0.253            -0.120             0.627     0.002            -0.065             0.069     0.586             0.135             1.037 0.574
-## 7                  cigarette_counts_lag1     0.485             0.091             0.879     0.024            -0.033             0.081    -0.155            -0.269            -0.042 0.567
-## 8                        Y_sum_past24hrs    -1.064            -1.545            -0.583    -0.058            -0.116             0.000     0.734             0.577             0.891 0.836
-## 9  cigarette_availability_mean_past24hrs     1.745             0.746             2.745     0.018            -0.096             0.132    -0.383            -0.654            -0.113 0.680
-## 10           wearing_patch_sum_past24hrs     0.524            -0.056             1.103    -0.035            -0.160             0.089     0.253             0.096             0.410 0.639
-## 11        cigarette_counts_sum_past24hrs     0.922             0.328             1.517     0.038            -0.062             0.137    -0.105            -0.184            -0.026 0.638
-## 12                any_app_usage_preblock    -0.034            -0.404             0.335     0.059             0.008             0.110     0.545             0.311             0.779 0.586</code></pre>
-<pre><code>##    predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 est_beta3 conf_int_lb_beta3 conf_int_ub_beta3   auc
-## 1 income_val     1.145             0.223             2.068     0.046            -0.007             0.099    -0.432            -0.801            -0.063     0.036             0.006             0.067 0.599</code></pre>
-<pre><code>##    predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 est_beta3 conf_int_lb_beta3 conf_int_ub_beta3   auc
-## 1 sni_active      0.68             0.022             1.337     0.051                 0             0.102    -0.893            -1.703            -0.084     0.245             0.012             0.478 0.582</code></pre>
-</div>
-<div id="what-would-make-good-predictors-for-time-varying-variables-that-ended-up-in-the-shortlist" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> What would make good
-predictors for time-varying variables that ended up in the
-shortlist</h1>
-<div id="wearing-patch" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Wearing patch</h2>
-<pre><code>##                     predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2   auc
-## 1          wearing_patch_lag1    -2.979            -3.336            -2.621     0.139             0.081             0.197     4.628             4.153             5.103 0.933
-## 2 wearing_patch_sum_past24hrs    -2.334            -2.859            -1.808    -0.037            -0.137             0.063     1.147             0.990             1.305 0.946</code></pre>
-</div>
-<div id="cigarette-availability" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> Cigarette
-availability</h2>
-<pre><code>##                               predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 root_mean_squared_error one_std_dev
-## 1           cigarette_availability_lag1     0.728             0.498             0.957    -0.044            -0.066            -0.022     0.777             0.717             0.837                   1.083       1.788
-## 2 cigarette_availability_mean_past24hrs     0.314             0.059             0.569    -0.019            -0.048             0.010     0.882             0.831             0.933                   1.040       1.750</code></pre>
-</div>
-<div id="cigarette-counts" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Cigarette counts</h2>
-<pre><code>##                                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 root_mean_squared_error one_std_dev
-## 1                  cigarette_counts_lag1     0.594             0.448             0.740    -0.064            -0.085            -0.044     0.299             0.212             0.387                   0.842       0.954
-## 2         cigarette_counts_sum_past24hrs     0.451             0.266             0.635    -0.061            -0.085            -0.037     0.122             0.093             0.151                   0.753       0.918
-## 3               baseline_tobacco_history     0.550             0.257             0.843    -0.114            -0.142            -0.087     0.042             0.017             0.067                   1.125       1.200
-## 4                           Nicotine_dep     0.823             0.521             1.125    -0.114            -0.144            -0.085     0.102             0.009             0.196                   1.157       1.205
-## 5                     wearing_patch_lag1     0.966             0.760             1.172    -0.070            -0.096            -0.044    -0.378            -0.539            -0.217                   0.898       0.952
-## 6            wearing_patch_sum_past24hrs     0.961             0.690             1.233    -0.062            -0.099            -0.024    -0.094            -0.146            -0.041                   0.862       0.930
-## 7                                 Y_lag1     1.011             0.779             1.243    -0.094            -0.121            -0.066    -0.155            -0.293            -0.017                   0.911       0.950
-## 8                        Y_sum_past24hrs     1.117             0.816             1.418    -0.082            -0.121            -0.043    -0.080            -0.139            -0.022                   0.868       0.923
-## 9            cigarette_availability_lag1     0.477             0.295             0.659    -0.073            -0.101            -0.045     0.143             0.103             0.184                   0.887       0.958
-## 10 cigarette_availability_mean_past24hrs     0.424             0.145             0.703    -0.076            -0.116            -0.035     0.166             0.100             0.232                   0.845       0.927</code></pre>
-</div>
-</div>
-<div id="predictors-measured-in-the-same-ema" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Predictors measured in
-the same EMA</h1>
-<div id="dependent-variable-y" class="section level2" number="5.1">
-<h2><span class="header-section-number">5.1</span> Dependent variable:
-Y</h2>
-<pre><code>##                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2   auc
-## 1       cigarette_counts     0.402             0.056             0.748     0.032            -0.018             0.081    -0.140            -0.232            -0.047 0.558
-## 2          wearing_patch     0.191            -0.138             0.520     0.010            -0.046             0.066     0.586             0.187             0.984 0.577
-## 3 cigarette_availability     0.554             0.003             1.104     0.031            -0.024             0.086    -0.091            -0.221             0.038 0.562</code></pre>
-</div>
-<div id="dependent-variable-wearing_patch" class="section level2" number="5.2">
-<h2><span class="header-section-number">5.2</span> Dependent variable:
-wearing_patch</h2>
-<pre><code>##                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2   auc
-## 1                      Y    -2.050            -2.420            -1.680     0.287             0.214             0.360     0.588             0.189             0.988 0.720
-## 2       cigarette_counts    -1.186            -1.563            -0.809     0.245             0.176             0.314    -0.718            -0.997            -0.439 0.732
-## 3 cigarette_availability    -1.024            -1.565            -0.483     0.258             0.186             0.329    -0.222            -0.359            -0.086 0.728</code></pre>
-</div>
-<div id="dependent-variable-cigarette_counts" class="section level2" number="5.3">
-<h2><span class="header-section-number">5.3</span> Dependent variable:
-cigarette_counts</h2>
-<pre><code>##                predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 root_mean_squared_error one_std_dev
-## 1                      Y     1.216             0.965             1.466    -0.111            -0.140            -0.082    -0.192            -0.327            -0.056                   1.157       1.200
-## 2          wearing_patch     1.161             0.934             1.389    -0.082            -0.108            -0.057    -0.470            -0.635            -0.305                   1.140       1.200
-## 3 cigarette_availability     0.553             0.357             0.749    -0.083            -0.111            -0.055     0.172             0.126             0.219                   1.124       1.203</code></pre>
-</div>
-<div id="dependent-variable-cigarette_availability" class="section level2" number="5.4">
-<h2><span class="header-section-number">5.4</span> Dependent variable:
-cigarette_availability</h2>
-<pre><code>##          predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 root_mean_squared_error one_std_dev
-## 1                Y     3.387             3.021             3.753    -0.177            -0.235            -0.119    -0.270            -0.644             0.104                   1.721       1.794
-## 2 cigarette_counts     2.813             2.462             3.163    -0.136            -0.195            -0.078     0.380             0.248             0.512                   1.669       1.794
-## 3    wearing_patch     3.319             3.016             3.622    -0.136            -0.197            -0.076    -0.679            -1.090            -0.268                   1.698       1.795</code></pre>
-</div>
+<pre><code>##              predictor est_beta0 conf_int_lb_beta0 conf_int_ub_beta0 est_beta1 conf_int_lb_beta1 conf_int_ub_beta1 est_beta2 conf_int_lb_beta2 conf_int_ub_beta2 est_beta3 conf_int_lb_beta3 conf_int_ub_beta3 screened_out
+## 1  hour_coinflip_local    -0.820            -1.789             0.149     0.049             0.000             0.098     0.140             0.006             0.274    -0.004            -0.009             0.000            1
+## 2                  age     1.334            -2.796             5.464     0.044            -0.005             0.093    -0.068            -0.258             0.122     0.001            -0.001             0.003            1
+## 3           income_val     1.145             0.223             2.068     0.046            -0.007             0.099    -0.432            -0.801            -0.063     0.036             0.006             0.067            0
+## 4   food_security_mean    -0.161            -2.221             1.899     0.050            -0.001             0.101     0.168            -2.329             2.666     0.069            -0.605             0.742            1
+## 5           SSSladders    -0.601            -2.824             1.622     0.049            -0.001             0.100     0.282            -0.456             1.021    -0.021            -0.081             0.038            1
+## 6                pp1_1     0.554            -2.326             3.435     0.051             0.002             0.100    -0.311            -2.078             1.457     0.065            -0.188             0.318            1
+## 7      FinancialStrain     0.202            -2.809             3.213     0.050             0.000             0.099    -0.105            -3.470             3.260     0.065            -0.813             0.943            1
+## 8              nd_mean    -1.006            -3.782             1.771     0.049            -0.001             0.098     1.204            -1.470             3.879    -0.255            -0.864             0.353            1
+## 9             srq_mean    -0.751            -3.119             1.617     0.047            -0.006             0.100     0.267            -1.335             1.869    -0.003            -0.250             0.244            1
+## 10           sni_count     0.607            -0.946             2.160     0.046            -0.006             0.097    -0.179            -0.788             0.431     0.018            -0.037             0.073            1
+## 11          sni_people     1.067            -0.009             2.143     0.047            -0.005             0.098    -0.119            -0.279             0.041     0.003            -0.002             0.008            1
+## 12          sni_active     0.680             0.022             1.337     0.051             0.000             0.102    -0.893            -1.703            -0.084     0.245             0.012             0.478            0
+## 13          isel_total    -1.520            -4.029             0.989     0.046            -0.005             0.098     1.744            -0.376             3.865    -0.368            -0.784             0.048            1
+## 14      isel_belonging    -1.022            -3.326             1.281     0.043            -0.009             0.094     1.315            -0.594             3.224    -0.285            -0.659             0.090            1
+## 15      isel_appraisal    -0.836            -2.892             1.220     0.051            -0.001             0.103     1.159            -0.561             2.878    -0.249            -0.578             0.081            1
+## 16       isel_tangible    -1.227            -3.524             1.070     0.047            -0.005             0.098     1.419            -0.474             3.312    -0.293            -0.657             0.071            1</code></pre>
 </div>
 
 
