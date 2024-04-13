@@ -30,7 +30,6 @@ source("paths.R")
 library(knitr)
 library(tidyverse)
 library(geepack)
-library(pROC)
 
 type_one_error_rate <- 0.05
 ```
@@ -69,20 +68,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -106,94 +98,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
-
-list_dat_out <- append(list_dat_out, list(dat_out))
-```
-
-```{r}
-rhs <- "baseline_tobacco_history"
-lhs <- "income_val"
-my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), rhs, sep = "+"))
-
-dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
-rows_no_miss <- dat_for_analysis %>% complete.cases(.)
-dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
-
-fit <- geeglm(my_formula, 
-              data = dat_for_analysis_cc, 
-              id = participant_id,
-              waves = decision_point,
-              family = gaussian)
-dat_fit_summary <- summary(fit)[["coefficients"]]
-
-conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
-dat_out <- data.frame(predictor = rhs,
-                      est_beta0 = dat_fit_summary[["Estimate"]][1],
-                      conf_int_lb_beta0 = conf_int_lb[1],
-                      conf_int_ub_beta0 = conf_int_ub[1],
-                      est_beta1 = dat_fit_summary[["Estimate"]][2],
-                      conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
-
-list_dat_out <- append(list_dat_out, list(dat_out))
-```
-
-```{r}
-rhs <- "Nicotine_dep"
-lhs <- "income_val"
-my_formula <- formula(paste(paste(lhs, "~ 1", sep=""), rhs, sep = "+"))
-
-dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
-rows_no_miss <- dat_for_analysis %>% complete.cases(.)
-dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
-
-fit <- geeglm(my_formula, 
-              data = dat_for_analysis_cc, 
-              id = participant_id,
-              waves = decision_point,
-              family = gaussian)
-dat_fit_summary <- summary(fit)[["coefficients"]]
-
-conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
-dat_out <- data.frame(predictor = rhs,
-                      est_beta0 = dat_fit_summary[["Estimate"]][1],
-                      conf_int_lb_beta0 = conf_int_lb[1],
-                      conf_int_ub_beta0 = conf_int_ub[1],
-                      est_beta1 = dat_fit_summary[["Estimate"]][2],
-                      conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -217,20 +128,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -265,9 +169,7 @@ dat_out <- data.frame(predictor = rhs,
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -291,20 +193,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -328,20 +223,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -366,20 +254,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -403,20 +284,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -440,20 +314,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -477,20 +344,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -514,20 +374,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -551,20 +404,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -588,20 +434,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -625,20 +464,13 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
@@ -662,74 +494,22 @@ dat_fit_summary <- summary(fit)[["coefficients"]]
 conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
 
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
 dat_out <- data.frame(predictor = rhs,
                       est_beta0 = dat_fit_summary[["Estimate"]][1],
                       conf_int_lb_beta0 = conf_int_lb[1],
                       conf_int_ub_beta0 = conf_int_ub[1],
                       est_beta1 = dat_fit_summary[["Estimate"]][2],
                       conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
+                      conf_int_ub_beta1 = conf_int_ub[2])
 
 list_dat_out <- append(list_dat_out, list(dat_out))
 ```
 
 ```{r}
-dat_all_out_income_val <- bind_rows(list_dat_out)
+dat_all_out <- bind_rows(list_dat_out)
+dat_all_out <- dat_all_out %>% mutate(screened_out = if_else((conf_int_lb_beta1 <=0) & (conf_int_ub_beta1 >=0), 1, 0))
+dat_all_out %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
 
-dat_all_out_income_val %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
-```
-
-# Enter predictors as quadratic main effect
-
-```{r}
-rhs <- "age"
-lhs <- "income_val"
-my_formula <- formula(paste(lhs, "~", rhs, paste(" + I(", rhs , " * ", rhs, ")", sep = ""), sep = ""))
-
-dat_for_analysis <- dat_included %>% select(all_of(c("participant_id", "decision_point", lhs, rhs)))
-rows_no_miss <- dat_for_analysis %>% complete.cases(.)
-dat_for_analysis_cc <- dat_for_analysis %>% filter(rows_no_miss)
-
-fit <- geeglm(my_formula, 
-              data = dat_for_analysis_cc, 
-              id = participant_id,
-              waves = decision_point,
-              family = gaussian)
-dat_fit_summary <- summary(fit)[["coefficients"]]
-
-conf_int_lb <- dat_fit_summary[["Estimate"]] - qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-conf_int_ub <- dat_fit_summary[["Estimate"]] + qnorm(1 - type_one_error_rate/2) * dat_fit_summary[["Std.err"]]
-
-fitted_vals <- c(fit$fitted.values)
-mse <- sum((dat_for_analysis_cc[[lhs]] - fitted_vals)^2)/length(fitted_vals)
-rmse <- sqrt(mse)
-std_dev <- sd(dat_for_analysis_cc[[lhs]])
-
-dat_out <- data.frame(predictor = rhs,
-                      est_beta0 = dat_fit_summary[["Estimate"]][1],
-                      conf_int_lb_beta0 = conf_int_lb[1],
-                      conf_int_ub_beta0 = conf_int_ub[1],
-                      est_beta1 = dat_fit_summary[["Estimate"]][2],
-                      conf_int_lb_beta1 = conf_int_lb[2],
-                      conf_int_ub_beta1 = conf_int_ub[2],
-                      est_beta2 = dat_fit_summary[["Estimate"]][3],
-                      conf_int_lb_beta2 = conf_int_lb[3],
-                      conf_int_ub_beta2 = conf_int_ub[3],                      
-                      root_mean_squared_error = rmse,
-                      one_std_dev = 1*std_dev)
-
-list_dat_out_quadratic <- append(list_dat_out_quadratic, list(dat_out))
-```
-
-```{r}
-dat_all_out_quadratic <- bind_rows(list_dat_out_quadratic)
-
-dat_all_out_quadratic %>% mutate(across(-any_of("predictor"), ~round(.x, 3)))
+dat_all_out <- dat_all_out %>% mutate(across(-any_of("predictor"), ~round(.x, 3))) 
+write.csv(dat_all_out, file.path(path_code, "analysis-multiple-imputation", "diagnostics", "predictors_for_income.csv"))
 ```
