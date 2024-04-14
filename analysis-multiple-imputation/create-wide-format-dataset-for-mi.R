@@ -8,6 +8,21 @@ library(tidyverse)
 ################################################################################
 dat_primary_aim <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_primary_aim_replicated.rds"))
 
+dat_primary_aim <- dat_primary_aim %>%
+  mutate(days_between_v1_and_coinflip_local_squared = days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local,
+         any_app_usage_preblock = if_else((in_mars_preblock == 1) | (in_tips_preblock == 1), 1, 0),
+         total_app_usage_time_spent_preblock = (time_spent_preblock + time_spent_tips_preblock)/1000) # time_spent_preblock and time_spent_tips_preblock are in milliseconds; dividing the sum will let the resulting variable be in seconds
+
+dat_primary_aim <- dat_primary_aim %>% 
+  group_by(participant_id) %>%
+  mutate(eligibility_lag1 = lag(eligibility)) %>%
+  mutate(Y_lag1 = lag(Y),
+         src_scored_lag1 = lag(src_scored),
+         cigarette_availability_lag1 = lag(cigarette_availability),
+         wearing_patch_lag1 = lag(wearing_patch),
+         cigarette_counts_lag1 = lag(cigarette_counts)) %>%
+  ungroup(.)
+
 ################################################################################
 # How many replicates do we have?
 ################################################################################
@@ -15,17 +30,19 @@ all_replicate_ids <- unique(dat_primary_aim[["replicate_id"]])
 maximum_replicate_id <- max(all_replicate_ids)
 
 ################################################################################
-# Variables assessed at baseline which have missing values and hence will be
-# imputed
+# Variables assessed at baseline which will be included in the imputation 
+# models
 ################################################################################
-dat_primary_aim <- dat_primary_aim %>% mutate(maas_total_squared = maas_total*maas_total)
+dat_primary_aim <- dat_primary_aim %>% 
+  mutate(income_val_squared = income_val * income_val,
+         FinancialStrain_squared = FinancialStrain * FinancialStrain,
+         sni_count_squared = sni_count * sni_count,
+         sni_active_squared = sni_active * sni_active)
 
-these_vars <- c("is_male",
-                "srq_mean",        # self-regulation: higher scores indicate higher self-regulation abilities
-                "mdes_pos_mean",   # mdes: higher scores indicate more intense positive emotions
-                "maas_total",      # maas_total: higher scores indicate higher mindfulness
-                "maas_total_squared",
-                "gratitude")       # gratitude: higher scores indicate higher gratitude
+these_vars <- c("is_male", "has_partner",
+                "income_val", "income_val_squared", "FinancialStrain", "FinancialStrain_squared", "nd_mean", "food_security_mean", "SSSladders", "pp1_1", 
+                "sni_count", "sni_count_squared", "sni_active", "sni_active_squared", "sni_people",
+                "isel_total", "isel_belonging", "isel_appraisal")
 
 dat_baseline_wide <- dat_primary_aim %>%
   select(replicate_id, participant_id, all_of(these_vars)) %>%  
@@ -48,27 +65,14 @@ if(maximum_replicate_id > 0){
 }
 
 ################################################################################
-# Control variables assessed at baseline which do not have missing data
-# and hence do not need to be imputed
+# Time-varying variables which have missing values and will be imputed
 ################################################################################
-dat_control_wide <- dat_primary_aim %>%
-  select(replicate_id, participant_id, 
-         age, is_female, is_latino, is_not_latino_and_black, is_not_latino_and_other,
-         baseline_tobacco_history) %>%
-  arrange(replicate_id, participant_id) %>% unique(.)
-
-################################################################################
-# Time-varying variables which have missing values and hence will be imputed
-################################################################################
-these_vars <- c("dichotomized_2qs_response",
-                "Y",
-                "cigarette_counts",
-                "src_scored")
+these_vars_will_be_imputed <- c("Y", "cigarette_availability", "wearing_patch", "cigarette_counts",
+                                "Y_lag1", "cigarette_availability_lag1", "wearing_patch_lag1", "cigarette_counts_lag1",
+                                "Y_sum_past24hrs", "cigarette_availability_mean_past24hrs", "wearing_patch_sum_past24hrs", "cigarette_counts_sum_past24hrs")
 
 dat_timevarying_long_with_missing <- dat_primary_aim %>%
-  select(replicate_id, participant_id, decision_point, 
-         all_of(these_vars),
-         any_recent_eligible_dp, engagement_most_recent_eligible) %>% 
+  select(replicate_id, participant_id, decision_point, all_of(these_vars_will_be_imputed)) %>% 
   arrange(replicate_id, participant_id, decision_point)
 
 if(maximum_replicate_id > 0){
@@ -76,41 +80,27 @@ if(maximum_replicate_id > 0){
   dat_replicate <- dat_timevarying_long_with_missing %>% filter(replicate_id > 0)
   
   dat_replicate <- dat_replicate %>% 
-    mutate(across(.cols = all_of(these_vars), 
+    mutate(across(.cols = all_of(these_vars_will_be_imputed), 
                   .fns = function(curr_col){
                     curr_col = NA_real_
                     return(curr_col)
                   }))
   
   dat_timevarying_long_with_missing <- rbind(dat_original, dat_replicate)
-  
-  dat_timevarying_long_with_missing <- dat_timevarying_long_with_missing %>%
-    mutate(engagement_most_recent_eligible = if_else((any_recent_eligible_dp == 1) & (replicate_id > 0), NA, engagement_most_recent_eligible))
 }
 
 ################################################################################
 # Time-varying variables which DO NOT have missing values and hence will NOT be 
 # imputed
 ################################################################################
-these_vars <- c("eligibility", 
-                "elig24hrs", 
-                "counts_rand_past24hrs", 
-                "coinflip", 
-                "is_high_effort", 
-                "is_low_effort",
-                "matched_24hrs", 
-                "matched_recent", 
-                "any_response_2qs",  
-                "Y_nreported_past24hrs", 
-                "quick_survey_nreported_past24hrs",
-                "emi_resp_indicator",
-                "coinflip_sum_past24hrs",
-                "emi_resp_indicator_sum_past24hrs",
-                "is_high_effort_sum_past24hrs",
-                "is_low_effort_sum_past24hrs")
+these_vars_will_not_be_imputed <- c("any_recent_eligible_dp", "eligibility", "eligibility_lag1", "elig24hrs", 
+                                    "coinflip", "is_high_effort", "is_low_effort", "matched_24hrs",
+                                    "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared", "hours_elapsed_since_most_recent_eligible",
+                                    "any_response_2qs",
+                                    "any_app_usage_preblock", "total_app_usage_time_spent_preblock", "num_click_preblock")
 
 dat_timevarying_long_without_missing <- dat_primary_aim %>%
-  select(replicate_id, participant_id, decision_point, all_of(these_vars)) %>% 
+  select(replicate_id, participant_id, decision_point, all_of(these_vars_will_not_be_imputed)) %>% 
   arrange(replicate_id, participant_id, decision_point)
 
 ################################################################################
@@ -124,41 +114,22 @@ dat_timevarying_long <- full_join(x = dat_timevarying_long_without_missing,
                                                decision_point == decision_point))
 
 ################################################################################
-# Binary variables in dat_timevarying_long that will be imputed are converted
-# from numeric to factor
+# Binary variables in dat_timevarying_long and dat_baseline_wide that will be 
+# imputed are converted from numeric to factor; this is just so that inputs
+# are compatible with what the mice package expects
 ################################################################################
 dat_timevarying_long[["Y"]] <- as_factor(dat_timevarying_long[["Y"]])
-dat_timevarying_long[["dichotomized_2qs_response"]] <- as_factor(dat_timevarying_long[["dichotomized_2qs_response"]])
-dat_baseline_wide[["has_partner"]] <- as_factor(dat_baseline_wide[["has_partner"]])
 
 ################################################################################
 # Transform dataset with time-varying covariates from long to wide format
 ################################################################################
+vars_all <- c(these_vars_will_be_imputed,
+              these_vars_will_not_be_imputed)
+
 spec1 <- dat_timevarying_long %>% 
   build_wider_spec(names_from = decision_point, 
                    names_prefix = "dp",
-                   values_from = c(Y, 
-                                   any_recent_eligible_dp, 
-                                   engagement_most_recent_eligible,
-                                   src_scored, 
-                                   cigarette_counts,
-                                   dichotomized_2qs_response,
-                                   eligibility, 
-                                   elig24hrs, 
-                                   counts_rand_past24hrs, 
-                                   coinflip, 
-                                   is_high_effort, 
-                                   is_low_effort,
-                                   matched_24hrs, 
-                                   matched_recent, 
-                                   any_response_2qs, 
-                                   Y_nreported_past24hrs, 
-                                   quick_survey_nreported_past24hrs, 
-                                   emi_resp_indicator,
-                                   coinflip_sum_past24hrs,
-                                   emi_resp_indicator_sum_past24hrs,
-                                   is_high_effort_sum_past24hrs,
-                                   is_low_effort_sum_past24hrs))
+                   values_from = all_of(vars_all))
 
 dat_timevarying_wide <- dat_timevarying_long %>% pivot_wider_spec(spec1, id_cols = c("replicate_id", "participant_id"))
 
@@ -167,20 +138,16 @@ dat_timevarying_wide <- dat_timevarying_long %>% pivot_wider_spec(spec1, id_cols
 # transformed from wide to long format at a later step in the pipeline?
 ################################################################################
 cols_to_drop <- c("replicate_id", "participant_id", "decision_point")
-cols_to_keep_control <- colnames(dat_control_wide)[!(colnames(dat_control_wide) %in% cols_to_drop)]
 cols_to_keep_baseline <- colnames(dat_baseline_wide)[!(colnames(dat_baseline_wide) %in% cols_to_drop)]
 cols_to_keep_timevarying <- colnames(dat_timevarying_long)[!(colnames(dat_timevarying_long) %in% cols_to_drop)]
 
 saveRDS(cols_to_drop, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_drop.rds"))
-saveRDS(cols_to_keep_control, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_control.rds"))
 saveRDS(cols_to_keep_baseline, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_baseline.rds"))
 saveRDS(cols_to_keep_timevarying, file = file.path(path_multiple_imputation_pipeline_data, "cols_to_keep_timevarying.rds"))
 
 ################################################################################
 # Save datasets
 ################################################################################
-saveRDS(dat_control_wide, file = file.path(path_multiple_imputation_pipeline_data, "dat_control_wide.rds"))
 saveRDS(dat_baseline_wide, file = file.path(path_multiple_imputation_pipeline_data, "dat_baseline_wide.rds"))
 saveRDS(dat_timevarying_wide, file = file.path(path_multiple_imputation_pipeline_data, "dat_timevarying_wide.rds"))
-
 

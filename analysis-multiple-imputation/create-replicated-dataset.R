@@ -1,9 +1,8 @@
 ###############################################################################
 # Input arguments to this script
 ###############################################################################
-source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
-
 rm(list = ls())
+source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
 
 ###############################################################################
 # Simulation parameters
