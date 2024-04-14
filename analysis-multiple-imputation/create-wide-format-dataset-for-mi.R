@@ -8,21 +8,6 @@ library(tidyverse)
 ################################################################################
 dat_primary_aim <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_primary_aim_replicated.rds"))
 
-dat_primary_aim <- dat_primary_aim %>%
-  mutate(days_between_v1_and_coinflip_local_squared = days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local,
-         any_app_usage_preblock = if_else((in_mars_preblock == 1) | (in_tips_preblock == 1), 1, 0),
-         total_app_usage_time_spent_preblock = (time_spent_preblock + time_spent_tips_preblock)/1000) # time_spent_preblock and time_spent_tips_preblock are in milliseconds; dividing the sum will let the resulting variable be in seconds
-
-dat_primary_aim <- dat_primary_aim %>% 
-  group_by(participant_id) %>%
-  mutate(eligibility_lag1 = lag(eligibility)) %>%
-  mutate(Y_lag1 = lag(Y),
-         src_scored_lag1 = lag(src_scored),
-         cigarette_availability_lag1 = lag(cigarette_availability),
-         wearing_patch_lag1 = lag(wearing_patch),
-         cigarette_counts_lag1 = lag(cigarette_counts)) %>%
-  ungroup(.)
-
 ################################################################################
 # How many replicates do we have?
 ################################################################################
@@ -42,7 +27,7 @@ dat_primary_aim <- dat_primary_aim %>%
 these_vars <- c("is_male", "has_partner",
                 "income_val", "income_val_squared", "FinancialStrain", "FinancialStrain_squared", "nd_mean", "food_security_mean", "SSSladders", "pp1_1", 
                 "sni_count", "sni_count_squared", "sni_active", "sni_active_squared", "sni_people",
-                "isel_total", "isel_belonging", "isel_appraisal")
+                "isel_belonging", "isel_appraisal")
 
 dat_baseline_wide <- dat_primary_aim %>%
   select(replicate_id, participant_id, all_of(these_vars)) %>%  

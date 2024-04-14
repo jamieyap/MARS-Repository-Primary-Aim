@@ -54,7 +54,6 @@ meth_list[["sni_count_squared"]] <- "~ I(sni_count * sni_count)"
 meth_list[["sni_active"]] <- "pmm"
 meth_list[["sni_active_squared"]] <- "~ I(sni_active * sni_active)"
 meth_list[["sni_people"]] <- "pmm"
-meth_list[["isel_total"]] <- "pmm"
 meth_list[["isel_belonging"]] <- "pmm"
 meth_list[["isel_appraisal"]] <- "pmm"
 
@@ -84,6 +83,13 @@ imp <- mice(data = dat_wide,
             maxit = .__par_maxit_value_baseline,
             meth = meth_list,
             predictorMatrix = pred_mat)
+
+###############################################################################
+# Sanity check convergence
+###############################################################################
+if(FALSE){
+  plot(imp)
+}
 
 ###############################################################################
 # Save completed datasets
