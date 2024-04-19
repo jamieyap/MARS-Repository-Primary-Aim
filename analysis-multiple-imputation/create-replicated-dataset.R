@@ -44,11 +44,11 @@ dat_primary_aim <- dat_primary_aim %>%
 dat_primary_aim <- dat_primary_aim %>% 
   group_by(participant_id) %>%
   mutate(eligibility_lag1 = lag(eligibility)) %>%
+  mutate(eligibility_lag1 = replace(eligibility_lag1, decision_point == 1, 0)) %>%
   mutate(Y_lag1 = lag(Y),
          cigarette_counts_lag1 = lag(cigarette_counts),
          src_scored_lag1 = lag(src_scored),
-         cigarette_availability_lag1 = lag(cigarette_availability),
-         wearing_patch_lag1 = lag(wearing_patch)) %>%
+         cigarette_availability_lag1 = lag(cigarette_availability)) %>%
   ungroup(.)
 
 ################################################################################
@@ -68,8 +68,7 @@ if(total_replicates > 0){
       mutate(Y = NA,
              cigarette_counts = NA,
              src_scored = NA,
-             cigarette_availability = NA,
-             wearing_patch = NA)
+             cigarette_availability = NA)
     list_dat_all <- append(list_dat_all, list(dat_replicate))
   }
   

@@ -20,7 +20,7 @@ maximum_replicate_id <- max(all_replicate_ids)
 ################################################################################
 
 these_vars <- c("is_complete_v1_quest", # whether all V1 questionnaires were completed
-                "age", "is_male", "has_partner",  # demographic variables
+                "age", "is_male", "has_partner", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", # demographic variables
                 "baseline_tobacco_history", "Nicotine_dep", # baseline tobacco dependence
                 "income_val", "FinancialStrain", "nd_mean", "food_security_mean", "SSSladders", "pp1_1", # baseline socio-economic status
                 "srq_mean", "se_social", "se_habit", "se_negaff", # baseline agency
@@ -49,9 +49,9 @@ if(maximum_replicate_id > 0){
 ################################################################################
 # Time-varying variables which have missing values and will be imputed
 ################################################################################
-these_vars_will_be_imputed <- c("Y", "cigarette_counts", "src_scored", "cigarette_availability", "wearing_patch", 
-                                "Y_lag1","cigarette_counts_lag1", "src_scored_lag1", "cigarette_availability_lag1", "wearing_patch_lag1", 
-                                "Y_sum_past24hrs", "cigarette_counts_sum_past24hrs", "src_scored_mean_past24hrs", "cigarette_availability_mean_past24hrs", "wearing_patch_sum_past24hrs")
+these_vars_will_be_imputed <- c("Y", "cigarette_counts", "src_scored", "cigarette_availability",
+                                "Y_lag1","cigarette_counts_lag1", "src_scored_lag1", "cigarette_availability_lag1", 
+                                "Y_sum_past24hrs", "cigarette_counts_sum_past24hrs", "src_scored_mean_past24hrs", "cigarette_availability_mean_past24hrs")
 
 dat_timevarying_long_with_missing <- dat_primary_aim %>%
   select(replicate_id, participant_id, decision_point, all_of(these_vars_will_be_imputed)) %>% 
@@ -76,8 +76,8 @@ if(maximum_replicate_id > 0){
 # imputed
 ################################################################################
 these_vars_will_not_be_imputed <- c("any_recent_eligible_dp", "eligibility", "eligibility_lag1", "elig24hrs", 
-                                    "coinflip", "is_high_effort", "is_low_effort", "matched_24hrs",
-                                    "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared", "hours_elapsed_since_most_recent_eligible",
+                                    "coinflip", "is_high_effort", "is_low_effort", "matched_24hrs", "matched_recent",
+                                    "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared", "hours_elapsed_since_most_recent_eligible", "hour_coinflip_local",
                                     "any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock", "num_click_preblock", 
                                     "driving_data_not_found_combined")
 
