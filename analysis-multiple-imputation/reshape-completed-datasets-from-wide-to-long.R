@@ -32,8 +32,7 @@ for(i in 1:length(cols_to_keep_timevarying)){
       names_to = "decision_point",
       names_prefix = cols_to_keep_timevarying[i],
       values_to = cols_to_keep_timevarying[i],
-      values_drop_na = FALSE,
-    ) %>%
+      values_drop_na = FALSE) %>%
     mutate(decision_point = as.numeric(substring(.[["decision_point"]], first = 4)))
   
   list_all <- append(list_all, list(dat_long_current_cols))
