@@ -9,11 +9,11 @@ rm(list = ls())
 ###############################################################################
 # Imputation number
 ###############################################################################
-mi_dataset_num <- .__current_idx  # Change the right hand side of this line if not running within a loop
+mi_dataset_num <- 1#.__current_idx  # Change the right hand side of this line if not running within a loop
 use_maxit_value <- .__par_maxit_value
 which_penalty <- "AIC"  # Can be set to either "AIC" or "BIC"
 
-current_dp_value <- .__current_dp  # Change the right hand side of this line if not running within a loop
+current_dp_value <- 20 #.__current_dp  # Change the right hand side of this line if not running within a loop
 suffix <- paste("_dp" ,  current_dp_value, sep = "")
 suffix_lag1 <- paste("_dp" ,  current_dp_value - 1, sep = "")
 
@@ -603,7 +603,7 @@ formula_list <- imp0$formulas
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
 new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
 consider_these_vars <- c(new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
 
@@ -731,7 +731,7 @@ formula_list <- imp0$formulas
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
 new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
 consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
 
@@ -859,7 +859,7 @@ formula_list <- imp0$formulas
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
 new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
 consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
 
@@ -988,22 +988,13 @@ formula_list <- imp0$formulas
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
 new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
 
 consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
-this_warn <- "none"
-warning(immediate. = FALSE) # Clear all warnings in the past, if any
 fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)
-this_warn <- tail(warnings(), 1) %>% names(.) # Note that the value of this_warn is now the string "glm.fit: fitted probabilities numerically 0 or 1 occurred"
-
-if(this_warn != "none"){
-  consider_these_vars <- c(new_time_varying_vars_to_consider1)
-  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
-  fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)
-}
 
 fit_step <- stepAIC(fit, 
                     direction = "both",
