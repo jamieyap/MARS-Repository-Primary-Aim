@@ -28,6 +28,8 @@ select <- dplyr::select
 
 # Read in completed dataset from previous time-point
 dat_wide_completed_baseline <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_wide_completed_baseline.rds"))
+these_cols_baseline <- colnames(dat_wide_completed_baseline)
+these_cols_baseline <- these_cols_baseline[!(these_cols_baseline %in% c("replicate_id", "participant_id"))]
 
 # Lay out all of the options
 cond1 <- "(eligibility == 1 & eligibility_lag1 == 0 & any_recent_eligible_dp == 0)"  # -- stratum 1
@@ -42,13 +44,17 @@ cond3 <- "(eligibility == 1 & eligibility_lag1 == 1)"                           
 
 # Recall that dat_primary_aim_replicated.rds is an output of the script create-replicated-dataset.R
 dat_long <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "dat_primary_aim_replicated.rds"))
+dat_long <- dat_long %>% select(-any_of(these_cols_baseline))
+
+dat_long_merged <- left_join(x = dat_wide_completed_baseline, y = dat_long, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
+
 keep_these_cols <- c("replicate_id", "participant_id", "decision_point",
                      "is_high_effort", "is_low_effort",
                      "eligibility", "eligibility_lag1", "any_recent_eligible_dp",
                      "Y", "cigarette_counts", "src_scored", "cigarette_availability",
+                     "age", "is_male", "income_val",
                      "any_response_2qs", "hour_coinflip_local")
-dat_long <- dat_long %>% select(all_of(keep_these_cols))
-dat_long_merged <- left_join(x = dat_wide_completed_baseline, y = dat_long, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
+dat_long_merged <- dat_long_merged %>% select(all_of(keep_these_cols))
 
 ###############################################################################
 # Specify relevant restriction
