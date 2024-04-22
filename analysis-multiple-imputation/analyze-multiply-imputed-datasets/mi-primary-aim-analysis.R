@@ -14,7 +14,13 @@ library(mice)
 library(MRTAnalysis)
 
 for(.__par_mi_number in 1:.__total_imputed_datasets){
- source(file = file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim.R")) 
+  source(file = file.path(.__path_code,"analysis-multiple-imputation", "reshape-completed-datasets-from-wide-to-long.R")) 
+  rm(list = ls())
+}
+
+
+for(.__par_mi_number in 1:.__total_imputed_datasets){
+ source(file = file.path(.__path_code,"analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim.R")) 
  rm(list = ls())
 }
 

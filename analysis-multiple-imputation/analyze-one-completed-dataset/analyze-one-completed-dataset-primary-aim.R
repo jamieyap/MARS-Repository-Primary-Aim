@@ -46,7 +46,6 @@ scanned_decision_points_within_range <- scanned_decision_points_within_range %>%
 ###############################################################################
 dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_long_completed.rds"))
 dat_long_completed <- left_join(x = dat_long_completed, y = dat_primary_aim, by = join_by(participant_id == participant_id, decision_point == decision_point))
-dat_long_completed <- dat_long_completed %>% mutate(Y = as.numeric(Y) - 1, quick_survey_response = as.numeric(quick_survey_response) - 1, has_partner = as.numeric(has_partner) - 1)
 max_replicate_id <- max(dat_long_completed[["replicate_id"]])
 
 ###############################################################################
@@ -60,7 +59,7 @@ my_list <- list(Y = -1,
                 any_recent_eligible_dp = -1, 
                 engagement_most_recent_eligible = -1,
                 age = -1, 
-                is_female = -1, 
+                is_male = -1, 
                 is_latino = -1, 
                 is_not_latino_and_black = -1, 
                 is_not_latino_and_other = -1, 
@@ -75,7 +74,6 @@ dat_long_completed <- dat_long_completed %>% replace_na(my_list)
 # effect.
 ###############################################################################
 dat_long_completed <- dat_long_completed %>% arrange(replicate_id, participant_id, decision_point)
-dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
 
 ###############################################################################
 # Analysis with completed dataset! 
@@ -90,7 +88,7 @@ fit1 <- emee(
   treatment = "coinflip",
   rand_prob = 0.5,
   moderator_formula = ~ 1,  
-  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+  control_formula = ~ 1, #age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
   availability = "eligibility"
 )
 
@@ -98,38 +96,6 @@ results_obj_primary_marginal <- summary(fit1, show_control_fit = TRUE)
 
 saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_primary_marginal.rds"))
 saveRDS(results_obj_primary_marginal, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_marginal.rds"))
-
-fit1 <- emee(
-  data = dat_for_analysis,
-  id = "participant_id",  
-  outcome = "Y",
-  treatment = "coinflip",
-  rand_prob = 0.5,
-  moderator_formula = ~ days_between_v1_and_coinflip_local,  
-  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-  availability = "eligibility"
-)
-
-results_obj_primary_linear_time <- summary(fit1, show_control_fit = TRUE)
-
-saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_primary_linear_time.rds"))
-saveRDS(results_obj_primary_linear_time, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_linear_time.rds"))
-
-fit1 <- emee(
-  data = dat_for_analysis,
-  id = "participant_id",  
-  outcome = "Y",
-  treatment = "coinflip",
-  rand_prob = 0.5,
-  moderator_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local),
-  control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-  availability = "eligibility"
-)
-
-results_obj_primary_quadratic_time <- summary(fit1, show_control_fit = TRUE)
-
-saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_primary_quadratic_time.rds"))
-saveRDS(results_obj_primary_quadratic_time, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_quadratic_time.rds"))
 
 ###############################################################################
 # Analysis with replicated dataset! 
@@ -148,7 +114,7 @@ for(idx_replicate in 1:max_replicate_id){
     treatment = "coinflip",
     rand_prob = 0.5,
     moderator_formula = ~ 1,  
-    control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
+    control_formula = ~ 1, #age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
     availability = "eligibility"
   )
   
@@ -156,38 +122,6 @@ for(idx_replicate in 1:max_replicate_id){
   
   saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
   saveRDS(results_obj_primary_marginal, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
-  
-  fit1 <- emee(
-    data = dat_for_analysis,
-    id = "participant_id",  
-    outcome = "Y",
-    treatment = "coinflip",
-    rand_prob = 0.5,
-    moderator_formula = ~ days_between_v1_and_coinflip_local,  
-    control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-    availability = "eligibility"
-  )
-  
-  results_obj_primary_linear_time <- summary(fit1, show_control_fit = TRUE)
-  
-  saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit_obj_primary_linear_time", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(results_obj_primary_linear_time, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_primary_linear_time", "_replicate_", idx_replicate, ".rds", sep = "")))
-  
-  fit1 <- emee(
-    data = dat_for_analysis,
-    id = "participant_id",  
-    outcome = "Y",
-    treatment = "coinflip",
-    rand_prob = 0.5,
-    moderator_formula = ~ days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local),
-    control_formula = ~ age + is_female + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local) + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
-    availability = "eligibility"
-  )
-  
-  results_obj_primary_quadratic_time <- summary(fit1, show_control_fit = TRUE)
-  
-  saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit_obj_primary_quadratic_time", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(results_obj_primary_quadratic_time, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_primary_quadratic_time", "_replicate_", idx_replicate, ".rds", sep = "")))
 }
 
 

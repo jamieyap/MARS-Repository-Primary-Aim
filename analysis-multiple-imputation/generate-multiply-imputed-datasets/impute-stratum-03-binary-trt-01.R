@@ -11,7 +11,7 @@ rm(list = ls())
 ###############################################################################
 mi_dataset_num <- .__current_idx  # Change the right hand side of this line if not running within a loop
 use_maxit_value <- .__par_maxit_value
-which_penalty <- "AIC"  # Can be set to either "AIC" or "BIC"
+which_penalty <- "BIC"  # Can be set to either "AIC" or "BIC"
 
 current_dp_value <- .__current_dp  # Change the right hand side of this line if not running within a loop
 suffix <- paste("_dp" ,  current_dp_value, sep = "")
@@ -25,7 +25,6 @@ library(pROC)
 library(MASS)
 library(tidyverse)
 library(mice)
-ow <- options("warn")
 
 # Note that dplyr::select clashes with MASS::select and so we have this line to be
 # able to use the select function from the dplyr package while having MASS loaded too
@@ -338,7 +337,7 @@ if(maximum_replicate_id > 0){
       dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
     }
     
-    variable_name_past24hrs <- paste(this_variable, "_src_scored_past24hrs", suffix, sep = "")
+    variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
     variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
     variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
     variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
@@ -429,7 +428,7 @@ if(maximum_replicate_id > 0){
       dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
     }
     
-    variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+    variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
     variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
     variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
     variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
@@ -496,6 +495,7 @@ if(maximum_replicate_id > 0){
     }
   }
 }
+
 
 ###############################################################################
 #                                                                             #
@@ -987,8 +987,11 @@ formula_list <- imp0$formulas
 
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
+new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
+new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
+new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
 
-consider_these_vars <- c(new_time_varying_vars_to_consider1)
+consider_these_vars <- c(new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_baseline_vars_to_consider)
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)
 

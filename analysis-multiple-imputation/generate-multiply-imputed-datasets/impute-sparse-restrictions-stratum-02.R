@@ -11,7 +11,7 @@ rm(list = ls())
 ###############################################################################
 mi_dataset_num <- .__current_idx  # Change the right hand side of this line if not running within a loop
 use_maxit_value <- .__par_maxit_value
-which_penalty <- "AIC"  # Can be set to either "AIC" or "BIC"
+which_penalty <- "BIC"  # Can be set to either "AIC" or "BIC"
 
 ###############################################################################
 # Load packages and datasets

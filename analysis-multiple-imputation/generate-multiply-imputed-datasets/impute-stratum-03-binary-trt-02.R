@@ -9,11 +9,11 @@ rm(list = ls())
 ###############################################################################
 # Imputation number
 ###############################################################################
-mi_dataset_num <- 1#.__current_idx  # Change the right hand side of this line if not running within a loop
+mi_dataset_num <- .__current_idx  # Change the right hand side of this line if not running within a loop
 use_maxit_value <- .__par_maxit_value
-which_penalty <- "AIC"  # Can be set to either "AIC" or "BIC"
+which_penalty <- "BIC"  # Can be set to either "AIC" or "BIC"
 
-current_dp_value <- 20 #.__current_dp  # Change the right hand side of this line if not running within a loop
+current_dp_value <- .__current_dp  # Change the right hand side of this line if not running within a loop
 suffix <- paste("_dp" ,  current_dp_value, sep = "")
 suffix_lag1 <- paste("_dp" ,  current_dp_value - 1, sep = "")
 
@@ -338,7 +338,7 @@ if(maximum_replicate_id > 0){
       dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
     }
     
-    variable_name_past24hrs <- paste(this_variable, "_src_scored_past24hrs", suffix, sep = "")
+    variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
     variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
     variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
     variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
@@ -429,7 +429,7 @@ if(maximum_replicate_id > 0){
       dat_current[[variable_name_transformed]] <- replace(dat_current[[variable_name_transformed]], dat_current[[paste("eligibility_dp", k, sep = "")]] == 0, -1)
     }
     
-    variable_name_past24hrs <- paste(this_variable, "_sum_past24hrs", suffix, sep = "")
+    variable_name_past24hrs <- paste(this_variable, "_mean_past24hrs", suffix, sep = "")
     variable_name_indicator_now <- paste(this_indicator, suffix, sep = "")
     variable_name_indicator_past24hrs <- paste("elig24hrs", suffix, sep = "")
     variable_name_matched_decision_point <- paste("matched_24hrs", suffix, sep = "")
@@ -602,9 +602,9 @@ formula_list <- imp0$formulas
 
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
+new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "driving_data_not_found_combined", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+new_baseline_vars_to_consider <- c("income_val")
 consider_these_vars <- c(new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
 
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
@@ -730,10 +730,11 @@ formula_list <- imp0$formulas
 
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
+new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "driving_data_not_found_combined", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability"), suffix, sep = ""))
+new_baseline_vars_to_consider <- c("income_val")
+consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
 
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
@@ -858,10 +859,11 @@ formula_list <- imp0$formulas
 
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
+new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_sum_past24hrs", suffix, sep = ""))
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "driving_data_not_found_combined", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability", "src_scored"), suffix, sep = ""))
+new_baseline_vars_to_consider <- c("income_val")
+consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
 
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
@@ -987,11 +989,12 @@ formula_list <- imp0$formulas
 
 # Workflow for variable selection --------------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
+new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_sum_past24hrs", suffix, sep = ""))
+new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "driving_data_not_found_combined", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability", "src_scored", "cigarette_counts"), suffix, sep = ""))
+new_baseline_vars_to_consider <- c("income_val")
 
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
+consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
 fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)
