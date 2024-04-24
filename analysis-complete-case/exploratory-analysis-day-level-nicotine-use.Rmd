@@ -33,6 +33,26 @@ library(tvem)
 ```
 
 ```{r}
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output"))
+}
+
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use"))
+}
+```
+
+```{r}
+expit <- function(x){
+  return(exp(x)/(1 + exp(x)))
+}
+```
+
+```{r}
 # This is the data frame that is the output of the very last step of our data pipeline
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
 ```
@@ -76,7 +96,7 @@ dat_for_analysis <- dat_for_analysis %>%
   filter(cluster_id >= 2 & cluster_id <= 9)
 ```
 
-# Marginal association between engagement in self-regulatory strategies and tobacco use on current day
+# Marginal association between engagement in self-regulatory strategies and nicotine use on current day
 
 $$
 \mathrm{logit} Pr \left( S_{i,d} = 1 \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1 \right) = \beta_0 + \beta_1 X_{i,d}
@@ -91,14 +111,35 @@ dat_logreg <- dat_for_analysis %>%
 
 ```{r}
 fit <- geeglm(any_nic ~ n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
-
-summary(fit)
 ```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_log_odds_scale_concurrent.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_odds_scale_concurrent.csv"), row.names = TRUE)
+```
+
 # Estimate the prevalence
 
 ```{r}
 dat_tvem <- dat_logreg
+```
 
+```{r}
 list_collect_metrics <- list()
 
 for(current_num_knots in 1:3){
@@ -136,7 +177,6 @@ model_tvem <- tvem(data=dat_tvem,
 #plot(model_tvem, exponentiate = TRUE)
 ```
 
-
 ```{r, fig.height = 5, fig.width = 7}
 exp_est <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"estimate"])
 exp_upper <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"upper"])
@@ -146,15 +186,15 @@ x_grid <- model_tvem$time_grid
 prevalence <- exp_est/(1 + exp_est)
 prevalence_upper <- exp_upper/(1 + exp_upper)
 prevalence_lower <- exp_lower/(1 + exp_lower)
-plot(x_grid, prevalence, ylim = c(0,1), type = "l", xlab = "No. of times engaged in self-regulatory strategies on day d", ylab = "Prevalance of tobacco use on day d")
+plot(x_grid, prevalence, ylim = c(0,1), type = "l", xlab = "No. of times engaged in self-regulatory strategies on day d", ylab = "Prevalance of nicotine use on day d")
 lines(x_grid, prevalence_upper, type = "l", lty = 2)
 lines(x_grid, prevalence_lower, type = "l", lty = 2)
 ```
 
-# Time-varying association between engagement in self-regulatory strategies and tobacco use on current day
+# Time-varying association between engagement in self-regulatory strategies and nicotine use on current day
 
 $$
-\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+\text{logit} Pr\left(\text{ANY NICOTINE USE}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
 $$
 
 
@@ -196,7 +236,7 @@ model_tvem <- tvem(data=dat_tvem,
 plot(model_tvem)
 ```
 
-# Marginal association between engagement in self-regulatory strategies and tobacco use on next day
+# Marginal association between engagement in self-regulatory strategies and nicotine use on next day
 
 $$
 \mathrm{logit} Pr \left( S_{i,d + 1} = 1 \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} \right) = \beta_0 + \beta_1 X_{i,d}
@@ -211,70 +251,38 @@ dat_logreg <- dat_for_analysis %>%
 
 ```{r}
 fit <- geeglm(any_nic_lead1 ~ n_engaged + any_nic, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
+```
 
-summary(fit)
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_log_odds_scale_lagged.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_odds_scale_lagged.csv"), row.names = TRUE)
 ```
 
 # Estimate the prevalence
 
 ```{r}
 dat_tvem <- dat_logreg
-
-list_collect_metrics <- list()
-
-for(current_num_knots in 1:3){
-  model_tvem <- tvem(data=dat_tvem,
-                     formula=any_nic_lead1 ~ 1,
-                     id=participant_id,
-                     time=n_engaged,
-                     invar_effects=NULL,
-                     family = binomial(),
-                     num_knots = current_num_knots,
-                     spline_order = 3,
-                     penalty_function_order = 1,
-                     penalize = TRUE)
-  
-  dat_current_metrics <- data.frame(total_knots = current_num_knots,
-                                    penalty = 1,
-                                    aic_value = model_tvem$model_information$pseudo_aic,
-                                    bic_value = model_tvem$model_information$pseudo_bic)
-  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
-}
-
-dat_all_metrics <- bind_rows(list_collect_metrics)
-
-model_tvem <- tvem(data=dat_tvem,
-                   formula=any_nic_lead1 ~ 1,
-                   id=participant_id,
-                   time=n_engaged,
-                   invar_effects=NULL,
-                   family = binomial(),
-                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
-                   spline_order = 3,
-                   penalty_function_order = 1,
-                   penalize = TRUE)
-
-#plot(model_tvem, exponentiate = TRUE)
 ```
 
-```{r, fig.height = 5, fig.width = 7}
-exp_est <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"estimate"])
-exp_upper <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"upper"])
-exp_lower <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"lower"])
-
-x_grid <- model_tvem$time_grid
-prevalence <- exp_est/(1 + exp_est)
-prevalence_upper <- exp_upper/(1 + exp_upper)
-prevalence_lower <- exp_lower/(1 + exp_lower)
-plot(x_grid, prevalence, ylim = c(0,1), type = "l", xlab = "No. of times engaged in self-regulatory strategies on day d", ylab = "Prevalance of tobacco use on day d+1")
-lines(x_grid, prevalence_upper, type = "l", lty = 2)
-lines(x_grid, prevalence_lower, type = "l", lty = 2)
-```
-
-# Time-varying association between engagement in self-regulatory strategies and next day tobacco use
+# Time-varying association between engagement in self-regulatory strategies and next day nicotine use
 
 $$
-\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{ANY TOBACCO USE}_{i} \left(t_{i,j}\right)
+\text{logit} Pr\left(\text{ANY NICOTINE USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{ANY NICOTINE USE}_{i} \left(t_{i,j}\right)
 $$
 
 

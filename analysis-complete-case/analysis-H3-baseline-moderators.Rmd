@@ -1997,7 +1997,7 @@ g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_
 
 g
 
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI90.png"), width = 5, height = 5, units = "in")
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI90.png"), width = 7, height = 5, units = "in")
 ```
 
 ```{r}
@@ -2014,7 +2014,7 @@ g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_
 
 g
 
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI90.png"), width = 5, height = 5, units = "in")
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI90.png"), width = 7, height = 5, units = "in")
 ```
 
 
