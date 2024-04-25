@@ -48,18 +48,12 @@ if(isFALSE(is_dir_exist)){
 ```
 
 ```{r}
-expit <- function(x){
-  return(exp(x)/(1 + exp(x)))
-}
-```
-
-```{r}
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
 ```
 
 ```{r}
 dat_for_analysis <- dat_primary_aim %>%
-  select(participant_id, cluster_id, decision_point,
+  select(participant_id, cluster_id, decision_point, days_between_v1_and_coinflip_local,
          Y, substance_is_any_nicotine, eligibility, coinflip, is_high_effort, is_low_effort) %>% 
   mutate(coinflip = replace(coinflip, eligibility == 0, 0),
          is_high_effort = replace(is_high_effort, eligibility == 0, 0)) %>% 
@@ -102,7 +96,7 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places
@@ -133,11 +127,7 @@ est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
 LB95 <- est_contrast - qnorm(0.975) * est_stderr_contrast
 UB95 <- est_contrast + qnorm(0.975) * est_stderr_contrast
 
-expit <- function(x){
-  exp(x)/(1 + exp(x))
-}
-
-dat_result <- data.frame(engaged = c(0,1), est_contrast = expit(est_contrast), LB95 = expit(LB95), UB95 = expit(UB95))
+dat_result <- data.frame(engaged = c(0,1), est_contrast = exp(est_contrast), LB95 = exp(LB95), UB95 = exp(UB95))
 ```
 
 ```{r}
@@ -231,7 +221,7 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places

@@ -47,12 +47,6 @@ if(isFALSE(is_dir_exist)){
 ```
 
 ```{r}
-expit <- function(x){
-  return(exp(x)/(1 + exp(x)))
-}
-```
-
-```{r}
 # This is the data frame that is the output of the very last step of our data pipeline
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
 ```
@@ -126,7 +120,7 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places
@@ -266,20 +260,18 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = expit(dat_results$Estimate), LB95 = expit(dat_results[["LB95"]]), UB95 = expit(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_odds_scale_lagged.csv"), row.names = TRUE)
 ```
 
-# Estimate the prevalence
+# Time-varying association between engagement in self-regulatory strategies and next day cigarette use
 
 ```{r}
 dat_tvem <- dat_logreg
 ```
-
-# Time-varying association between engagement in self-regulatory strategies and next day cigarette use
 
 $$
 \text{logit} Pr\left(\text{ANY CIGARETTE USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{ANY CIGARETTE USE}_{i} \left(t_{i,j}\right)

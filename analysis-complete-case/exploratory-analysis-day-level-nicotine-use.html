@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-04-24" />
+<meta name="date" content="2024-04-25" />
 
 <title>MARS MRT: Day-Level Analyses</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">MARS MRT: Day-Level Analyses</h1>
-<h4 class="date">April 24, 2024</h4>
+<h4 class="date">April 25, 2024</h4>
 
 </div>
 
@@ -366,8 +366,7 @@ day</a></li>
 <li><a href="#marginal-association-between-engagement-in-self-regulatory-strategies-and-nicotine-use-on-next-day" id="toc-marginal-association-between-engagement-in-self-regulatory-strategies-and-nicotine-use-on-next-day"><span class="toc-section-number">4</span> Marginal association between
 engagement in self-regulatory strategies and nicotine use on next
 day</a></li>
-<li><a href="#estimate-the-prevalence-1" id="toc-estimate-the-prevalence-1"><span class="toc-section-number">5</span> Estimate the prevalence</a></li>
-<li><a href="#time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use" id="toc-time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use"><span class="toc-section-number">6</span> Time-varying association between
+<li><a href="#time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use" id="toc-time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use"><span class="toc-section-number">5</span> Time-varying association between
 engagement in self-regulatory strategies and next day nicotine
 use</a></li>
 </ul>
@@ -392,8 +391,8 @@ current day</h1>
 ## (Intercept)    1.147   0.455 6.344    0.012  0.254  2.040
 ## n_engaged     -0.209   0.102 4.198    0.040 -0.409 -0.009</code></pre>
 <pre><code>##   estimate  LB95  UB95
-## 1    0.759 0.563 0.885
-## 2    0.448 0.399 0.498</code></pre>
+## 1    3.149 1.290 7.690
+## 2    0.811 0.664 0.991</code></pre>
 </div>
 <div id="estimate-the-prevalence" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Estimate the
@@ -424,17 +423,13 @@ I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq
 ## (Intercept)   -2.165   0.864  6.285    0.012 -3.857 -0.472
 ## n_engaged     -0.007   0.143  0.002    0.964 -0.288  0.274
 ## any_nic        3.732   0.734 25.860    0.000  2.294  5.171</code></pre>
-<pre><code>##   estimate  LB95  UB95
-## 1    0.103 0.021 0.384
-## 2    0.498 0.429 0.568
-## 3    0.977 0.908 0.994</code></pre>
+<pre><code>##   estimate  LB95    UB95
+## 1    0.115 0.021   0.623
+## 2    0.994 0.750   1.316
+## 3   41.773 9.912 176.042</code></pre>
 </div>
-<div id="estimate-the-prevalence-1" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Estimate the
-prevalence</h1>
-</div>
-<div id="time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> Time-varying
+<div id="time-varying-association-between-engagement-in-self-regulatory-strategies-and-next-day-nicotine-use" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Time-varying
 association between engagement in self-regulatory strategies and next
 day nicotine use</h1>
 <p><span class="math display">\[
