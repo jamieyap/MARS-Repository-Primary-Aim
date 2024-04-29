@@ -80,14 +80,15 @@ if(which_penalty == "BIC"){
 }
 
 ###############################################################################
-# Initialize lists which will store imputation method and formula
+# Initialize lists  and matrix which will store imputation method and formula
 ###############################################################################
-imp0 <- mice(data = dat_stratum, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-meth_list <- lapply(meth_list, function(x){return("")})
-formula_list <- imp0$formulas
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
+
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
 # Workflow for cigarette_availability
@@ -102,25 +103,41 @@ consider_these_vars <- c(LHS,
 
 dat_for_variable_selection <- dat_stratum %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
-fit <- glm(as.formula(paste(LHS, "~ . + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)", sep = "")), family = gaussian, data = dat_for_variable_selection)
+fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
 fit_step <- stepAIC(fit, 
                     direction = "both",
                     scope = list(lower=~is_high_effort + is_low_effort), # The minimal model should have the main effect of the treatment indicators
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = dat_stratum, 
+imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 dat_stratum <- complete(imp, 1)  # Update dat_stratum
 previous_var <- LHS
+
+###############################################################################
+# Initialize lists  and matrix which will store imputation method and formula
+###############################################################################
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
+
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
 # Workflow for src_scored
@@ -135,25 +152,41 @@ consider_these_vars <- c(LHS, previous_var,
 
 dat_for_variable_selection <- dat_stratum %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
-fit <- glm(as.formula(paste(LHS, "~ . + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)", sep = "")), family = gaussian, data = dat_for_variable_selection)
+fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
 fit_step <- stepAIC(fit, 
                     direction = "both",
                     scope = list(lower=~is_high_effort + is_low_effort), # The minimal model should have the main effect of the treatment indicators
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = dat_stratum, 
+imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 dat_stratum <- complete(imp, 1)  # Update dat_stratum
 previous_var <- c(previous_var, LHS)
+
+###############################################################################
+# Initialize lists  and matrix which will store imputation method and formula
+###############################################################################
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
+
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
 # Workflow for cigarette_counts
@@ -168,25 +201,41 @@ consider_these_vars <- c(LHS, previous_var,
 
 dat_for_variable_selection <- dat_stratum %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
-fit <- glm(as.formula(paste(LHS, "~ . + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)", sep = "")), family = gaussian, data = dat_for_variable_selection)
+fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
 fit_step <- stepAIC(fit, 
                     direction = "both",
                     scope = list(lower=~is_high_effort + is_low_effort), # The minimal model should have the main effect of the treatment indicators
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = dat_stratum, 
+imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 dat_stratum <- complete(imp, 1)  # Update dat_stratum
 previous_var <- c(previous_var, LHS)
+
+###############################################################################
+# Initialize lists  and matrix which will store imputation method and formula
+###############################################################################
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
+
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
 # Workflow for Y
@@ -201,25 +250,28 @@ consider_these_vars <- c(LHS, previous_var,
 
 dat_for_variable_selection <- dat_stratum %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
 
-fit <- glm(as.formula(paste(LHS, "~ . + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)", sep = "")), family = binomial, data = dat_for_variable_selection, control = list(maxit = 50))
+fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection, control = list(maxit = 50))
 fit_step <- stepAIC(fit, 
                     direction = "both",
                     scope = list(lower=~is_high_effort + is_low_effort), # The minimal model should have the main effect of the treatment indicators
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
-meth_list[[LHS]] <- "logreg"
-dat_stratum[[LHS]] <- as_factor(dat_stratum[[LHS]])
-imp <- mice(data = dat_stratum, 
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
+meth_list[[LHS]] <- "pmm"
+imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
-
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 dat_stratum <- complete(imp, 1)  # Update dat_stratum
 previous_var <- c(previous_var, LHS)
 dat_stratum[[LHS]] <- as.numeric(dat_stratum[[LHS]]) - 1  # Convert back to numeric type

@@ -592,15 +592,16 @@ if(which_penalty == "BIC"){
   print("Choose valid option")
 }
 
-# Initialize lists which will store imputation method and formula -------------
-imp0 <- mice(data = rows_meet_restriction, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-meth_list <- lapply(meth_list, function(x){return("")})
-formula_list <- imp0$formulas
+# Initialize list and matrix which will store imputation method and formula ---
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
 
-# Workflow for variable selection --------------------------------------------------
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+
+# Workflow for variable selection ---------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
 new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
@@ -616,16 +617,21 @@ fit_step <- stepAIC(fit,
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
 imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
@@ -720,15 +726,16 @@ if(which_penalty == "BIC"){
   print("Choose valid option")
 }
 
-# Initialize lists which will store imputation method and formula -------------
-imp0 <- mice(data = rows_meet_restriction, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-meth_list <- lapply(meth_list, function(x){return("")})
-formula_list <- imp0$formulas
+# Initialize list and matrix which will store imputation method and formula ---
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
 
-# Workflow for variable selection --------------------------------------------------
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+
+# Workflow for variable selection ---------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
 new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
@@ -744,16 +751,21 @@ fit_step <- stepAIC(fit,
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
 imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
@@ -848,15 +860,16 @@ if(which_penalty == "BIC"){
   print("Choose valid option")
 }
 
-# Initialize lists which will store imputation method and formula -------------
-imp0 <- mice(data = rows_meet_restriction, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-meth_list <- lapply(meth_list, function(x){return("")})
-formula_list <- imp0$formulas
+# Initialize list and matrix which will store imputation method and formula ---
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
 
-# Workflow for variable selection --------------------------------------------------
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+
+# Workflow for variable selection ---------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
 new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
@@ -872,16 +885,21 @@ fit_step <- stepAIC(fit,
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "pmm"
 imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
@@ -977,15 +995,16 @@ if(which_penalty == "BIC"){
   print("Choose valid option")
 }
 
-# Initialize lists which will store imputation method and formula -------------
-imp0 <- mice(data = rows_meet_restriction, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-meth_list <- lapply(meth_list, function(x){return("")})
-formula_list <- imp0$formulas
+# Initialize list and matrix which will store imputation method and formula ---
+my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- lapply(my_list, function(x){return("")})
+names(my_list) <- colnames(rows_meet_restriction)
+meth_list <- my_list
 
-# Workflow for variable selection --------------------------------------------------
+vars <- colnames(rows_meet_restriction)
+pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+
+# Workflow for variable selection ---------------------------------------------
 new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "coinflip"), suffix, sep = "")
 new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""))
 new_time_varying_vars_to_consider3 <- paste(c("any_response_2qs"), suffix, sep = "")
@@ -1001,16 +1020,21 @@ fit_step <- stepAIC(fit,
                     trace = FALSE, 
                     k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
 
-formula_list[[LHS]] <- fit_step$formula
+selected_vars <- names(fit_step$coefficients)
+selected_vars <- selected_vars[-1]
+
+for(i in 1:length(selected_vars)){
+  pred_mat[LHS, selected_vars[i]] <- 1
+}
+
 meth_list[[LHS]] <- "logreg"
 imp <- mice(data = rows_meet_restriction, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
-            formulas = formula_list)
+            predictorMatrix = pred_mat)
 
 # Before we move on to the next variable...
-meth_list[[LHS]] <- ""  # Reset meth
 rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 rows_meet_restriction_completed[[LHS]] <- as.numeric(rows_meet_restriction_completed[[LHS]]) - 1
 
