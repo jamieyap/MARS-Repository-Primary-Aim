@@ -71,6 +71,54 @@ dat_for_analysis <- dat_primary_aim %>%
          age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
 ```
 
+## Estimated prevalence by group
+
+```{r}
+dat_prevalence <- dat_for_analysis %>%
+  filter(eligibility == 1) %>%
+  group_by(is_high_effort, is_low_effort) %>%
+  summarise(mu_Y = mean(Y, na.rm = TRUE)) %>%
+  arrange(desc(is_high_effort), desc(is_low_effort))
+
+dat_prevalence
+```
+
+```{r}
+# Format output to 3 decimal places
+dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "prevalence_by_group_H2.csv"), row.names = TRUE)
+```
+
+```{r, fig.width = 6, fig.height = 8}
+dat_prevalence %>%
+  arrange(mu_Y) %>%
+  mutate(coinflip_factor = case_when(
+    (is_high_effort == 0) & (is_low_effort == 0) ~ "No Prompt",
+    (is_high_effort == 1) & (is_low_effort == 0) ~ "More Effortful Prompt",
+    (is_high_effort == 0) & (is_low_effort == 1) ~ "Low Effort Prompt",
+    .default = NA_character_
+  )) %>%
+  mutate(coinflip_factor = as_factor(coinflip_factor)) %>%
+  ggplot(aes(x = coinflip_factor, y = mu_Y)) + geom_bar(stat="identity", color="black", fill="#56B4E9", size = 2) + scale_x_discrete(name="Treatment Assignment") + scale_y_continuous(name="Proportion engaged with self-regulatory strategies ~1 hour after micro-randomization", limits=c(0,1), breaks = seq(0,1,0.10)) + theme(legend.position = "none") + geom_text(aes(label=round(mu_Y, 2)), vjust=-0.3, size=6)
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "prevalence.png"), dpi = 1200)
+```
+
+```{r, fig.width = 4, fig.height = 8}
+dat_prevalence %>% 
+  arrange(mu_Y) %>%
+  mutate(coinflip_factor = case_when(
+    (is_high_effort == 0) & (is_low_effort == 0) ~ "No Prompt",
+    (is_high_effort == 1) & (is_low_effort == 0) ~ "More Effortful Prompt",
+    (is_high_effort == 0) & (is_low_effort == 1) ~ "Low Effort Prompt",
+    .default = NA_character_
+  )) %>%
+  mutate(coinflip_factor = as_factor(coinflip_factor)) %>%
+  filter(coinflip_factor != "No Prompt") %>%
+  ggplot(aes(x = coinflip_factor, y = mu_Y)) + geom_bar(stat="identity", color="black", fill="#56B4E9", size = 2) + scale_x_discrete(name="Treatment Assignment") + scale_y_continuous(name="Proportion engaged with self-regulatory strategies ~1 hour after micro-randomization", limits=c(0,1), breaks = seq(0,1,0.10)) + theme(legend.position = "none") + geom_text(aes(label=round(mu_Y, 2)), vjust=-0.3, size=6)
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "prevalence_HL.png"), dpi = 1200)
+```
+
 ```{r}
 my_list <- list(Y = -1,
                 coinflip = -1,
@@ -457,6 +505,66 @@ results_contrast
 results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_day_contrast.csv"), row.names = TRUE)
 ```
 
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
+
+Lmat <- matrix(cbind(rep(1,8),
+                     seq(2,9,1),
+                     rep(-1,8),
+                     -1*seq(2,9,1)), ncol = 4, byrow = FALSE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+results_contrast$days_since_start <- 2:9
+```
+
+```{r, fig.width = 8, fig.height = 12}
+dat_result_for_plotting <- results_contrast
+
+dat_result_for_plotting %>% 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2, 9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear.png"), dpi = 1200)
+```
+
+```{r, fig.width = 8, fig.height = 6}
+dat_result_for_plotting <- results_contrast
+dat_result_for_plotting$est_contrast <- exp(dat_result_for_plotting$est_contrast)
+dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast)
+dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
+
+dat_result_for_plotting %>% 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=2) + geom_point(size = 4) + geom_line(linewidth=2) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=2, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0.7,1.5), breaks = seq(0.7,1.5,0.10)) + theme(legend.position = "none") 
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "zoomed_risk_ratio_scale_H2_linear.png"), dpi = 1200)
+```
+
+```{r, fig.width = 8, fig.height = 12}
+dat_result_for_plotting <- results_contrast
+dat_result_for_plotting$est_contrast <- exp(dat_result_for_plotting$est_contrast)
+dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast)
+dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
+
+dat_result_for_plotting %>% 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_H2_linear.png"), dpi = 1200)
+```
+
 ## Hour of day
 
 ```{r}
@@ -693,6 +801,56 @@ results_contrast
 results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_day_contrast.csv"), row.names = TRUE)
 ```
 
+```{r}
+n_terms_control <- fit1_converted$fit$dims$q
+n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
+
+Lmat <- matrix(cbind(rep(1,8),
+                     seq(2,9,1),
+                     seq(2,9,1) * seq(2,9,1),
+                     -1*rep(1,8),
+                     -1*seq(2,9,1),
+                     -1*seq(2,9,1) * seq(2,9,1)), ncol = 6, byrow = FALSE)
+causal_est <- as.matrix(fit1_converted$fit$beta_hat)
+causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
+
+est_contrast <- Lmat %*% causal_est
+vcov_contrast <- Lmat %*% causal_vcov_adjusted %*% t(Lmat)
+se_contrast <- sqrt(diag(vcov_contrast))
+
+conf_level <- 0.95
+degrees_of_freedom <- fit1_converted$df
+critical_value <- qt(1 - (1 - conf_level) / 2, df = degrees_of_freedom)
+lcl_contrast <- est_contrast - se_contrast * critical_value
+ucl_contrast <- est_contrast + se_contrast * critical_value
+test_stat_contrast <- est_contrast/se_contrast
+p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
+
+results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
+results_contrast$days_since_start <- 2:9
+```
+
+```{r, fig.width = 8, fig.height = 12}
+dat_result_for_plotting <- results_contrast
+
+dat_result_for_plotting %>% 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2, 9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic.png"), dpi = 1200)
+```
+
+```{r, fig.width = 8, fig.height = 12}
+dat_result_for_plotting <- results_contrast
+dat_result_for_plotting$est_contrast <- exp(dat_result_for_plotting$est_contrast)
+dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast)
+dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
+
+dat_result_for_plotting %>% 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_H2_quadratic.png"), dpi = 1200)
+```
+
 ## Hour of day
 
 ```{r}
@@ -807,6 +965,19 @@ results_contrast
 results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_hour_contrast.csv"), row.names = TRUE)
 ```
 
+# H2 Sensitivity Analysis
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  filter(is_include_sensitivity == 1) %>%
+  select(participant_id, decision_point, eligibility, 
+         coinflip, is_high_effort, is_low_effort,
+         Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+```
+
 ## Estimated prevalence by group
 
 ```{r}
@@ -821,20 +992,7 @@ dat_prevalence
 
 ```{r}
 # Format output to 3 decimal places
-dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "prevalence_by_group_H2.csv"), row.names = TRUE)
-```
-
-# H2 Sensitivity Analysis
-
-```{r}
-dat_for_analysis <- dat_primary_aim %>%
-  filter(is_include_sensitivity == 1) %>%
-  select(participant_id, decision_point, eligibility, 
-         coinflip, is_high_effort, is_low_effort,
-         Y,
-         hour_coinflip_local, days_between_v1_and_coinflip_local,
-         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val)
+dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_prevalence_by_group_H2.csv"), row.names = TRUE)
 ```
 
 ```{r}
@@ -1002,23 +1160,6 @@ dat_exp_scale
 
 # Format output to 3 decimal places
 dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
-```
-
-## Estimated prevalence by group
-
-```{r}
-dat_prevalence <- dat_for_analysis %>%
-  filter(eligibility == 1) %>%
-  group_by(is_high_effort, is_low_effort) %>%
-  summarise(mu_Y = mean(Y, na.rm = TRUE)) %>%
-  arrange(desc(is_high_effort), desc(is_low_effort))
-
-dat_prevalence
-```
-
-```{r}
-# Format output to 3 decimal places
-dat_prevalence %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_prevalence_by_group_H2.csv"), row.names = TRUE)
 ```
 
 ## Estimated effect on the risk difference scale
