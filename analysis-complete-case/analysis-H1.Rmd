@@ -664,3 +664,8 @@ dat_result <- rbind(dat_result_causal, dat_result_control)
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H1", "sensitivity_risk_difference_scale_H1.csv"), row.names = TRUE)
 ```
 
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/H1/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/H1/Thumbs.db")
+}
+```

@@ -2017,6 +2017,10 @@ g
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI90.png"), width = 7, height = 5, units = "in")
 ```
 
-
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/H3-baseline-moderators/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/H3-baseline-moderators/Thumbs.db")
+}
+```
 
 

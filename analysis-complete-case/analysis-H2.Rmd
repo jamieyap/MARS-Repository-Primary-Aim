@@ -1197,4 +1197,9 @@ dat_result
 dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_contrast_H2.csv"), row.names = TRUE)
 ```
 
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/H2/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/H2/Thumbs.db")
+}
+```
 
