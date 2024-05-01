@@ -82,12 +82,12 @@ if(which_penalty == "BIC"){
 ###############################################################################
 # Initialize lists  and matrix which will store imputation method and formula
 ###############################################################################
-my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- as.list(colnames(dat_stratum))
 my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
+names(my_list) <- colnames(dat_stratum)
 meth_list <- my_list
 
-vars <- colnames(rows_meet_restriction)
+vars <- colnames(dat_stratum)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
@@ -118,7 +118,7 @@ for(i in 1:length(selected_vars)){
 }
 
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
+imp <- mice(data = dat_stratum, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
@@ -131,12 +131,12 @@ previous_var <- LHS
 ###############################################################################
 # Initialize lists  and matrix which will store imputation method and formula
 ###############################################################################
-my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- as.list(colnames(dat_stratum))
 my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
+names(my_list) <- colnames(dat_stratum)
 meth_list <- my_list
 
-vars <- colnames(rows_meet_restriction)
+vars <- colnames(dat_stratum)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
@@ -167,7 +167,7 @@ for(i in 1:length(selected_vars)){
 }
 
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
+imp <- mice(data = dat_stratum, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
@@ -180,12 +180,12 @@ previous_var <- c(previous_var, LHS)
 ###############################################################################
 # Initialize lists  and matrix which will store imputation method and formula
 ###############################################################################
-my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- as.list(colnames(dat_stratum))
 my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
+names(my_list) <- colnames(dat_stratum)
 meth_list <- my_list
 
-vars <- colnames(rows_meet_restriction)
+vars <- colnames(dat_stratum)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
@@ -216,7 +216,7 @@ for(i in 1:length(selected_vars)){
 }
 
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
+imp <- mice(data = dat_stratum, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,
@@ -229,12 +229,12 @@ previous_var <- c(previous_var, LHS)
 ###############################################################################
 # Initialize lists  and matrix which will store imputation method and formula
 ###############################################################################
-my_list <- as.list(colnames(rows_meet_restriction))
+my_list <- as.list(colnames(dat_stratum))
 my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
+names(my_list) <- colnames(dat_stratum)
 meth_list <- my_list
 
-vars <- colnames(rows_meet_restriction)
+vars <- colnames(dat_stratum)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 ###############################################################################
@@ -265,7 +265,7 @@ for(i in 1:length(selected_vars)){
 }
 
 meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
+imp <- mice(data = dat_stratum, 
             m = 1, 
             maxit = use_maxit_value,
             meth =  meth_list,

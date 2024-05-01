@@ -30,6 +30,15 @@ library(mice)
 # able to use the select function from the dplyr package while having MASS loaded too
 select <- dplyr::select 
 
+# A function for throwing an error
+check_throw_error <- function(x) {
+  stopifnot(x == TRUE)
+}
+
+###############################################################################
+# Set up dataset in preparation for imputation at the current decision point
+###############################################################################
+
 # Read in completed dataset from previous time-point
 dat_imputed_stratum_01 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum_01.rds"))
 dat_imputed_stratum_02 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum_02.rds"))
@@ -498,6 +507,185 @@ if(maximum_replicate_id > 0){
 
 ###############################################################################
 #                                                                             #
+#    Specify variables we would consider as predictors in imputation models   #
+#                                                                             #
+###############################################################################
+my_list <- list("cigarette_availability" = NULL,
+                "src_scored" = NULL,
+                "cigarette_counts" = NULL,
+                "Y" = NULL)
+
+this_outcome <- "cigarette_availability"
+my_list[[this_outcome]] <- c("age", "is_male", 
+                             "income_val", "nd_mean", "food_security_mean",
+                             "has_partner", "sni_count", "sni_active", "sni_people",
+                             paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
+
+this_outcome <- "src_scored"
+my_list[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
+                             "has_partner", "sni_count", "sni_active", "sni_people",
+                             paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_mean_past24hrs", suffix, sep = ""),
+                             paste("Y", "_lag1", suffix, sep = ""), 
+                             paste("Y", "_sum_past24hrs", suffix, sep = ""),
+                             paste(c("cigarette_availability"), suffix, sep = ""))
+
+this_outcome <- "cigarette_counts"
+my_list[[this_outcome]] <- c("age", "is_male", "income_val",
+                             paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
+                             paste("Y", "_lag1", suffix, sep = ""), 
+                             paste("Y", "_sum_past24hrs", suffix, sep = ""),
+                             paste(c("cigarette_availability", "src_scored"), suffix, sep = ""))
+
+this_outcome <- "Y"
+my_list[[this_outcome]] <- c("age", "is_male", "income_val",
+                             paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
+                             paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""),
+                             paste(c("cigarette_availability", "src_scored", "cigarette_counts"), suffix, sep = ""))
+
+###############################################################################
+#                                                                             #
+#    Specify variables we would consider as predictors in imputation models   #
+#    (This is a "smaller" set of possible predictors we will consider         #
+#     in case fitting a model with a "larger" set of possible predictors      #
+#     above does not converge)                                                #
+#                                                                             #
+###############################################################################
+my_list2 <- list("cigarette_availability" = NULL,
+                 "src_scored" = NULL,
+                 "cigarette_counts" = NULL,
+                 "Y" = NULL)
+
+this_outcome <- "cigarette_availability"
+my_list2[[this_outcome]] <- c("age", "is_male", 
+                              "income_val", "nd_mean", "food_security_mean",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
+
+this_outcome <- "src_scored"
+my_list2[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""),
+                              paste("Y", "_lag1", suffix, sep = ""), 
+                              paste("Y", "_sum_past24hrs", suffix, sep = ""))
+
+this_outcome <- "cigarette_counts"
+my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
+                              paste("Y", "_lag1", suffix, sep = ""), 
+                              paste("Y", "_sum_past24hrs", suffix, sep = ""))
+
+this_outcome <- "Y"
+my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
+                              paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+
+###############################################################################
+#                                                                             #
+#    Specify variables we would consider as predictors in imputation models   #
+#    (This is a "smaller" set of possible predictors we will consider         #
+#     in case fitting a model with a "larger" set of possible predictors      #
+#     above does not converge)                                                #
+#                                                                             #
+###############################################################################
+my_list3 <- list("cigarette_availability" = NULL,
+                 "src_scored" = NULL,
+                 "cigarette_counts" = NULL,
+                 "Y" = NULL)
+
+this_outcome <- "cigarette_availability"
+my_list3[[this_outcome]] <- c("age", "is_male", 
+                              "income_val", "nd_mean", "food_security_mean",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""))
+
+this_outcome <- "src_scored"
+my_list3[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
+                              paste("Y", "_lag1", suffix, sep = ""))
+
+this_outcome <- "cigarette_counts"
+my_list3[[this_outcome]] <- c("age", "is_male", "income_val",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
+                              paste("Y", "_lag1", suffix, sep = ""))
+
+this_outcome <- "Y"
+my_list3[[this_outcome]] <- c("age", "is_male", "income_val",
+                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
+                              paste(c("any_response_2qs"), suffix, sep = ""))
+
+###############################################################################
+#                                                                             #
+#    Specify variables we would consider as predictors in imputation models   #
+#    (This is a "smaller" set of possible predictors we will consider         #
+#     in case fitting a model with a "larger" set of possible predictors      #
+#     above does not converge)                                                #
+#                                                                             #
+###############################################################################
+my_list4 <- list("cigarette_availability" = NULL,
+                 "src_scored" = NULL,
+                 "cigarette_counts" = NULL,
+                 "Y" = NULL)
+
+this_outcome <- "cigarette_availability"
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+
+this_outcome <- "src_scored"
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+
+this_outcome <- "cigarette_counts"
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+
+this_outcome <- "Y"
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+
+###############################################################################
+#                                                                             #
+#    Specify variables we would consider as predictors in imputation models   #
+#    (This is a "smaller" set of possible predictors we will consider         #
+#     in case fitting a model with a "larger" set of possible predictors      #
+#     above does not converge)                                                #
+#                                                                             #
+###############################################################################
+my_list5 <- list("cigarette_availability" = NULL,
+                 "src_scored" = NULL,
+                 "cigarette_counts" = NULL,
+                 "Y" = NULL)
+
+this_outcome <- "cigarette_availability"
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+
+this_outcome <- "src_scored"
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+
+this_outcome <- "cigarette_counts"
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+
+this_outcome <- "Y"
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+
+###############################################################################
+#                                                                             #
 #                 Impute missing proximal outcome in stratum 3                #
 #                                                                             #
 ###############################################################################
@@ -592,49 +780,123 @@ if(which_penalty == "BIC"){
 }
 
 # Initialize list and matrix which will store imputation method and formula ---
-my_list <- as.list(colnames(rows_meet_restriction))
-my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
-meth_list <- my_list
+dummy_list <- as.list(colnames(rows_meet_restriction))
+dummy_list <- lapply(dummy_list, function(x){return("")})
+names(dummy_list) <- colnames(rows_meet_restriction)
+meth_list <- dummy_list
 
 vars <- colnames(rows_meet_restriction)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 # Workflow for variable selection ---------------------------------------------
-new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
-consider_these_vars <- c(new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3)
+used_intercept_only <- FALSE  # This is a flag for whether we used an intercept-only model for imputation
+check_convergence_result <- TRUE
 
+consider_these_vars <- my_list[[which(names(my_list) == this_outcome)]]
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                warning = function(w){"Hey, a warning"})
+check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 
-fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
-fit_step <- stepAIC(fit, 
-                    direction = "both",
-                    scope = list(lower= as.formula(paste("~", "is_high_effort", suffix, "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
-                    trace = FALSE, 
-                    k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
-
-selected_vars <- names(fit_step$coefficients)
-selected_vars <- selected_vars[-1]
-
-for(i in 1:length(selected_vars)){
-  pred_mat[LHS, selected_vars[i]] <- 1
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list2[[which(names(my_list2) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 }
 
-meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            meth =  meth_list,
-            predictorMatrix = pred_mat)
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list3[[which(names(my_list3) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list4[[which(names(my_list4) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  used_intercept_only <- TRUE
+  consider_these_vars <- my_list5[[which(names(my_list5) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+  info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}
+
+# This will cause execution of this script to stop at this point
+# if the value of the argument is false
+check_throw_error(check_convergence_result)
+
+# Workflow for generating imputed values --------------------------------------
+if((check_convergence_result == TRUE) & (used_intercept_only == FALSE)){
+  stepwise_convergence <- TRUE
+  
+  fit_step <- tryCatch(expr = {
+    stepAIC(fit, 
+            direction = "backward",
+            scope = list(lower = as.formula(paste("~", "is_high_effort", suffix, "+", "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
+            trace = FALSE, 
+            k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
+  }, warning = function(w){"Hey, a warning"})
+  
+  stepwise_convergence <- (class(fit_step)[[1]] == "glm")
+  
+  if(stepwise_convergence == TRUE){
+    use_fit <- fit_step
+  }else{
+    use_fit <- fit
+  }
+  
+  info_criterion <- extractAIC(use_fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+  
+  selected_vars <- names(use_fit$coefficients)
+  selected_vars <- selected_vars[-1] # remove the intercept term because the predictorMatrix argument does not allow a row/column for that
+  
+  for(i in 1:length(selected_vars)){
+    pred_mat[LHS, selected_vars[i]] <- 1
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              predictorMatrix = pred_mat)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
+
+if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
+  dummy_list <- as.list(colnames(rows_meet_restriction))
+  dummy_list <- lapply(dummy_list, function(x){return("")})
+  names(dummy_list) <- colnames(rows_meet_restriction)
+  formula_list <- dummy_list
+  
+  for(i in 1:length(formula_list)){
+    fmla <- as.formula(paste(names(formula_list)[i], "~ 1", sep = ""))
+    formula_list[[i]] <- fmla
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              formulas = formula_list)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
 
 # Before we move on to the next variable...
-rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
-previous_var <- LHS
 
 ###############################################################################
 # Step 2. Impute src_scored
@@ -726,50 +988,123 @@ if(which_penalty == "BIC"){
 }
 
 # Initialize list and matrix which will store imputation method and formula ---
-my_list <- as.list(colnames(rows_meet_restriction))
-my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
-meth_list <- my_list
+dummy_list <- as.list(colnames(rows_meet_restriction))
+dummy_list <- lapply(dummy_list, function(x){return("")})
+names(dummy_list) <- colnames(rows_meet_restriction)
+meth_list <- dummy_list
 
 vars <- colnames(rows_meet_restriction)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 # Workflow for variable selection ---------------------------------------------
-new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
+used_intercept_only <- FALSE  # This is a flag for whether we used an intercept-only model for imputation
+check_convergence_result <- TRUE
 
+consider_these_vars <- my_list[[which(names(my_list) == this_outcome)]]
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                warning = function(w){"Hey, a warning"})
+check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 
-fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
-fit_step <- stepAIC(fit, 
-                    direction = "both",
-                    scope = list(lower= as.formula(paste("~", "is_high_effort", suffix, "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
-                    trace = FALSE, 
-                    k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
-
-selected_vars <- names(fit_step$coefficients)
-selected_vars <- selected_vars[-1]
-
-for(i in 1:length(selected_vars)){
-  pred_mat[LHS, selected_vars[i]] <- 1
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list2[[which(names(my_list2) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 }
 
-meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            meth =  meth_list,
-            predictorMatrix = pred_mat)
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list3[[which(names(my_list3) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list4[[which(names(my_list4) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  used_intercept_only <- TRUE
+  consider_these_vars <- my_list5[[which(names(my_list5) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+  info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}
+
+# This will cause execution of this script to stop at this point
+# if the value of the argument is false
+check_throw_error(check_convergence_result)
+
+# Workflow for generating imputed values --------------------------------------
+if((check_convergence_result == TRUE) & (used_intercept_only == FALSE)){
+  stepwise_convergence <- TRUE
+  
+  fit_step <- tryCatch(expr = {
+    stepAIC(fit, 
+            direction = "backward",
+            scope = list(lower = as.formula(paste("~", "is_high_effort", suffix, "+", "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
+            trace = FALSE, 
+            k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
+  }, warning = function(w){"Hey, a warning"})
+  
+  stepwise_convergence <- (class(fit_step)[[1]] == "glm")
+  
+  if(stepwise_convergence == TRUE){
+    use_fit <- fit_step
+  }else{
+    use_fit <- fit
+  }
+  
+  info_criterion <- extractAIC(use_fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+  
+  selected_vars <- names(use_fit$coefficients)
+  selected_vars <- selected_vars[-1] # remove the intercept term because the predictorMatrix argument does not allow a row/column for that
+  
+  for(i in 1:length(selected_vars)){
+    pred_mat[LHS, selected_vars[i]] <- 1
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              predictorMatrix = pred_mat)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
+
+if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
+  dummy_list <- as.list(colnames(rows_meet_restriction))
+  dummy_list <- lapply(dummy_list, function(x){return("")})
+  names(dummy_list) <- colnames(rows_meet_restriction)
+  formula_list <- dummy_list
+  
+  for(i in 1:length(formula_list)){
+    fmla <- as.formula(paste(names(formula_list)[i], "~ 1", sep = ""))
+    formula_list[[i]] <- fmla
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              formulas = formula_list)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
 
 # Before we move on to the next variable...
-rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
-previous_var <- c(previous_var, LHS)
 
 ###############################################################################
 # Step 3. Impute cigarette_counts
@@ -861,50 +1196,123 @@ if(which_penalty == "BIC"){
 }
 
 # Initialize list and matrix which will store imputation method and formula ---
-my_list <- as.list(colnames(rows_meet_restriction))
-my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
-meth_list <- my_list
+dummy_list <- as.list(colnames(rows_meet_restriction))
+dummy_list <- lapply(dummy_list, function(x){return("")})
+names(dummy_list) <- colnames(rows_meet_restriction)
+meth_list <- dummy_list
 
 vars <- colnames(rows_meet_restriction)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 # Workflow for variable selection ---------------------------------------------
-new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_sum_past24hrs", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability", "src_scored"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
+used_intercept_only <- FALSE  # This is a flag for whether we used an intercept-only model for imputation
+check_convergence_result <- TRUE
 
+consider_these_vars <- my_list[[which(names(my_list) == this_outcome)]]
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                warning = function(w){"Hey, a warning"})
+check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 
-fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)
-fit_step <- stepAIC(fit, 
-                    direction = "both",
-                    scope = list(lower= as.formula(paste("~", "is_high_effort", suffix, "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
-                    trace = FALSE, 
-                    k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
-
-selected_vars <- names(fit_step$coefficients)
-selected_vars <- selected_vars[-1]
-
-for(i in 1:length(selected_vars)){
-  pred_mat[LHS, selected_vars[i]] <- 1
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list2[[which(names(my_list2) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 }
 
-meth_list[[LHS]] <- "pmm"
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            meth =  meth_list,
-            predictorMatrix = pred_mat)
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list3[[which(names(my_list3) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list4[[which(names(my_list4) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  used_intercept_only <- TRUE
+  consider_these_vars <- my_list5[[which(names(my_list5) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+  info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}
+
+# This will cause execution of this script to stop at this point
+# if the value of the argument is false
+check_throw_error(check_convergence_result)
+
+# Workflow for generating imputed values --------------------------------------
+if((check_convergence_result == TRUE) & (used_intercept_only == FALSE)){
+  stepwise_convergence <- TRUE
+  
+  fit_step <- tryCatch(expr = {
+    stepAIC(fit, 
+            direction = "backward",
+            scope = list(lower = as.formula(paste("~", "is_high_effort", suffix, "+", "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
+            trace = FALSE, 
+            k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
+  }, warning = function(w){"Hey, a warning"})
+  
+  stepwise_convergence <- (class(fit_step)[[1]] == "glm")
+  
+  if(stepwise_convergence == TRUE){
+    use_fit <- fit_step
+  }else{
+    use_fit <- fit
+  }
+  
+  info_criterion <- extractAIC(use_fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+  
+  selected_vars <- names(use_fit$coefficients)
+  selected_vars <- selected_vars[-1] # remove the intercept term because the predictorMatrix argument does not allow a row/column for that
+  
+  for(i in 1:length(selected_vars)){
+    pred_mat[LHS, selected_vars[i]] <- 1
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              predictorMatrix = pred_mat)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
+
+if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
+  dummy_list <- as.list(colnames(rows_meet_restriction))
+  dummy_list <- lapply(dummy_list, function(x){return("")})
+  names(dummy_list) <- colnames(rows_meet_restriction)
+  formula_list <- dummy_list
+  
+  for(i in 1:length(formula_list)){
+    fmla <- as.formula(paste(names(formula_list)[i], "~ 1", sep = ""))
+    formula_list[[i]] <- fmla
+  }
+  
+  meth_list[[LHS]] <- "pmm"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              formulas = formula_list)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+}
 
 # Before we move on to the next variable...
-rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
-previous_var <- c(previous_var, LHS)
 
 ###############################################################################
 # Step 4. Y
@@ -917,7 +1325,11 @@ list_collect_data <- list()
 # Rows where imputation at the current decision point will NOT be performed ---
 restriction_violate_string <- paste("eligibility", suffix, " == 0", sep = "")
 rows_violate_restriction <- dat_wide %>% filter(!!rlang::parse_expr(restriction_violate_string))
-rows_violate_restriction[[LHS]] <- as.numeric(rows_violate_restriction[[LHS]]) - 1
+
+if(class(rows_violate_restriction[[LHS]]) == "factor"){
+  rows_violate_restriction[[LHS]] <- as.numeric(rows_violate_restriction[[LHS]]) # Do not need to subtract 1 since all of these will be NA's
+}
+
 list_collect_data <- append(list_collect_data, list(rows_violate_restriction))
 
 # Rows where imputation at the current decision point will be performed -------
@@ -997,67 +1409,147 @@ if(which_penalty == "BIC"){
 }
 
 # Initialize list and matrix which will store imputation method and formula ---
-my_list <- as.list(colnames(rows_meet_restriction))
-my_list <- lapply(my_list, function(x){return("")})
-names(my_list) <- colnames(rows_meet_restriction)
-meth_list <- my_list
+dummy_list <- as.list(colnames(rows_meet_restriction))
+dummy_list <- lapply(dummy_list, function(x){return("")})
+names(dummy_list) <- colnames(rows_meet_restriction)
+meth_list <- dummy_list
 
 vars <- colnames(rows_meet_restriction)
 pred_mat <- matrix(0, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
 
 # Workflow for variable selection ---------------------------------------------
-new_time_varying_vars_to_consider1 <- paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = "")
-new_time_varying_vars_to_consider2 <- c(paste(this_outcome, "_lag1", suffix, sep = ""), paste(this_outcome, "_sum_past24hrs", suffix, sep = ""))
-new_time_varying_vars_to_consider3 <- c(paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
-new_time_varying_vars_to_consider4 <- c(paste(c("cigarette_availability", "src_scored", "cigarette_counts"), suffix, sep = ""))
-new_baseline_vars_to_consider <- c("age", "is_male", "income_val")
+used_intercept_only <- FALSE  # This is a flag for whether we used an intercept-only model for imputation
+check_convergence_result <- TRUE
 
-consider_these_vars <- c(previous_var, new_baseline_vars_to_consider, new_time_varying_vars_to_consider1, new_time_varying_vars_to_consider2, new_time_varying_vars_to_consider3, new_time_varying_vars_to_consider4)
+consider_these_vars <- my_list[[which(names(my_list) == this_outcome)]]
 dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
+                warning = function(w){"Hey, a warning"})
+check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 
-fit <- glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)
-
-fit_step <- stepAIC(fit, 
-                    direction = "both",
-                    scope = list(lower= as.formula(paste("~", "is_high_effort", suffix, "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
-                    trace = FALSE, 
-                    k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
-
-selected_vars <- names(fit_step$coefficients)
-selected_vars <- selected_vars[-1]
-
-for(i in 1:length(selected_vars)){
-  pred_mat[LHS, selected_vars[i]] <- 1
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list2[[which(names(my_list2) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
 }
 
-meth_list[[LHS]] <- "logreg"
-imp <- mice(data = rows_meet_restriction, 
-            m = 1, 
-            maxit = use_maxit_value,
-            meth =  meth_list,
-            predictorMatrix = pred_mat)
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list3[[which(names(my_list3) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  consider_these_vars <- my_list4[[which(names(my_list4) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}
+
+if(check_convergence_result == FALSE){
+  used_intercept_only <- TRUE
+  consider_these_vars <- my_list5[[which(names(my_list5) == this_outcome)]]
+  dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
+  fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
+                  warning = function(w){"Hey, a warning"})
+  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+  info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}
+
+# This will cause execution of this script to stop at this point
+# if the value of the argument is false
+check_throw_error(check_convergence_result)
+
+# Workflow for generating imputed values --------------------------------------
+if((check_convergence_result == TRUE) & (used_intercept_only == FALSE)){
+  stepwise_convergence <- TRUE
+  
+  fit_step <- tryCatch(expr = {
+    stepAIC(fit, 
+            direction = "backward",
+            scope = list(lower = as.formula(paste("~", "is_high_effort", suffix, "+", "is_low_effort", suffix, sep = ""))), # The minimal model should have the main effect of the treatment indicators
+            trace = FALSE, 
+            k = use_penalty)  # To use AUC, set k=2. To use BIC, set k = log(n)
+  }, warning = function(w){"Hey, a warning"})
+  
+  stepwise_convergence <- (class(fit_step)[[1]] == "glm")
+  
+  if(stepwise_convergence == TRUE){
+    use_fit <- fit_step
+  }else{
+    use_fit <- fit
+  }
+  
+  info_criterion <- extractAIC(use_fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+  
+  selected_vars <- names(use_fit$coefficients)
+  selected_vars <- selected_vars[-1] # remove the intercept term because the predictorMatrix argument does not allow a row/column for that
+  
+  for(i in 1:length(selected_vars)){
+    pred_mat[LHS, selected_vars[i]] <- 1
+  }
+  
+  meth_list[[LHS]] <- "logreg"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              predictorMatrix = pred_mat)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+  rows_meet_restriction_completed[[LHS]] <- as.numeric(rows_meet_restriction_completed[[LHS]]) - 1
+  
+  # Calculate AUC...
+  fit_final <- glm(use_fit$formula, family = binomial, data = dat_for_variable_selection)
+  observed_vals <- dat_for_variable_selection[!is.na(dat_for_variable_selection[[LHS]]),LHS]
+  estimated_roc <- roc(observed_vals, fitted.values(fit_final))
+  estimated_auc <- as.numeric(estimated_roc$auc)
+  
+  print(estimated_auc)
+  print(use_fit$formula)
+}
+
+if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
+  dummy_list <- as.list(colnames(rows_meet_restriction))
+  dummy_list <- lapply(dummy_list, function(x){return("")})
+  names(dummy_list) <- colnames(rows_meet_restriction)
+  formula_list <- dummy_list
+  
+  for(i in 1:length(formula_list)){
+    fmla <- as.formula(paste(names(formula_list)[i], "~ 1", sep = ""))
+    formula_list[[i]] <- fmla
+  }
+  
+  meth_list[[LHS]] <- "logreg"
+  imp <- mice(data = rows_meet_restriction, 
+              m = 1, 
+              maxit = use_maxit_value,
+              meth =  meth_list,
+              formulas = formula_list)
+  rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
+  rows_meet_restriction_completed[[LHS]] <- as.numeric(rows_meet_restriction_completed[[LHS]]) - 1
+  
+  # Calculate AUC...
+  fit_final <- glm(fit$formula, family = binomial, data = dat_for_variable_selection)
+  observed_vals <- dat_for_variable_selection[!is.na(dat_for_variable_selection[[LHS]]),LHS]
+  estimated_roc <- roc(observed_vals, fitted.values(fit_final))
+  estimated_auc <- as.numeric(estimated_roc$auc)
+  
+  print(estimated_auc)
+  print(fit_step$formula)
+}
 
 # Before we move on to the next variable...
-rows_meet_restriction_completed <- complete(imp, 1)  # Update rows_meet_restriction
-rows_meet_restriction_completed[[LHS]] <- as.numeric(rows_meet_restriction_completed[[LHS]]) - 1
-
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
-previous_var <- c(previous_var, LHS)
-
-# Calculate AUC
-fit_final <- glm(fit_step$formula, family = binomial, data = dat_for_variable_selection)
-observed_vals <- dat_for_variable_selection[!is.na(dat_for_variable_selection[[LHS]]),LHS]
-estimated_roc <- roc(observed_vals, fitted.values(fit_final))
-estimated_auc <- as.numeric(estimated_roc$auc)
-
-print(estimated_auc)
-print(fit_step$formula)
 
 ###############################################################################
 # Save
 ###############################################################################
 saveRDS(estimated_auc, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("estimated_auc_dp", current_dp_value, ".rds", sep = "")))
 saveRDS(dat_wide, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num,  paste("dat_wide_completed_dp", current_dp_value, ".rds", sep = "")))
-
 
