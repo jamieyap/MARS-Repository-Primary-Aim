@@ -7,11 +7,23 @@ source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
 rm(list = ls())
 
 ###############################################################################
-# Generate imputed datasets for decision points within stratum 3
+# Data preparation
+###############################################################################
+source("paths.R")
+source(file.path(.__path_code, "analysis-multiple-imputation", "create-replicated-dataset.R"))
+
+source("paths.R")
+source(file.path(.__path_code, "analysis-multiple-imputation", "create-wide-format-dataset-for-mi.R"))
+
+###############################################################################
+# Generate imputed datasets for baseline variables
 ###############################################################################
 source("paths.R")
 source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "impute-baseline.R"))
 
+###############################################################################
+# Generate imputed datasets for decision points within each stratum
+###############################################################################
 source("paths.R")
 source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "loop-stratum-01.R"))
 
@@ -20,3 +32,13 @@ source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multipl
 
 source("paths.R")
 source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "loop-stratum-03.R"))
+
+###############################################################################
+# Data preparation
+###############################################################################
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source("paths.R")
+  source(file.path(.__path_code, "analysis-multiple-imputation", "reshape-completed-datasets-from-wide-to-long.R"))
+}
+
+

@@ -1,3 +1,12 @@
+###############################################################################
+# Input arguments to this script
+###############################################################################
+rm(list = ls())
+source(file = file.path("analysis-multiple-imputation", "mi-set-up.R"))
+
+################################################################################
+# Load datasets
+################################################################################
 source("paths.R")
 library(tidyverse)
 
@@ -28,7 +37,7 @@ for(i in 1:length(cols_to_keep_timevarying)){
   
   dat_long_current_cols <- dat_for_reshaping %>% select(all_of(these_cols_only)) %>%
     pivot_longer(
-      cols = current_cols,
+      cols = all_of(current_cols),
       names_to = "decision_point",
       names_prefix = cols_to_keep_timevarying[i],
       values_to = cols_to_keep_timevarying[i],
@@ -49,8 +58,5 @@ dat_long_completed <- left_join(x = dat_completed_nontimevarying_variables, y = 
 # Save
 ###############################################################################
 saveRDS(dat_long_completed, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
-
-
-
 
 

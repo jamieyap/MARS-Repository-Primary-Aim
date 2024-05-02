@@ -11,6 +11,7 @@ rm(list = ls())
 ###############################################################################
 mi_dataset_num <- .__current_idx  # Change the right hand side of this line if not running within a loop
 use_maxit_value <- .__par_maxit_value
+st_num <- 3
 which_penalty <- "BIC"  # Can be set to either "AIC" or "BIC"
 
 current_dp_value <- .__current_dp  # Change the right hand side of this line if not running within a loop
@@ -40,8 +41,8 @@ check_throw_error <- function(x) {
 ###############################################################################
 
 # Read in completed dataset from previous time-point
-dat_imputed_stratum_01 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum_01.rds"))
-dat_imputed_stratum_02 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum_02.rds"))
+dat_imputed_stratum_01 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum1.rds"))
+dat_imputed_stratum_02 <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_imputed_stratum2.rds"))
 dat_imputed_stratum_01_current_dp <- dat_imputed_stratum_01 %>% filter(decision_point == current_dp_value)
 dat_imputed_stratum_02_current_dp <- dat_imputed_stratum_02 %>% filter(decision_point == current_dp_value)
 n_participants_meet_sparse_restrictions_stratum_01_current_dp <- nrow(dat_imputed_stratum_01_current_dp)
@@ -535,6 +536,7 @@ my_list[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
 
 this_outcome <- "cigarette_counts"
 my_list[[this_outcome]] <- c("age", "is_male", "income_val",
+                             "baseline_tobacco_history", "Nicotine_dep",
                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                              paste(this_outcome, "_lag1", suffix, sep = ""), 
                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
@@ -582,6 +584,7 @@ my_list2[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
 
 this_outcome <- "cigarette_counts"
 my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
+                              "baseline_tobacco_history", "Nicotine_dep",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                               paste(this_outcome, "_lag1", suffix, sep = ""), 
                               paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
@@ -624,6 +627,7 @@ my_list3[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
 
 this_outcome <- "cigarette_counts"
 my_list3[[this_outcome]] <- c("age", "is_male", "income_val",
+                              "baseline_tobacco_history", "Nicotine_dep",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                               paste(this_outcome, "_lag1", suffix, sep = ""),
                               paste("Y", "_lag1", suffix, sep = ""))
@@ -648,16 +652,16 @@ my_list4 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))  # This model includes only the main effect for treatment
 
 this_outcome <- "src_scored"
-my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))  # This model includes only the main effect for treatment
 
 this_outcome <- "cigarette_counts"
-my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))  # This model includes only the main effect for treatment
 
 this_outcome <- "Y"
-my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))
+my_list4[[this_outcome]] <- c(paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""))  # This model includes only the main effect for treatment
 
 ###############################################################################
 #                                                                             #
@@ -673,16 +677,31 @@ my_list5 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))  # This is an intercept-only model
 
 this_outcome <- "src_scored"
-my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))  # This is an intercept-only model
 
 this_outcome <- "cigarette_counts"
-my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))  # This is an intercept-only model
 
 this_outcome <- "Y"
-my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))
+my_list5[[this_outcome]] <- c(paste(this_outcome, suffix, sep = ""))  # This is an intercept-only model
+
+###############################################################################
+#                                                                             #
+#              Create a list in which to save any mice logged events          #
+#                                                                             #
+###############################################################################
+list_mice_logged_events <- list("cigarette_availability" = NULL,
+                                "src_scored" = NULL,
+                                "cigarette_counts" = NULL,
+                                "Y" = NULL)
+
+list_mice_model <- list("cigarette_availability" = NULL,
+                        "src_scored" = NULL,
+                        "cigarette_counts" = NULL,
+                        "Y" = NULL)
 
 ###############################################################################
 #                                                                             #
@@ -804,6 +823,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -812,6 +836,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -820,6 +849,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -828,10 +862,18 @@ if(check_convergence_result == FALSE){
   dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
-  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
   info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
+# Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+# This check will help capture those cases
+result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 # This will cause execution of this script to stop at this point
 # if the value of the argument is false
 check_throw_error(check_convergence_result)
@@ -897,6 +939,8 @@ if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
 # Before we move on to the next variable...
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
+list_mice_logged_events[[this_outcome]] <- list(imp$loggedEvents)
+list_mice_model[[this_outcome]] <- list(imp$formulas[[LHS]])
 
 ###############################################################################
 # Step 2. Impute src_scored
@@ -1012,6 +1056,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1020,6 +1069,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1028,6 +1082,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1036,10 +1095,18 @@ if(check_convergence_result == FALSE){
   dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
-  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
   info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
+# Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+# This check will help capture those cases
+result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 # This will cause execution of this script to stop at this point
 # if the value of the argument is false
 check_throw_error(check_convergence_result)
@@ -1105,6 +1172,8 @@ if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
 # Before we move on to the next variable...
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
+list_mice_logged_events[[this_outcome]] <- list(imp$loggedEvents)
+list_mice_model[[this_outcome]] <- list(imp$formulas[[LHS]])
 
 ###############################################################################
 # Step 3. Impute cigarette_counts
@@ -1220,6 +1289,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1228,6 +1302,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1236,6 +1315,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1244,10 +1328,18 @@ if(check_convergence_result == FALSE){
   dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = gaussian, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
-  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
   info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
+# Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+# This check will help capture those cases
+result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 # This will cause execution of this script to stop at this point
 # if the value of the argument is false
 check_throw_error(check_convergence_result)
@@ -1313,6 +1405,8 @@ if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
 # Before we move on to the next variable...
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
+list_mice_logged_events[[this_outcome]] <- list(imp$loggedEvents)
+list_mice_model[[this_outcome]] <- list(imp$formulas[[LHS]])
 
 ###############################################################################
 # Step 4. Y
@@ -1433,6 +1527,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1441,6 +1540,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1449,6 +1553,11 @@ if(check_convergence_result == FALSE){
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
   check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
 if(check_convergence_result == FALSE){
@@ -1457,10 +1566,18 @@ if(check_convergence_result == FALSE){
   dat_for_variable_selection <- rows_meet_restriction %>% filter(replicate_id == 0) %>% select(all_of(consider_these_vars))
   fit <- tryCatch(expr = {glm(as.formula(paste(LHS, "~ .", sep = "")), family = binomial, data = dat_for_variable_selection)}, 
                   warning = function(w){"Hey, a warning"})
-  check_convergence_result <- (class(fit)[[1]] == "glm")  # fit will be of class "character" if there was a convergence issue
   info_criterion <- extractAIC(fit, k = use_penalty)[[2]]  # Calculated info criterion of selected model
+}else{
+  # Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+  # This check will help capture those cases
+  result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+  check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 }
 
+# Note that fit$converged can be TRUE but some values for fit$coefficients might be NA's
+# This check will help capture those cases
+result_of_another_check <- (sum(is.na(fit$coefficients)) == 0)
+check_convergence_result <- if_else(result_of_another_check == TRUE, TRUE, FALSE)
 # This will cause execution of this script to stop at this point
 # if the value of the argument is false
 check_throw_error(check_convergence_result)
@@ -1540,16 +1657,20 @@ if((check_convergence_result == TRUE) & (used_intercept_only == TRUE)){
   estimated_auc <- as.numeric(estimated_roc$auc)
   
   print(estimated_auc)
-  print(fit_step$formula)
+  print(fit$formula)
 }
 
 # Before we move on to the next variable...
 list_collect_data <- append(list_collect_data, list(rows_meet_restriction_completed))
 dat_wide <- bind_rows(list_collect_data)
+list_mice_logged_events[[this_outcome]] <- list(imp$loggedEvents)
+list_mice_model[[this_outcome]] <- list(imp$formulas[[LHS]])
 
 ###############################################################################
 # Save
 ###############################################################################
-saveRDS(estimated_auc, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("estimated_auc_dp", current_dp_value, ".rds", sep = "")))
-saveRDS(dat_wide, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num,  paste("dat_wide_completed_dp", current_dp_value, ".rds", sep = "")))
+saveRDS(list_mice_logged_events, file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("logged_events_stratum", st_num, "_dp", current_dp_value, ".rds", sep = "")))
+saveRDS(list_mice_model, file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("imputation_model_stratum", st_num, "_dp", current_dp_value, ".rds", sep = "")))
+saveRDS(estimated_auc, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("estimated_auc_stratum", st_num, "_dp", current_dp_value, ".rds", sep = "")))
+saveRDS(dat_wide, file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num,  paste("dat_wide_completed", "_dp", current_dp_value, ".rds", sep = "")))  # Contains imputed data for all strata up to the current decision point
 

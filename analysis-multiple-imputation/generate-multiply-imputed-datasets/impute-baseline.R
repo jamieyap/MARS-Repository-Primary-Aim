@@ -29,14 +29,16 @@ if(isFALSE(is_dir_exist)){
 }
 
 ###############################################################################
-# Initialize lists which will store imputation method and formula
+# Initialize list and matrix which will store imputation method and formula
 ###############################################################################
-imp0 <- mice(data = dat_wide, 
-             m = 1, 
-             maxit = 0)
-meth_list <- imp0$method
-formula_list <- imp0$formulas
-pred_mat <- imp0$predictorMatrix
+dummy_list <- as.list(colnames(dat_wide))
+dummy_list <- lapply(dummy_list, function(x){return("")})
+names(dummy_list) <- colnames(dat_wide)
+meth_list <- dummy_list
+
+vars <- colnames(dat_wide)
+pred_mat <- matrix(1, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+diag(pred_mat) <- 0
 
 ###############################################################################
 # Set up imputation method
@@ -47,10 +49,17 @@ pred_mat <- imp0$predictorMatrix
 # meth_list[["FinancialStrainSquared"]] <- "~I(FinancialStrain * FinancialStrain)"
 ###############################################################################
 
+meth_list[["replicate_id"]] <- ""
+meth_list[["participant_id"]] <- ""
+meth_list[["is_complete_v1_quest"]] <- ""
+
 # demographic variables
 meth_list[["age"]] <- "" 
 meth_list[["is_male"]] <- ""                                  # -- this variable does not have missing values
 meth_list[["has_partner"]] <- "logreg"
+meth_list[["is_latino"]] <- ""                                # -- this variable does not have missing values
+meth_list[["is_not_latino_and_black"]] <- ""                  # -- this variable does not have missing values
+meth_list[["is_not_latino_and_other"]] <- ""                  # -- this variable does not have missing values
 
 # baseline tobacco dependence
 meth_list[["baseline_tobacco_history"]] <- ""                 # -- this variable does not have missing values
@@ -123,6 +132,7 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
   dat_wide_completed0 <- complete(imp, mi_dataset_num)
   
   list_all <- list()
+  # Note that this loop begins at zero!
   for(idx_replicate in 0:.__par_total_replicates){
     dat_wide_completed1 <- dat_wide_completed0 %>% mutate(replicate_id = idx_replicate)
     list_all <- append(list_all, list(dat_wide_completed1))
