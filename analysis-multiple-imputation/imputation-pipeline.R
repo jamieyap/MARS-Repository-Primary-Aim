@@ -34,11 +34,35 @@ source("paths.R")
 source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "loop-stratum-03.R"))
 
 ###############################################################################
+# Rough check
+###############################################################################
+source("paths.R")
+source(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "display-auc.R"))
+
+###############################################################################
 # Data preparation
 ###############################################################################
 for(.__current_idx in 1:.__total_imputed_datasets){
   source("paths.R")
   source(file.path(.__path_code, "analysis-multiple-imputation", "reshape-completed-datasets-from-wide-to-long.R"))
+}
+
+###############################################################################
+# Data analysis
+###############################################################################
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source("paths.R")
+  source(file.path(.__path_code, "analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source("paths.R")
+  source(file.path(.__path_code, "analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-study-day-linear.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source("paths.R")
+  source(file.path(.__path_code, "analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-study-day-quadratic.R"))
 }
 
 

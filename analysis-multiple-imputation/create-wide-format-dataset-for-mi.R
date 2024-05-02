@@ -51,7 +51,8 @@ if(maximum_replicate_id > 0){
 ################################################################################
 these_vars_will_be_imputed <- c("Y", "cigarette_counts", "src_scored", "cigarette_availability",
                                 "Y_lag1","cigarette_counts_lag1", "src_scored_lag1", "cigarette_availability_lag1", 
-                                "Y_sum_past24hrs", "cigarette_counts_sum_past24hrs", "src_scored_mean_past24hrs", "cigarette_availability_mean_past24hrs")
+                                "Y_sum_past24hrs", "cigarette_counts_sum_past24hrs", "src_scored_mean_past24hrs", "cigarette_availability_mean_past24hrs",
+                                "engagement_most_recent_eligible")
 
 dat_timevarying_long_with_missing <- dat_primary_aim %>%
   select(replicate_id, participant_id, decision_point, all_of(these_vars_will_be_imputed)) %>% 
