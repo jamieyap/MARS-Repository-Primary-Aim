@@ -9,6 +9,7 @@ rm(list = ls())
 ###############################################################################
 # Load packages
 ###############################################################################
+source("paths.R")
 library(tidyverse)
 # Note that dplyr::select clashes with MASS::select and so we have this line to be
 # able to use the select function from the dplyr package while having MASS loaded too
@@ -76,8 +77,8 @@ for(current_dp_value in 2:60){
 dat_out_stratum3 <- bind_rows(.list_dat_out_stratum3)
 dat_out_stratum3[["M"]] <- as_factor(dat_out_stratum3[["M"]])
 g <- ggplot(data = dat_out_stratum3, mapping = aes(x = M, y = auc))
-g + geom_point(size = 0.75) + expand_limits(y = c(0, 1)) + scale_y_continuous(breaks = seq(0,1,0.25)) + geom_hline(yintercept = 0.75, col = "blue", linetype = "dashed") + facet_wrap(~decision_point) + ggtitle("Stratum 3")
-ggsave(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "stratum3.png"), width = 12, height = 12, units = "in")
+g + geom_point(size = 0.75) + expand_limits(y = c(0, 1)) + scale_x_discrete(breaks = factor(seq(0,50,5))) + scale_y_continuous(breaks = seq(0,1,0.25)) + geom_hline(yintercept = 0.75, col = "blue", linetype = "dashed") + facet_wrap(~decision_point) + ggtitle("Stratum 3")
+ggsave(file.path(.__path_code, "analysis-multiple-imputation", "generate-multiply-imputed-datasets", "stratum3.png"), width = 24, height = 12, units = "in")
 
 ###############################################################################
 # Clean up before exiting

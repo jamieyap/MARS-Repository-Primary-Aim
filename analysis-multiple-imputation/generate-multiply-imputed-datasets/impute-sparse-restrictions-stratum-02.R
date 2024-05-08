@@ -96,7 +96,7 @@ my_list <- list("cigarette_availability" = NULL,
 
 this_outcome <- "cigarette_availability"
 my_list[[this_outcome]] <- c("age", "is_male", 
-                             "income_val", "nd_mean", "food_security_mean",
+                             "income_val", "FinancialStrain", "nd_mean", "food_security_mean",
                              "has_partner", "sni_count", "sni_active", "sni_people",
                              this_outcome, "is_high_effort", "is_low_effort",
                              "hour_coinflip_local",
@@ -110,15 +110,18 @@ my_list[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
                              "cigarette_availability")
 
 this_outcome <- "cigarette_counts"
-my_list[[this_outcome]] <- c("age", "is_male", "income_val", 
-                             "baseline_tobacco_history", "Nicotine_dep",
+my_list[[this_outcome]] <- c("age", "is_male", 
+                             "income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                             "baseline_tobacco_history",
+                             "has_partner", "sni_count", "sni_active", "sni_people",
                              this_outcome, "is_high_effort", "is_low_effort",
                              "hour_coinflip_local",
                              "hours_elapsed_since_most_recent_eligible", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared",
                              "cigarette_availability", "src_scored")
 
 this_outcome <- "Y"
-my_list[[this_outcome]] <- c("age", "is_male", "income_val",
+my_list[[this_outcome]] <- c("age", "is_male", 
+                             "income_val", "FinancialStrain","nd_mean", "food_security_mean",
                              this_outcome, "is_high_effort", "is_low_effort",
                              "any_response_2qs",
                              "hour_coinflip_local",
@@ -139,29 +142,28 @@ my_list2 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list2[[this_outcome]] <- c("age", "is_male", 
-                              "income_val", "nd_mean", "food_security_mean",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list2[[this_outcome]] <- c("income_val", "FinancialStrain", "nd_mean", "food_security_mean",
                               this_outcome, "is_high_effort", "is_low_effort",
                               "hour_coinflip_local",
                               "hours_elapsed_since_most_recent_eligible", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared")
 
 this_outcome <- "src_scored"
-my_list2[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list2[[this_outcome]] <- c("has_partner", "sni_count", "sni_active", "sni_people",
                               this_outcome, "is_high_effort", "is_low_effort",
                               "hour_coinflip_local",
                               "hours_elapsed_since_most_recent_eligible", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared")
 
 this_outcome <- "cigarette_counts"
-my_list2[[this_outcome]] <- c("age", "is_male", "income_val", 
-                              "baseline_tobacco_history", "Nicotine_dep",
+my_list2[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                              "baseline_tobacco_history",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
                               this_outcome, "is_high_effort", "is_low_effort",
                               "hour_coinflip_local",
                               "hours_elapsed_since_most_recent_eligible", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared")
 
 this_outcome <- "Y"
-my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
+my_list2[[this_outcome]] <- c("age", "is_male", 
+                              "income_val", "FinancialStrain","nd_mean", "food_security_mean",
                               this_outcome, "is_high_effort", "is_low_effort",
                               "any_response_2qs",
                               "hour_coinflip_local",
@@ -181,19 +183,16 @@ my_list3 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list3[[this_outcome]] <- c("age", "is_male", 
-                              "income_val", "nd_mean", "food_security_mean",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list3[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
                               this_outcome, "is_high_effort", "is_low_effort")
 
 this_outcome <- "src_scored"
-my_list3[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list3[[this_outcome]] <- c("has_partner", "sni_count", "sni_active", "sni_people",
                               this_outcome, "is_high_effort", "is_low_effort")
 
 this_outcome <- "cigarette_counts"
-my_list3[[this_outcome]] <- c("age", "is_male", "income_val", 
-                              "baseline_tobacco_history", "Nicotine_dep",
+my_list3[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                              "baseline_tobacco_history",
                               this_outcome, "is_high_effort", "is_low_effort")
 
 this_outcome <- "Y"

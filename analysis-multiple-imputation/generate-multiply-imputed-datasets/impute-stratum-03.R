@@ -518,39 +518,38 @@ my_list <- list("cigarette_availability" = NULL,
 
 this_outcome <- "cigarette_availability"
 my_list[[this_outcome]] <- c("age", "is_male", 
-                             "income_val", "nd_mean", "food_security_mean",
+                             "income_val", "FinancialStrain", "nd_mean", "food_security_mean",
                              "has_partner", "sni_count", "sni_active", "sni_people",
                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_lag1", suffix, sep = ""),
                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
 
 this_outcome <- "src_scored"
 my_list[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
                              "has_partner", "sni_count", "sni_active", "sni_people",
                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_lag1", suffix, sep = ""),
                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""),
-                             paste("Y", "_lag1", suffix, sep = ""), 
-                             paste("Y", "_sum_past24hrs", suffix, sep = ""),
-                             paste(c("cigarette_availability"), suffix, sep = ""))
+                             paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("cigarette_counts", "_sum_past24hrs", suffix, sep = ""), paste("Y", "_sum_past24hrs", suffix, sep = ""))
 
 this_outcome <- "cigarette_counts"
-my_list[[this_outcome]] <- c("age", "is_male", "income_val",
-                             "baseline_tobacco_history", "Nicotine_dep",
+my_list[[this_outcome]] <- c("age", "is_male", 
+                             "income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                             "baseline_tobacco_history",
+                             "has_partner", "sni_count", "sni_active", "sni_people",
                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_lag1", suffix, sep = ""),
                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
-                             paste("Y", "_lag1", suffix, sep = ""), 
-                             paste("Y", "_sum_past24hrs", suffix, sep = ""),
-                             paste(c("cigarette_availability", "src_scored"), suffix, sep = ""))
+                             paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("src_scored", "_mean_past24hrs", suffix, sep = ""), paste("Y", "_sum_past24hrs", suffix, sep = ""))
 
 this_outcome <- "Y"
 my_list[[this_outcome]] <- c("age", "is_male", "income_val",
                              paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                             paste(this_outcome, "_lag1", suffix, sep = ""), 
+                             paste(this_outcome, "_lag1", suffix, sep = ""),
                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
                              paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""),
-                             paste(c("cigarette_availability", "src_scored", "cigarette_counts"), suffix, sep = ""))
+                             paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("src_scored", "_mean_past24hrs", suffix, sep = ""), paste("cigarette_counts", "_sum_past24hrs", suffix, sep = ""))
+
 
 ###############################################################################
 #                                                                             #
@@ -566,37 +565,34 @@ my_list2 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list2[[this_outcome]] <- c("age", "is_male", 
-                              "income_val", "nd_mean", "food_security_mean",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list2[[this_outcome]] <- c("income_val", "FinancialStrain", "nd_mean", "food_security_mean",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
                               paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
 
 this_outcome <- "src_scored"
-my_list2[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list2[[this_outcome]] <- c("has_partner", "sni_count", "sni_active", "sni_people",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
                               paste(this_outcome, "_mean_past24hrs", suffix, sep = ""),
-                              paste("Y", "_lag1", suffix, sep = ""), 
-                              paste("Y", "_sum_past24hrs", suffix, sep = ""))
+                              paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("cigarette_counts", "_sum_past24hrs", suffix, sep = ""), paste("Y", "_sum_past24hrs", suffix, sep = ""))
 
 this_outcome <- "cigarette_counts"
-my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
-                              "baseline_tobacco_history", "Nicotine_dep",
+my_list2[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                              "baseline_tobacco_history",
+                              "has_partner", "sni_count", "sni_active", "sni_people",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
                               paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
-                              paste("Y", "_lag1", suffix, sep = ""), 
-                              paste("Y", "_sum_past24hrs", suffix, sep = ""))
+                              paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("src_scored", "_mean_past24hrs", suffix, sep = ""), paste("Y", "_sum_past24hrs", suffix, sep = ""))
 
 this_outcome <- "Y"
 my_list2[[this_outcome]] <- c("age", "is_male", "income_val",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                              paste(this_outcome, "_lag1", suffix, sep = ""), 
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
                               paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
-                              paste(c("any_response_2qs", "any_app_usage_preblock", "total_app_usage_time_spent_preblock"), suffix, sep = ""))
+                              paste(c("any_response_2qs"), suffix, sep = ""),
+                              paste("cigarette_availability", "_mean_past24hrs", suffix, sep = ""), paste("src_scored", "_mean_past24hrs", suffix, sep = ""), paste("cigarette_counts", "_sum_past24hrs", suffix, sep = ""))
 
 ###############################################################################
 #                                                                             #
@@ -612,30 +608,29 @@ my_list3 <- list("cigarette_availability" = NULL,
                  "Y" = NULL)
 
 this_outcome <- "cigarette_availability"
-my_list3[[this_outcome]] <- c("age", "is_male", 
-                              "income_val", "nd_mean", "food_security_mean",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list3[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
-                              paste(this_outcome, "_lag1", suffix, sep = ""))
+                              paste(this_outcome, "_lag1", suffix, sep = ""),
+                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
 
 this_outcome <- "src_scored"
-my_list3[[this_outcome]] <- c("srq_mean", "se_social", "se_habit", "se_negaff",
-                              "has_partner", "sni_count", "sni_active", "sni_people",
+my_list3[[this_outcome]] <- c("has_partner", "sni_count", "sni_active", "sni_people",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                               paste(this_outcome, "_lag1", suffix, sep = ""),
-                              paste("Y", "_lag1", suffix, sep = ""))
+                              paste(this_outcome, "_mean_past24hrs", suffix, sep = ""))
 
 this_outcome <- "cigarette_counts"
-my_list3[[this_outcome]] <- c("age", "is_male", "income_val",
-                              "baseline_tobacco_history", "Nicotine_dep",
+my_list3[[this_outcome]] <- c("income_val", "FinancialStrain","nd_mean", "food_security_mean",
+                              "baseline_tobacco_history",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                               paste(this_outcome, "_lag1", suffix, sep = ""),
-                              paste("Y", "_lag1", suffix, sep = ""))
+                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""))
 
 this_outcome <- "Y"
 my_list3[[this_outcome]] <- c("age", "is_male", "income_val",
                               paste(c(this_outcome, "is_high_effort", "is_low_effort"), suffix, sep = ""),
                               paste(this_outcome, "_lag1", suffix, sep = ""),
+                              paste(this_outcome, "_sum_past24hrs", suffix, sep = ""),
                               paste(c("any_response_2qs"), suffix, sep = ""))
 
 ###############################################################################

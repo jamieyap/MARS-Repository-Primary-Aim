@@ -54,6 +54,8 @@ dat_reshaped_done <- list_all %>% reduce(left_join, by = join_by("replicate_id",
 ###############################################################################
 dat_long_completed <- left_join(x = dat_wide_completed_baseline, y = dat_reshaped_done, by = join_by(replicate_id == replicate_id, participant_id == participant_id))
 
+dat_long_completed <- dat_long_completed %>% mutate(engagement_most_recent_eligible = replace(engagement_most_recent_eligible, any_recent_eligible_dp == 0, 0))
+
 ###############################################################################
 # Save
 ###############################################################################
