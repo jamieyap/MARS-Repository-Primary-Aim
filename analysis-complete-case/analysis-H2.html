@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-04-29" />
+<meta name="date" content="2024-05-08" />
 
 <title>MARS MRT: H2 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H2 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">April 29, 2024</h4>
+<h4 class="date">May 08, 2024</h4>
 
 </div>
 
@@ -458,25 +458,25 @@ the risk ratio scale</h2>
 <div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="1.4">
 <h2><span class="header-section-number">1.4</span> Estimated effect on
 the risk difference scale</h2>
-<pre><code>##                              variable    estimates        LCL95      UCL95    std_err
-## 1                         (Intercept) -0.396258400 -1.857317156 1.06480036 0.74545184
-## 2                      is_high_effort  0.548975632  0.231366684 0.86658458 0.16204836
-## 3                       is_low_effort  0.015606935 -0.263645004 0.29485887 0.14247810
-## 4                                 age  0.006274204 -0.022007784 0.03455619 0.01442985
-## 5                             is_male -0.571619049 -1.392528476 0.24929038 0.41883904
-## 6                           is_latino  0.894725977 -0.006837302 1.79628926 0.45998972
-## 7             is_not_latino_and_black  0.607076287 -0.218794509 1.43294708 0.42137039
-## 8             is_not_latino_and_other  0.512577420 -0.694636435 1.71979128 0.61593675
-## 9            baseline_tobacco_history  0.001820258 -0.045739566 0.04938008 0.02426566
-## 10                        has_partner -0.077965608 -0.775275432 0.61934422 0.35577686
-## 11                         income_val -0.036626666 -0.146864423 0.07361109 0.05624479
-## 12                hour_coinflip_local -0.001348209 -0.033834849 0.03113843 0.01657512
-## 13 days_between_v1_and_coinflip_local  0.037364743 -0.027974504 0.10270399 0.03333696
-## 14                   any_response_2qs  0.284198879 -0.131353797 0.69975155 0.21202057</code></pre>
-<pre><code>##       contrast est_contrast       LB95      UB95 est_stderr_contrast
-## 1 high vs none   0.54897563  0.2313667 0.8665846           0.1620484
-## 2  low vs none   0.01560694 -0.2636450 0.2948589           0.1424781
-## 3  high vs low   0.53336870  0.2124377 0.8542997           0.1637433</code></pre>
+<pre><code>##                              variable     estimates        LCL95       UCL95     std_err
+## 1                         (Intercept)  0.4161951968  0.094938391 0.737452003 0.163909546
+## 2                      is_high_effort  0.1181492567  0.049283560 0.187014954 0.035136205
+## 3                       is_low_effort  0.0032263555 -0.060240470 0.066693181 0.032381628
+## 4                                 age  0.0013448358 -0.004724303 0.007413975 0.003096556
+## 5                             is_male -0.1311535256 -0.320789284 0.058482233 0.096754716
+## 6                           is_latino  0.2028803406  0.006048664 0.399712017 0.100426170
+## 7             is_not_latino_and_black  0.1402973110 -0.046182518 0.326777140 0.095144518
+## 8             is_not_latino_and_other  0.1195862971 -0.147193775 0.386366369 0.136114783
+## 9            baseline_tobacco_history  0.0004058125 -0.010244252 0.011055877 0.005433806
+## 10                        has_partner -0.0173080134 -0.174184293 0.139568266 0.080040389
+## 11                         income_val -0.0078223302 -0.032573189 0.016928528 0.012628221
+## 12                hour_coinflip_local -0.0003683512 -0.007522058 0.006785356 0.003649917
+## 13 days_between_v1_and_coinflip_local  0.0083770377 -0.006008619 0.022762694 0.007339756
+## 14                   any_response_2qs  0.0633825359 -0.030883869 0.157648941 0.048095988</code></pre>
+<pre><code>##       contrast est_contrast        LB95       UB95 est_stderr_contrast
+## 1 high vs none  0.118149257  0.04928356 0.18701495          0.03513621
+## 2  low vs none  0.003226356 -0.06024047 0.06669318          0.03238163
+## 3  high vs low  0.114922901  0.04653185 0.18331395          0.03489403</code></pre>
 </div>
 </div>
 <div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="2">
@@ -650,25 +650,25 @@ the risk ratio scale</h2>
 <div id="estimated-effect-on-the-risk-difference-scale-1" class="section level2" number="4.4">
 <h2><span class="header-section-number">4.4</span> Estimated effect on
 the risk difference scale</h2>
-<pre><code>##                              variable     estimates       LCL95      UCL95    std_err
-## 1                         (Intercept) -0.3677020859 -1.78654316 1.05113899 0.72391181
-## 2                      is_high_effort  0.6758227012  0.36919475 0.98245065 0.15644571
-## 3                       is_low_effort  0.0827939155 -0.16814944 0.33373727 0.12803467
-## 4                                 age  0.0061110976 -0.02162735 0.03384955 0.01415253
-## 5                             is_male -0.4947099955 -1.29987361 0.31045362 0.41080531
-## 6                           is_latino  0.8202259958 -0.07101954 1.71147153 0.45472547
-## 7             is_not_latino_and_black  0.5909469189 -0.21268200 1.39457584 0.41002229
-## 8             is_not_latino_and_other  0.5624695511 -0.65750736 1.78244646 0.62244864
-## 9            baseline_tobacco_history -0.0001666009 -0.04644025 0.04610705 0.02360944
-## 10                        has_partner -0.0978794417 -0.79164996 0.59589108 0.35397105
-## 11                         income_val -0.0354337683 -0.14207785 0.07121032 0.05441125
-## 12                hour_coinflip_local -0.0033289073 -0.03470618 0.02804837 0.01600911
-## 13 days_between_v1_and_coinflip_local  0.0312580511 -0.02797787 0.09049397 0.03022296
-## 14                   any_response_2qs  0.2750763438 -0.11618374 0.66633643 0.19962616</code></pre>
-<pre><code>##       contrast est_contrast       LB95      UB95 est_stderr_contrast
-## 1 high vs none   0.67582270  0.3691947 0.9824507           0.1564457
-## 2  low vs none   0.08279392 -0.1681494 0.3337373           0.1280347
-## 3  high vs low   0.59302879  0.2924314 0.8936262           0.1533688</code></pre>
+<pre><code>##                              variable     estimates        LCL95       UCL95     std_err
+## 1                         (Intercept)  4.226477e-01  0.109259767 0.736035667 0.159894749
+## 2                      is_high_effort  1.453048e-01  0.077132583 0.213476998 0.034782378
+## 3                       is_low_effort  1.893876e-02 -0.038746422 0.076623943 0.029431756
+## 4                                 age  1.316622e-03 -0.004685775 0.007319019 0.003062504
+## 5                             is_male -1.138337e-01 -0.300452928 0.072785505 0.095215636
+## 6                           is_latino  1.872094e-01 -0.010000561 0.384419382 0.100619181
+## 7             is_not_latino_and_black  1.366157e-01 -0.046098580 0.319329977 0.093223284
+## 8             is_not_latino_and_other  1.304845e-01 -0.136473664 0.397442615 0.136205635
+## 9            baseline_tobacco_history -5.427401e-05 -0.010497833 0.010389285 0.005328445
+## 10                        has_partner -2.179044e-02 -0.178570399 0.134989517 0.079991244
+## 11                         income_val -7.619194e-03 -0.031678143 0.016439756 0.012275200
+## 12                hour_coinflip_local -8.031452e-04 -0.007755772 0.006149482 0.003547324
+## 13 days_between_v1_and_coinflip_local  6.921446e-03 -0.006121039 0.019963931 0.006654451
+## 14                   any_response_2qs  6.141990e-02 -0.027633307 0.150473100 0.045436143</code></pre>
+<pre><code>##       contrast est_contrast        LB95       UB95 est_stderr_contrast
+## 1 high vs none   0.14530479  0.07713258 0.21347700          0.03478238
+## 2  low vs none   0.01893876 -0.03874642 0.07662394          0.02943176
+## 3  high vs low   0.12636603  0.06117250 0.19155956          0.03326261</code></pre>
 </div>
 </div>
 

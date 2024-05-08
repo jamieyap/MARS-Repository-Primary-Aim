@@ -188,8 +188,8 @@ dat_for_analysis <- dat_primary_aim %>%
 
 ```{r}
 # We will set up the dataset so that in analysis, we may have the following comparisons:
-#   * high effort versus low effort
-#   * none versus low effort
+#   * high effort prompt versus no prompt
+#   * low effort prompt versus no prompt
 dat_for_analysis <- dat_for_analysis %>%
   mutate(treatment_cate = case_when(
     is_low_effort == 1 ~ 2,  # This allows us to make the comparison: low effort prompt versus no prompt
@@ -360,7 +360,7 @@ dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-com
 ## Estimated effect on the risk difference scale
 
 ```{r}
-fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "binomial", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
+fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "gaussian", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
 
 dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
                          estimates = summary(fit)$coefficients[,"Estimate"],
@@ -1165,7 +1165,7 @@ dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-com
 ## Estimated effect on the risk difference scale
 
 ```{r}
-fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "binomial", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
+fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "gaussian", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
 
 dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
                          estimates = summary(fit)$coefficients[,"Estimate"],
