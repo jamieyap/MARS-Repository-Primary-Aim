@@ -52,9 +52,17 @@ dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_
 ```
 
 ```{r}
+these_control_covariates <- c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible")
+```
+
+```{r}
+dat_baseline <- dat_primary_aim %>% filter(decision_point == 1) %>% select(participant_id, all_of(these_control_covariates))
+```
+
+```{r}
 dat_for_analysis <- dat_primary_aim %>%
   select(participant_id, cluster_id, decision_point,
-         Y, substance_is_cigarettes, eligibility, coinflip, is_high_effort, is_low_effort) %>%
+         Y, cigarette_counts, eligibility, coinflip, is_high_effort, is_low_effort) %>%
   mutate(coinflip = replace(coinflip, eligibility == 0, 0),
          is_high_effort = replace(is_high_effort, eligibility == 0, 0)) %>%
   group_by(participant_id, cluster_id) %>%
@@ -63,9 +71,9 @@ dat_for_analysis <- dat_primary_aim %>%
             n_high_effort_prompt = sum(is_high_effort),
             n_low_effort_prompt = sum(is_low_effort),
             n_obs_engaged = sum(!is.na(Y)),
-            n_obs_nic = sum(!is.na(substance_is_cigarettes)),
+            n_obs_nic = sum(!is.na(cigarette_counts)),
             n_engaged = sum(Y, na.rm = TRUE),
-            n_nic = sum(substance_is_cigarettes, na.rm = TRUE))
+            n_nic = sum(cigarette_counts, na.rm = TRUE))
 ```
 
 ```{r}
@@ -90,6 +98,10 @@ dat_for_analysis <- dat_for_analysis %>%
   filter(cluster_id >= 2 & cluster_id <= 9)
 ```
 
+```{r}
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_baseline, by = join_by(participant_id == participant_id))
+```
+
 # Marginal association between engagement in self-regulatory strategies and cigarette use on current day
 
 $$
@@ -103,8 +115,14 @@ dat_logreg <- dat_for_analysis %>%
   filter(drop_row == 0)
 ```
 
+## Use model with only number of times engaged as predictor
+
 ```{r}
-fit <- geeglm(any_nic ~ n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
+fit <- geeglm(any_nic ~ n_engaged, 
+              family = "binomial", 
+              data = dat_logreg, 
+              id = participant_id, 
+              waves = cluster_id)
 ```
 
 ```{r}
@@ -126,6 +144,21 @@ dat_results_odds_scale %>% round(., 3)
 # Format output to 3 decimal places
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_odds_scale_concurrent.csv"), row.names = TRUE)
 ```
+
+## Use model with number of itmes engaged and control covariates as predictor
+
+```{r}
+fit <- geeglm(any_nic ~ n_engaged + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val, 
+              family = "binomial", 
+              data = dat_logreg[complete.cases(dat_logreg[, c("any_nic", "n_engaged", "age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val")]),], 
+              id = participant_id, 
+              waves = cluster_id)
+```
+
+```{r}
+summary(fit)
+```
+
 
 # Estimate the prevalence
 

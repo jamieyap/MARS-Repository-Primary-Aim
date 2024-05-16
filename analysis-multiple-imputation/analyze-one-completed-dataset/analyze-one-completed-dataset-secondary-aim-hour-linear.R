@@ -117,8 +117,8 @@ fit1 <- tryCatch(expr = {emee_categorical_trt_with_Delta(
                  decision_time_varname = "decision_point",
                  treatment_varname = "treatment_cate",
                  outcome_varname = "Y",
-                 control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
-                 moderator_varname = c("days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared"),
+                 control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+                 moderator_varname = c("hour_coinflip_local"),
                  rand_prob_varname = "rand_prob",
                  rand_prob_A0_varname = "rand_prob_A0",
                  avail_varname = NULL,
@@ -141,24 +141,21 @@ if(class(fit1) == "character"){
 }else{
   fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
   
-  Lmat1 <- matrix(c(1,0,0,-1,0,0,
-                    0,1,0,0,-1,0,
-                    0,0,1,0,0,-1), nrow = 3, byrow = TRUE)
+  Lmat1 <- matrix(c(1,0,-1,0,
+                    0,1,0,-1), nrow = 2, byrow = TRUE)
   
-  Lmat2 <- matrix(cbind(rep(1,8),
-                        seq(2,9,1),
-                        seq(2,9,1) * seq(2,9,1),
-                        -1*rep(1,8),
-                        -1*seq(2,9,1),
-                        -1*seq(2,9,1) * seq(2,9,1)), ncol = 6, byrow = FALSE)
+  Lmat2 <- matrix(cbind(rep(1,25),
+                        seq(0,24,1),
+                        rep(-1,25),
+                        -1*seq(0,24,1)), ncol = 4, byrow = FALSE)
   
   Lmat <- rbind(Lmat1, Lmat2)
   
-  results_obj <- summary(fit1_converted, show_control_fit = TRUE, lincomb = Lmat) 
+  results_obj <- summary(fit1_converted, show_control_fit = TRUE, lincomb = Lmat)
 }
 
-saveRDS(fit1_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_secondary_study_day_quadratic.rds"))
-saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_secondary_study_day_quadratic.rds"))
+saveRDS(fit1_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_secondary_hour_linear.rds"))
+saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_secondary_hour_linear.rds"))
 
 ###############################################################################
 # Analysis with replicated dataset
@@ -174,8 +171,8 @@ for(idx_replicate in 1:max_replicate_id){
                    decision_time_varname = "decision_point",
                    treatment_varname = "treatment_cate",
                    outcome_varname = "Y",
-                   control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
-                   moderator_varname = c("days_between_v1_and_coinflip_local", "days_between_v1_and_coinflip_local_squared"),
+                   control_varname = c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible"),
+                   moderator_varname = c("hour_coinflip_local"),
                    rand_prob_varname = "rand_prob",
                    rand_prob_A0_varname = "rand_prob_A0",
                    avail_varname = NULL,
@@ -198,23 +195,20 @@ for(idx_replicate in 1:max_replicate_id){
   }else{
     fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
     
-    Lmat1 <- matrix(c(1,0,0,-1,0,0,
-                      0,1,0,0,-1,0,
-                      0,0,1,0,0,-1), nrow = 3, byrow = TRUE)
+    Lmat1 <- matrix(c(1,0,-1,0,
+                      0,1,0,-1), nrow = 2, byrow = TRUE)
     
-    Lmat2 <- matrix(cbind(rep(1,8),
-                          seq(2,9,1),
-                          seq(2,9,1) * seq(2,9,1),
-                          -1*rep(1,8),
-                          -1*seq(2,9,1),
-                          -1*seq(2,9,1) * seq(2,9,1)), ncol = 6, byrow = FALSE)
+    Lmat2 <- matrix(cbind(rep(1,25),
+                          seq(0,24,1),
+                          rep(-1,25),
+                          -1*seq(0,24,1)), ncol = 4, byrow = FALSE)
     
     Lmat <- rbind(Lmat1, Lmat2)
     
     results_obj <- summary(fit1_converted, show_control_fit = TRUE, lincomb = Lmat)
   }
   
-  saveRDS(fit1_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit1_obj_secondary_study_day_quadratic", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_secondary_study_day_quadratic", "_replicate_", idx_replicate, ".rds", sep = "")))
+  saveRDS(fit1_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit1_obj_secondary_hour_linear", "_replicate_", idx_replicate, ".rds", sep = "")))
+  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_secondary_hour_linear", "_replicate_", idx_replicate, ".rds", sep = "")))
 }
 
