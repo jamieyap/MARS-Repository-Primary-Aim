@@ -9,6 +9,7 @@ rm(list = ls())
 # Prepare for pooling
 ###############################################################################
 source("paths.R")
+source(file.path(path_code, "analysis-multiple-imputation", "pool-and-ppc", "pool-utils.R"))
 library(tidyverse)
 library(mice)
 
@@ -41,6 +42,7 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
 }
 
 pool_manual <- pool.scalar(Q = unlist(list_Q), U = unlist(list_U), n = num_participants, k = 1)
+
 fit_pooled <- data.frame(Estimate = pool_manual$qbar, StdErr = sqrt(pool_manual$t), LCL = NA_real_, UCL = NA_real_, p_value = NA_real_)
 fit_pooled[["LCL"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.975)
 fit_pooled[["UCL"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.975)
