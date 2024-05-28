@@ -10,42 +10,178 @@ rm(list = ls())
 # Load packages
 ###############################################################################
 source("paths.R")
+source(file = file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-utils.R"))
+library(mice)
+library(geepack)
 library(tidyverse)
 # Note that dplyr::select clashes with MASS::select and so we have this line to be
 # able to use the select function from the dplyr package while having MASS loaded too
 select <- dplyr::select 
 
-###############################################################################
-# Posterior predictive check for time-specific means
-###############################################################################
-list_all <- list()
+dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", 1, paste("dat_long_completed", ".rds", sep = "")))
+use_alpha <- 0.05/2
 
-for(mi_dataset_num in 1:.__total_imputed_datasets){
-  dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
-  dat_current <- dat_long_completed %>%
-    filter(eligibility == 1) %>%
-    group_by(replicate_id, decision_point) %>%
-    summarise(mu_cigarette_availability = mean(cigarette_availability, na.rm = TRUE),
-              mu_engage = mean(Y, na.rm = TRUE),
-              mu_cigarette_counts = mean(cigarette_counts, na.rm = TRUE),
-              mu_src_scored = mean(src_scored, na.rm = TRUE))
-  dat0 <- dat_current %>% filter(replicate_id == 0)
-  dat1 <- dat_current %>% filter(replicate_id == 1)
+###############################################################################
+# Mean among eligible decision points micro-randomized to prompt (any type)
+###############################################################################
+mi_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_prob_prompt_by_dp.rds"))
+mi_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_var_prompt_by_dp.rds"))
+replicates_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_prob_prompt_by_dp.rds"))
+replicates_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_var_prompt_by_dp.rds"))
+
+comparison_est <- (replicates_est_prob >= mi_est_prob)
+comparison_stderr <- (sqrt(replicates_est_var) >= sqrt(mi_est_var))
+ppc_est <- colMeans(comparison_est)
+ppc_stderr <- colMeans(comparison_stderr)
+dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est, ppc_stderr = ppc_stderr)
+
+list_all_pool_stats <- list()
+
+for(dp in 1:60){
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 1) %>% nrow(.)
+  pool_manual <- pool.scalar(Q = mi_est_prob[, dp], 
+                             U = mi_est_var[, dp], 
+                             n = num_participants, 
+                             k = 1)
   
-  dp_array <- dat0$decision_point
-  dat_compared <- (dat1 >= dat0)
-  dat_compared <- as.data.frame(dat_compared)
-  dat_compared <- dat_compared %>% select(-replicate_id) %>% mutate(mi_num = mi_dataset_num, decision_point = dp_array)
-  list_all <- append(list_all, list(dat_compared))
+  pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
+  pool_stats$n <- num_participants
+  pool_stats$Qbar <- mean(mi_est_prob[, dp])
+  pool_stats$pooled_stderr <- sqrt(pool_stats$total_var)
+  pool_stats$Qbar_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  pool_stats$Qbar_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  list_all_pool_stats <- append(list_all_pool_stats, list(pool_stats))
 }
 
-dat_all <- bind_rows(list_all)
+dat_all_pool_stats <- bind_rows(list_all_pool_stats)
+dat_all_pool_stats <- dat_all_pool_stats %>% mutate(decision_point = 1:60) %>% select(decision_point, n, Qbar, pooled_stderr, Qbar_conf_int_lb, Qbar_conf_int_ub, everything())
 
-dat_pbcom <- dat_all %>%
-  group_by(decision_point) %>%
-  summarise(prob_mu_cigarette_availability = mean(mu_cigarette_availability),
-            prob_mu_engage = mean(mu_engage),
-            prob_mu_cigarette_counts = mean(mu_cigarette_counts),
-            prob_mu_src_scored = mean(mu_src_scored))
+dat_ppc <- dat_ppc %>% round(., digits = 3)
+dat_all_pool_stats <- dat_all_pool_stats %>% round(., digits = 3)
 
-write.csv(dat_pbcom, file = file.path("analysis-multiple-imputation", "formatted-output", "pbcom_by_dp.csv"), row.names = TRUE)
+write.csv(dat_ppc, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_prompt_by_dp.csv"), row.names = FALSE)
+write.csv(dat_all_pool_stats, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_prompt_by_dp.csv"), row.names = FALSE)
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to no prompt
+###############################################################################
+mi_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_prob_no_prompt_by_dp.rds"))
+mi_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_var_no_prompt_by_dp.rds"))
+replicates_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_prob_no_prompt_by_dp.rds"))
+replicates_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_var_no_prompt_by_dp.rds"))
+
+comparison_est <- (replicates_est_prob >= mi_est_prob)
+comparison_stderr <- (sqrt(replicates_est_var) >= sqrt(mi_est_var))
+ppc_est <- colMeans(comparison_est)
+ppc_stderr <- colMeans(comparison_stderr)
+dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est, ppc_stderr = ppc_stderr)
+
+list_all_pool_stats <- list()
+
+for(dp in 1:60){
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 0) %>% nrow(.)
+  pool_manual <- pool.scalar(Q = mi_est_prob[, dp], 
+                             U = mi_est_var[, dp], 
+                             n = num_participants, 
+                             k = 1)
+  
+  pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
+  pool_stats$n <- num_participants
+  pool_stats$Qbar <- mean(mi_est_prob[, dp])
+  pool_stats$pooled_stderr <- sqrt(pool_stats$total_var)
+  pool_stats$Qbar_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  pool_stats$Qbar_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  list_all_pool_stats <- append(list_all_pool_stats, list(pool_stats))
+}
+
+dat_all_pool_stats <- bind_rows(list_all_pool_stats)
+dat_all_pool_stats <- dat_all_pool_stats %>% mutate(decision_point = 1:60) %>% select(decision_point, n, Qbar, pooled_stderr, Qbar_conf_int_lb, Qbar_conf_int_ub, everything())
+
+dat_ppc <- dat_ppc %>% round(., digits = 3)
+dat_all_pool_stats <- dat_all_pool_stats %>% round(., digits = 3)
+
+write.csv(dat_ppc, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_no_prompt_by_dp.csv"), row.names = FALSE)
+write.csv(dat_all_pool_stats, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_no_prompt_by_dp.csv"), row.names = FALSE)
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to high effort prompt
+###############################################################################
+mi_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_prob_high_effort_prompt_by_dp.rds"))
+mi_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_var_high_effort_prompt_by_dp.rds"))
+replicates_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_prob_high_effort_prompt_by_dp.rds"))
+replicates_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_var_high_effort_prompt_by_dp.rds"))
+
+comparison_est <- (replicates_est_prob >= mi_est_prob)
+comparison_stderr <- (sqrt(replicates_est_var) >= sqrt(mi_est_var))
+ppc_est <- colMeans(comparison_est)
+ppc_stderr <- colMeans(comparison_stderr)
+dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est, ppc_stderr = ppc_stderr)
+
+list_all_pool_stats <- list()
+
+for(dp in 1:60){
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_high_effort == 1) %>% nrow(.)
+  pool_manual <- pool.scalar(Q = mi_est_prob[, dp], 
+                             U = mi_est_var[, dp], 
+                             n = num_participants, 
+                             k = 1)
+  
+  pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
+  pool_stats$n <- num_participants
+  pool_stats$Qbar <- mean(mi_est_prob[, dp])
+  pool_stats$pooled_stderr <- sqrt(pool_stats$total_var)
+  pool_stats$Qbar_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  pool_stats$Qbar_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  list_all_pool_stats <- append(list_all_pool_stats, list(pool_stats))
+}
+
+dat_all_pool_stats <- bind_rows(list_all_pool_stats)
+dat_all_pool_stats <- dat_all_pool_stats %>% mutate(decision_point = 1:60) %>% select(decision_point, n, Qbar, pooled_stderr, Qbar_conf_int_lb, Qbar_conf_int_ub, everything())
+
+dat_ppc <- dat_ppc %>% round(., digits = 3)
+dat_all_pool_stats <- dat_all_pool_stats %>% round(., digits = 3)
+
+write.csv(dat_ppc, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_high_effort_prompt_by_dp.csv"), row.names = FALSE)
+write.csv(dat_all_pool_stats, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_high_effort_prompt_by_dp.csv"), row.names = FALSE)
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to low effort prompt
+###############################################################################
+mi_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_prob_low_effort_prompt_by_dp.rds"))
+mi_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "mi_est_var_low_effort_prompt_by_dp.rds"))
+replicates_est_prob <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_prob_low_effort_prompt_by_dp.rds"))
+replicates_est_var <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", "replicates_est_var_low_effort_prompt_by_dp.rds"))
+
+comparison_est <- (replicates_est_prob >= mi_est_prob)
+comparison_stderr <- (sqrt(replicates_est_var) >= sqrt(mi_est_var))
+ppc_est <- colMeans(comparison_est)
+ppc_stderr <- colMeans(comparison_stderr)
+dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est, ppc_stderr = ppc_stderr)
+
+list_all_pool_stats <- list()
+
+for(dp in 1:60){
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_low_effort == 1) %>% nrow(.)
+  pool_manual <- pool.scalar(Q = mi_est_prob[, dp], 
+                             U = mi_est_var[, dp], 
+                             n = num_participants, 
+                             k = 1)
+  
+  pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
+  pool_stats$n <- num_participants
+  pool_stats$Qbar <- mean(mi_est_prob[, dp])
+  pool_stats$pooled_stderr <- sqrt(pool_stats$total_var)
+  pool_stats$Qbar_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  pool_stats$Qbar_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$pooled_stderr
+  list_all_pool_stats <- append(list_all_pool_stats, list(pool_stats))
+}
+
+dat_all_pool_stats <- bind_rows(list_all_pool_stats)
+dat_all_pool_stats <- dat_all_pool_stats %>% mutate(decision_point = 1:60) %>% select(decision_point, n, Qbar, pooled_stderr, Qbar_conf_int_lb, Qbar_conf_int_ub, everything())
+
+dat_ppc <- dat_ppc %>% round(., digits = 3)
+dat_all_pool_stats <- dat_all_pool_stats %>% round(., digits = 3)
+
+write.csv(dat_ppc, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_low_effort_prompt_by_dp.csv"), row.names = FALSE)
+write.csv(dat_all_pool_stats, file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_low_effort_prompt_by_dp.csv"), row.names = FALSE)
+

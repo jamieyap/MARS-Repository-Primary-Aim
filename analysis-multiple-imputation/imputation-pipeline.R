@@ -90,4 +90,14 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-study-day-linear.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-study-day-quadratic.R"))
 
+###############################################################################
+# Data analysis
+###############################################################################
+source(file.path("analysis-multiple-imputation", "estimate-time-specific-means-for-mi-data.R"))
+source(file.path("analysis-multiple-imputation", "estimate-time-specific-means-for-replicated-data.R"))
+
+###############################################################################
+# Pooling estimates across imputed datasets and posterior predictive checking
+###############################################################################
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "ppc-time-specific-means.R"))
 
