@@ -148,12 +148,12 @@ if(class(fit1) == "character"){
                     0,1,0,0,-1,0,
                     0,0,1,0,0,-1), nrow = 3, byrow = TRUE)
   
-  Lmat2 <- matrix(cbind(rep(1,8),
-                        seq(2,9,1),
-                        seq(2,9,1) * seq(2,9,1),
-                        -1*rep(1,8),
-                        -1*seq(2,9,1),
-                        -1*seq(2,9,1) * seq(2,9,1)), ncol = 6, byrow = FALSE)
+  Lmat2 <- matrix(cbind(rep(1,25),
+                        seq(0,24,1),
+                        seq(0,24,1) * seq(0,24,1),
+                        -1*rep(1,25),
+                        -1*seq(0,24,1),
+                        -1*seq(0,24,1) * seq(0,24,1)), ncol = 6, byrow = FALSE)
   
   Lmat <- rbind(Lmat1, Lmat2)
   

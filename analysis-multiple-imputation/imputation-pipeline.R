@@ -83,12 +83,22 @@ for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-study-day-quadratic.R"))
 }
 
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-hour-linear.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-hour-quadratic.R"))
+}
+
 ###############################################################################
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-study-day-linear.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-study-day-quadratic.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-linear.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-quadratic.R"))
 
 ###############################################################################
 # Data analysis
