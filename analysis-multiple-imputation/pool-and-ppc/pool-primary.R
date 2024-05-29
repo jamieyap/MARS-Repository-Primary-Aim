@@ -42,6 +42,7 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
 }
 
 pool_manual <- pool.scalar(Q = unlist(list_Q), U = unlist(list_U), n = num_participants, k = 1)
+pool_stats <- calculate_pool_statistics(results_obj = results_obj, pool_manual = pool_manual)
 
 fit_pooled <- data.frame(Estimate = pool_manual$qbar, StdErr = sqrt(pool_manual$t), LCL = NA_real_, UCL = NA_real_, p_value = NA_real_)
 fit_pooled[["LCL"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.975)
@@ -51,6 +52,8 @@ fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["Std
 row.names(fit_pooled) <- "Treatment (Prompt = 1, No Prompt = 0)"
 fit_pooled_causal <- fit_pooled
 print(fit_pooled_causal)
+
+row.names(pool_stats) <- "Treatment (Prompt = 1, No Prompt = 0)"
 
 # Control part of the analysis model ------------------------------------------
 
@@ -139,8 +142,9 @@ dat_pbcom <- data.frame(pbcom_est, pbcom_stderr)
 fit_pooled_causal_formatted <- format(round(fit_pooled_causal, 3), nsmall = 3)
 fit_pooled_control_formatted <- format(round(fit_pooled_control, 3), nsmall = 3)
 dat_pbcom_formatted <- format(round(dat_pbcom, 3), nsmall = 3)
+pool_stats_formatted <- format(round(pool_stats, 5), nsmall = 5)
 
 write.csv(fit_pooled_causal_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pooled_H1_causal.csv"), row.names = TRUE)
 write.csv(fit_pooled_control_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pooled_H1_control.csv"), row.names = TRUE)
 write.csv(dat_pbcom_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pbcom_H1_causal.csv"), row.names = TRUE)
-
+write.csv(pool_stats_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pool_stats_H1_causal.csv"), row.names = TRUE)

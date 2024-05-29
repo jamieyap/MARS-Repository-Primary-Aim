@@ -1,0 +1,115 @@
+cc_est_prob_prompt_by_dp <- read.csv(file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_prompt_by_dp.csv"))
+cc_est_prob_no_prompt_by_dp <- read.csv(file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_no_prompt_by_dp.csv"))
+cc_est_prob_high_effort_prompt_by_dp <- read.csv(file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_high_effort_prompt_by_dp.csv"))
+cc_est_prob_low_effort_prompt_by_dp <- read.csv(file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_low_effort_prompt_by_dp.csv"))
+
+dat_all_pool_stats_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_prompt_by_dp.csv"))
+dat_all_pool_stats_no_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_no_prompt_by_dp.csv"))
+dat_all_pool_stats_high_effort_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_high_effort_prompt_by_dp.csv"))
+dat_all_pool_stats_low_effort_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_all_pool_stats_low_effort_prompt_by_dp.csv"))
+
+dat_ppc_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_prompt_by_dp.csv"))
+dat_ppc_no_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_no_prompt_by_dp.csv"))
+dat_ppc_high_effort_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_high_effort_prompt_by_dp.csv"))
+dat_ppc_low_effort_prompt_by_dp <- read.csv(file = file.path("analysis-multiple-imputation", "formatted-output", "dat_ppc_low_effort_prompt_by_dp.csv"))
+
+
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to prompt (any type)
+###############################################################################
+plot(cc_est_prob_prompt_by_dp$decision_point, cc_est_prob_prompt_by_dp$est, type = "b", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Estimated Proportion")
+lines(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_by_dp$Qbar, type = "b", ylim = c(0,1), lwd = 3, col = "blue")
+
+lines(cc_est_prob_prompt_by_dp$decision_point, cc_est_prob_prompt_by_dp$conf_int_lb, type = "b", lty = 2, lwd = 0.5)
+lines(cc_est_prob_prompt_by_dp$decision_point, cc_est_prob_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5)
+lines(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_by_dp$Qbar_conf_int_lb, type = "b", lty = 2, lwd = 0.5, col = "blue")
+lines(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_by_dp$Qbar_conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
+
+legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
+title(main = "Mean among eligible decision points micro-randomized to prompt (any type)")
+
+plot(dat_ppc_prompt_by_dp$decision_point, dat_ppc_prompt_by_dp$ppc_est, type = "b", col = "red", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Proportion of times estimates obtained from replicate was greater or equal to imputed")
+lines(dat_ppc_prompt_by_dp$decision_point, dat_ppc_prompt_by_dp$ppc_stderr, type = "b", col = "orange", ylim = c(0,1), lwd = 3)
+abline(h = 0.5, lwd = 3, lty = 2)
+abline(h = 0.95, lwd = 3, lty = 2)
+abline(h = 0.05, lwd = 3, lty = 2)
+legend("bottomright", legend = c("PPC for estimate", "PPC for Std Err","Displays 0.05, 0.50, 0.95"), col = c("red", "orange", "black"), lty = c(1,1,2), lwd = c(3,3,3))
+title(main = "Mean among eligible decision points micro-randomized to prompt (any type)")
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to no prompt
+###############################################################################
+plot(cc_est_prob_no_prompt_by_dp$decision_point, cc_est_prob_no_prompt_by_dp$est, type = "b", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Estimated Proportion")
+lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_prompt_by_dp$Qbar, type = "b", ylim = c(0,1), lwd = 3, col = "blue")
+
+lines(cc_est_prob_no_prompt_by_dp$decision_point, cc_est_prob_no_prompt_by_dp$conf_int_lb, type = "b", lty = 2, lwd = 0.5)
+lines(cc_est_prob_no_prompt_by_dp$decision_point, cc_est_prob_no_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5)
+lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_prompt_by_dp$Qbar_conf_int_lb, type = "b", lty = 2, lwd = 0.5, col = "blue")
+lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_prompt_by_dp$Qbar_conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
+
+legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
+title(main = "Mean among eligible decision points micro-randomized to no prompt")
+
+plot(dat_ppc_no_prompt_by_dp$decision_point, dat_ppc_no_prompt_by_dp$ppc_est, type = "b", col = "red", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Proportion of times estimates obtained from replicate was greater or equal to imputed")
+lines(dat_ppc_no_prompt_by_dp$decision_point, dat_ppc_no_prompt_by_dp$ppc_stderr, type = "b", col = "orange", ylim = c(0,1), lwd = 3)
+abline(h = 0.5, lwd = 3, lty = 2)
+abline(h = 0.95, lwd = 3, lty = 2)
+abline(h = 0.05, lwd = 3, lty = 2)
+legend("bottomright", legend = c("PPC for estimate", "PPC for Std Err","Displays 0.05, 0.50, 0.95"), col = c("red", "orange", "black"), lty = c(1,1,2), lwd = c(3,3,3))
+title(main = "Mean among eligible decision points micro-randomized to no prompt")
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to high effort prompt
+###############################################################################
+plot(cc_est_prob_high_effort_prompt_by_dp$decision_point, cc_est_prob_high_effort_prompt_by_dp$est, type = "b", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Estimated Proportion")
+lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_stats_high_effort_prompt_by_dp$Qbar, type = "b", ylim = c(0,1), lwd = 3, col = "blue")
+
+lines(cc_est_prob_high_effort_prompt_by_dp$decision_point, cc_est_prob_high_effort_prompt_by_dp$conf_int_lb, type = "b", lty = 2, lwd = 0.5)
+lines(cc_est_prob_high_effort_prompt_by_dp$decision_point, cc_est_prob_high_effort_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5)
+lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_stats_high_effort_prompt_by_dp$Qbar_conf_int_lb, type = "b", lty = 2, lwd = 0.5, col = "blue")
+lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_stats_high_effort_prompt_by_dp$Qbar_conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
+
+legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
+title(main = "Mean among eligible decision points micro-randomized to high effort prompt")
+
+plot(dat_ppc_high_effort_prompt_by_dp$decision_point, dat_ppc_high_effort_prompt_by_dp$ppc_est, type = "b", col = "red", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Proportion of times estimates obtained from replicate was greater or equal to imputed")
+lines(dat_ppc_high_effort_prompt_by_dp$decision_point, dat_ppc_high_effort_prompt_by_dp$ppc_stderr, type = "b", col = "orange", ylim = c(0,1), lwd = 3)
+abline(h = 0.5, lwd = 3, lty = 2)
+abline(h = 0.95, lwd = 3, lty = 2)
+abline(h = 0.05, lwd = 3, lty = 2)
+legend("bottomright", legend = c("PPC for estimate", "PPC for Std Err","Displays 0.05, 0.50, 0.95"), col = c("red", "orange", "black"), lty = c(1,1,2), lwd = c(3,3,3))
+title(main = "Mean among eligible decision points micro-randomized to high effort prompt")
+
+###############################################################################
+# Mean among eligible decision points micro-randomized to low effort prompt
+###############################################################################
+plot(cc_est_prob_low_effort_prompt_by_dp$decision_point[-c(1:2)], cc_est_prob_low_effort_prompt_by_dp$est[-c(1:2)], type = "b", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Estimated Proportion")
+lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point[-c(1:2)], dat_all_pool_stats_low_effort_prompt_by_dp$Qbar[-c(1:2)], type = "b", ylim = c(0,1), lwd = 3, col = "blue")
+
+lines(cc_est_prob_low_effort_prompt_by_dp$decision_point, cc_est_prob_low_effort_prompt_by_dp$conf_int_lb, type = "b", lty = 2, lwd = 0.5)
+lines(cc_est_prob_low_effort_prompt_by_dp$decision_point, cc_est_prob_low_effort_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5)
+lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point, dat_all_pool_stats_low_effort_prompt_by_dp$Qbar_conf_int_lb, type = "b", lty = 2, lwd = 0.5, col = "blue")
+lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point, dat_all_pool_stats_low_effort_prompt_by_dp$Qbar_conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
+
+legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
+title(main = "Mean among eligible decision points micro-randomized to low effort prompt")
+
+plot(dat_ppc_low_effort_prompt_by_dp$decision_point[-c(1:2)], dat_ppc_low_effort_prompt_by_dp$ppc_est[-c(1:2)], type = "b", col = "red", ylim = c(0,1), lwd = 3, xlab = "Decision Point", ylab = "Proportion of times estimates obtained from replicate was greater or equal to imputed")
+lines(dat_ppc_low_effort_prompt_by_dp$decision_point[-c(1:2)], dat_ppc_low_effort_prompt_by_dp$ppc_stderr[-c(1:2)], type = "b", col = "orange", ylim = c(0,1), lwd = 3)
+abline(h = 0.5, lwd = 3, lty = 2)
+abline(h = 0.95, lwd = 3, lty = 2)
+abline(h = 0.05, lwd = 3, lty = 2)
+legend("bottomright", legend = c("PPC for estimate", "PPC for Std Err","Displays 0.05, 0.50, 0.95"), col = c("red", "orange", "black"), lty = c(1,1,2), lwd = c(3,3,3))
+title(main = "Mean among eligible decision points micro-randomized to low effort prompt")
+
+###############################################################################
+# Fraction of missing information
+###############################################################################
+plot(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_by_dp$gamma, type = "b", ylim = c(0,1), lwd = 3, col = "cornflowerblue", xlab = "Decision Point", ylab = "Fraction of Missing Information")
+lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_prompt_by_dp$gamma, type = "b", ylim = c(0,1), lwd = 3, col = "darkgreen")
+lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_stats_high_effort_prompt_by_dp$gamma, type = "b", ylim = c(0,1), lwd = 3, col = "violet")
+lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point[-c(1:2)], dat_all_pool_stats_low_effort_prompt_by_dp$gamma[-c(1:2)], type = "b", ylim = c(0,1), lwd = 3, col = "gray")
+legend("topleft", cex = 0.7, legend = c("Prompt (any)", "No Prompt","High Effort Prompt","Low Effort Prompt"), col = c("cornflowerblue", "darkgreen", "violet", "gray"), lty = c(1,1,1,1), lwd = c(3,3,3,3))
+
+

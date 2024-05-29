@@ -9,6 +9,7 @@ rm(list = ls())
 # Prepare for pooling
 ###############################################################################
 source("paths.R")
+source(file = file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-utils.R"))
 library(tidyverse)
 library(mice)
 
@@ -32,6 +33,7 @@ num_terms <- nrow(results_obj$causal_excursion_effect)
 list_pooled_est <- list()
 list_pooled_std_err <- list()
 list_pool_manual_output <- list()
+list_pool_stats <- list()
 
 for(j in 1:num_terms){
   list_Q <- list()
@@ -48,6 +50,9 @@ for(j in 1:num_terms){
     }
   }
   pool_manual <- pool.scalar(Q = unlist(list_Q), U = unlist(list_U), n = num_participants)
+  pool_stats <- calculate_pool_statistics(results_obj = results_obj, pool_manual = pool_manual)
+  list_pool_stats <- append(list_pool_stats, list(pool_stats))
+  
   list_pool_manual_output <- append(list_pool_manual_output, list(pool_manual))
   list_pooled_est <- append(list_pooled_est, pool_manual$qbar)
   list_pooled_std_err <- append(list_pooled_std_err, sqrt(pool_manual$t))
@@ -60,6 +65,9 @@ fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["Std
 
 row.names(fit_pooled) <- c("High Effort Prompt vs. No Prompt", "Low Effort Prompt vs. No Prompt", "High Effort Prompt vs. Low Effort Prompt")
 fit_pooled_causal <- fit_pooled
+
+dat_pool_stats <- bind_rows(list_pool_stats)
+row.names(dat_pool_stats) <- c("High Effort Prompt vs. No Prompt", "Low Effort Prompt vs. No Prompt", "High Effort Prompt vs. Low Effort Prompt")
 
 # Control part of the analysis model ------------------------------------------
 results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", 1, "results_obj_secondary_marginal.rds"))
@@ -148,8 +156,11 @@ row.names(dat_pbcom) <- c("High Effort Prompt vs. No Prompt", "Low Effort Prompt
 fit_pooled_causal_formatted <- format(round(fit_pooled_causal, 3), nsmall = 3)
 fit_pooled_control_formatted <- format(round(fit_pooled_control, 3), nsmall = 3)
 dat_pbcom_formatted <- format(round(dat_pbcom, 3), nsmall = 3)
+dat_pool_stats_formatted <- format(round(dat_pool_stats, 5), nsmall = 5)
 
 write.csv(fit_pooled_causal_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pooled_H2_causal.csv"), row.names = TRUE)
 write.csv(fit_pooled_control_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pooled_H2_control.csv"), row.names = TRUE)
 write.csv(dat_pbcom_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pbcom_H2_causal.csv"), row.names = TRUE)
+write.csv(dat_pool_stats_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pool_stats_H2_causal.csv"), row.names = TRUE)
+
 
