@@ -31,22 +31,24 @@ dat_count_total <- dat %>%
 
 list_fit_by_dp <- dat %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
 list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp, 
-                                        function(current_fit){
-                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                        function(current_fit, a = use_alpha){
+                                          # Grab results on log-odds scale
                                           results_logodds_scale <- current_fit %>% summary(.) %>% .[["coefficients"]] %>% as_tibble(.)
-                                          est_logodds <- results_logodds_scale[["Estimate"]]
-                                          est_prob <- exp(est_logodds)/(1 + exp(est_logodds))
-                                          grad <- est_prob * (1 - est_prob)
-                                          var_G <- grad * var_logodds_scale * grad
-                                          results_mu_scale <- tibble(est = est_prob, std_err = sqrt(var_G))
+                                          est_logodds_scale <- results_logodds_scale[["Estimate"]]
+                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                          stderr_logodds_scale <- sqrt(var_logodds_scale)
+                                          logodds_conf_int_lb <- est_logodds_scale - qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          logodds_conf_int_ub <- est_logodds_scale + qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          # Transform results to probability scale
+                                          est_prob <- exp(est_logodds_scale)/(1 + exp(est_logodds_scale))
+                                          conf_int_lb <- exp(logodds_conf_int_lb)/(1 + exp(logodds_conf_int_lb))
+                                          conf_int_ub <- exp(logodds_conf_int_ub)/(1 + exp(logodds_conf_int_ub))
+                                          results_mu_scale <- tibble(est = est_prob, conf_int_lb = conf_int_lb, conf_int_ub = conf_int_ub)
                                           return(results_mu_scale)
                                           })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$conf_int_lb <- dat_estimates_by_dp_mu_scale$est - qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
-dat_estimates_by_dp_mu_scale$conf_int_ub <- dat_estimates_by_dp_mu_scale$est + qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
 dat_estimates_by_dp_mu_scale$decision_point <- 1:60
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
-
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
 write.csv(dat_estimates_by_dp_mu_scale, file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_prompt_by_dp.csv"), row.names = FALSE)
@@ -62,22 +64,24 @@ dat_count_total <- dat %>%
 
 list_fit_by_dp <- dat %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
 list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp, 
-                                        function(current_fit){
-                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                        function(current_fit, a = use_alpha){
+                                          # Grab results on log-odds scale
                                           results_logodds_scale <- current_fit %>% summary(.) %>% .[["coefficients"]] %>% as_tibble(.)
-                                          est_logodds <- results_logodds_scale[["Estimate"]]
-                                          est_prob <- exp(est_logodds)/(1 + exp(est_logodds))
-                                          grad <- est_prob * (1 - est_prob)
-                                          var_G <- grad * var_logodds_scale * grad
-                                          results_mu_scale <- tibble(est = est_prob, std_err = sqrt(var_G))
+                                          est_logodds_scale <- results_logodds_scale[["Estimate"]]
+                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                          stderr_logodds_scale <- sqrt(var_logodds_scale)
+                                          logodds_conf_int_lb <- est_logodds_scale - qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          logodds_conf_int_ub <- est_logodds_scale + qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          # Transform results to probability scale
+                                          est_prob <- exp(est_logodds_scale)/(1 + exp(est_logodds_scale))
+                                          conf_int_lb <- exp(logodds_conf_int_lb)/(1 + exp(logodds_conf_int_lb))
+                                          conf_int_ub <- exp(logodds_conf_int_ub)/(1 + exp(logodds_conf_int_ub))
+                                          results_mu_scale <- tibble(est = est_prob, conf_int_lb = conf_int_lb, conf_int_ub = conf_int_ub)
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$conf_int_lb <- dat_estimates_by_dp_mu_scale$est - qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
-dat_estimates_by_dp_mu_scale$conf_int_ub <- dat_estimates_by_dp_mu_scale$est + qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
 dat_estimates_by_dp_mu_scale$decision_point <- 1:60
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
-
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
 write.csv(dat_estimates_by_dp_mu_scale, file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_no_prompt_by_dp.csv"), row.names = FALSE)
@@ -93,22 +97,24 @@ dat_count_total <- dat %>%
 
 list_fit_by_dp <- dat %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
 list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp, 
-                                        function(current_fit){
-                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                        function(current_fit, a = use_alpha){
+                                          # Grab results on log-odds scale
                                           results_logodds_scale <- current_fit %>% summary(.) %>% .[["coefficients"]] %>% as_tibble(.)
-                                          est_logodds <- results_logodds_scale[["Estimate"]]
-                                          est_prob <- exp(est_logodds)/(1 + exp(est_logodds))
-                                          grad <- est_prob * (1 - est_prob)
-                                          var_G <- grad * var_logodds_scale * grad
-                                          results_mu_scale <- tibble(est = est_prob, std_err = sqrt(var_G))
+                                          est_logodds_scale <- results_logodds_scale[["Estimate"]]
+                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                          stderr_logodds_scale <- sqrt(var_logodds_scale)
+                                          logodds_conf_int_lb <- est_logodds_scale - qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          logodds_conf_int_ub <- est_logodds_scale + qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          # Transform results to probability scale
+                                          est_prob <- exp(est_logodds_scale)/(1 + exp(est_logodds_scale))
+                                          conf_int_lb <- exp(logodds_conf_int_lb)/(1 + exp(logodds_conf_int_lb))
+                                          conf_int_ub <- exp(logodds_conf_int_ub)/(1 + exp(logodds_conf_int_ub))
+                                          results_mu_scale <- tibble(est = est_prob, conf_int_lb = conf_int_lb, conf_int_ub = conf_int_ub)
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$conf_int_lb <- dat_estimates_by_dp_mu_scale$est - qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
-dat_estimates_by_dp_mu_scale$conf_int_ub <- dat_estimates_by_dp_mu_scale$est + qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
 dat_estimates_by_dp_mu_scale$decision_point <- 1:60
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
-
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
 write.csv(dat_estimates_by_dp_mu_scale, file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_high_effort_prompt_by_dp.csv"), row.names = FALSE)
@@ -124,25 +130,25 @@ dat_count_total <- dat %>%
 
 list_fit_by_dp <- dat %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
 list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp, 
-                                        function(current_fit){
-                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                        function(current_fit, a = use_alpha){
+                                          # Grab results on log-odds scale
                                           results_logodds_scale <- current_fit %>% summary(.) %>% .[["coefficients"]] %>% as_tibble(.)
-                                          est_logodds <- results_logodds_scale[["Estimate"]]
-                                          est_prob <- exp(est_logodds)/(1 + exp(est_logodds))
-                                          grad <- est_prob * (1 - est_prob)
-                                          var_G <- grad * var_logodds_scale * grad
-                                          results_mu_scale <- tibble(est = est_prob, std_err = sqrt(var_G))
+                                          est_logodds_scale <- results_logodds_scale[["Estimate"]]
+                                          var_logodds_scale <- current_fit %>% vcov(.) %>% c(.)
+                                          stderr_logodds_scale <- sqrt(var_logodds_scale)
+                                          logodds_conf_int_lb <- est_logodds_scale - qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          logodds_conf_int_ub <- est_logodds_scale + qnorm(a, lower.tail = FALSE) * stderr_logodds_scale
+                                          # Transform results to probability scale
+                                          est_prob <- exp(est_logodds_scale)/(1 + exp(est_logodds_scale))
+                                          conf_int_lb <- exp(logodds_conf_int_lb)/(1 + exp(logodds_conf_int_lb))
+                                          conf_int_ub <- exp(logodds_conf_int_ub)/(1 + exp(logodds_conf_int_ub))
+                                          results_mu_scale <- tibble(est = est_prob, conf_int_lb = conf_int_lb, conf_int_ub = conf_int_ub)
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$conf_int_lb <- dat_estimates_by_dp_mu_scale$est - qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
-dat_estimates_by_dp_mu_scale$conf_int_ub <- dat_estimates_by_dp_mu_scale$est + qnorm(use_alpha, lower.tail = FALSE) * dat_estimates_by_dp_mu_scale$std_err
 dat_estimates_by_dp_mu_scale$decision_point <- 1:60
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
-
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
 write.csv(dat_estimates_by_dp_mu_scale, file = file.path("analysis-complete-case", "formatted-output", "cc_est_prob_low_effort_prompt_by_dp.csv"), row.names = FALSE)
-
-
 
