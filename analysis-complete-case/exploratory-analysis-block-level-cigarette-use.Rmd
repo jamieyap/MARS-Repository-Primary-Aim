@@ -183,14 +183,14 @@ dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qn
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_logodds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_logodds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
@@ -210,14 +210,14 @@ dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 1.5))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_odds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 1.5))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_odds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
@@ -339,14 +339,14 @@ dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qn
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_logodds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(j)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_logodds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
@@ -366,14 +366,14 @@ dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 1.5))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_odds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 1.5))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(j))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_block_level_odds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```

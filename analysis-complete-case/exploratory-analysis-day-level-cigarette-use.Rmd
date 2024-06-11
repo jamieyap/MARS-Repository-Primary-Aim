@@ -48,7 +48,7 @@ if(isFALSE(is_dir_exist)){
 
 ```{r}
 # This is the data frame that is the output of the very last step of our data pipeline
-dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
 ```
 
 ```{r}
@@ -96,6 +96,8 @@ dat_for_analysis <- dat_for_analysis %>%
   mutate(any_engaged = 1*(n_engaged > 0),
          any_engaged_lag1 = 1*(n_engaged_lag1 > 0)) %>%
   filter(cluster_id >= 2 & cluster_id <= 9)
+
+dat_for_analysis <- dat_for_analysis %>% mutate(cluster_id = cluster_id - 1) # So that day in MRT will begin at 0 rather than 1
 ```
 
 ```{r}
@@ -115,8 +117,6 @@ dat_logreg <- dat_for_analysis %>%
   filter(drop_row == 0)
 ```
 
-## Use model with only number of times engaged as predictor
-
 ```{r}
 fit <- geeglm(any_nic ~ n_engaged, 
               family = "binomial", 
@@ -127,8 +127,13 @@ fit <- geeglm(any_nic ~ n_engaged,
 
 ```{r}
 dat_results <- summary(fit)[["coefficients"]]
+
 dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
 dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
 
 dat_results_logodds_scale <- dat_results
 dat_results_logodds_scale %>% round(., 3)
@@ -138,85 +143,57 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), 
+                                     # 95% CI
+                                     LB95 = exp(dat_results[["LB95"]]), 
+                                     UB95 = exp(dat_results[["UB95"]]),
+                                     # 90% CI
+                                     LB90 = exp(dat_results[["LB90"]]), 
+                                     UB90 = exp(dat_results[["UB90"]]))
+
+row.names(dat_results_odds_scale) <- row.names(dat_results_logodds_scale)
+
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_odds_scale_concurrent.csv"), row.names = TRUE)
 ```
 
-## Use model with number of itmes engaged and control covariates as predictor
+$$
+E \left( S_{i,d} \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1 \right) = \beta_0 + \beta_1 X_{i,d}
+$$
 
 ```{r}
-fit <- geeglm(any_nic ~ n_engaged + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val, 
-              family = "binomial", 
-              data = dat_logreg[complete.cases(dat_logreg[, c("any_nic", "n_engaged", "age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val")]),], 
+dat_reg <- dat_for_analysis %>% 
+  filter(n_elig > 0) %>% 
+  mutate(drop_row = if_else(n_elig != n_obs_nic, 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(n_nic ~ n_engaged, 
+              data = dat_reg, 
               id = participant_id, 
               waves = cluster_id)
 ```
 
 ```{r}
-summary(fit)
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+
+dat_results_mean_scale <- dat_results
+dat_results_mean_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_mean_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_mean_scale_concurrent.csv"), row.names = TRUE)
 ```
 
-
-# Estimate the prevalence
-
-```{r}
-dat_tvem <- dat_logreg
-```
-
-```{r}
-list_collect_metrics <- list()
-
-for(current_num_knots in 1:3){
-  model_tvem <- tvem(data=dat_tvem,
-                     formula=any_nic ~ 1,
-                     id=participant_id,
-                     time=n_engaged,
-                     invar_effects=NULL,
-                     family = binomial(),
-                     num_knots = current_num_knots,
-                     spline_order = 3,
-                     penalty_function_order = 1,
-                     penalize = TRUE)
-  
-  dat_current_metrics <- data.frame(total_knots = current_num_knots,
-                                    penalty = 1,
-                                    aic_value = model_tvem$model_information$pseudo_aic,
-                                    bic_value = model_tvem$model_information$pseudo_bic)
-  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
-}
-
-dat_all_metrics <- bind_rows(list_collect_metrics)
-
-model_tvem <- tvem(data=dat_tvem,
-                   formula=any_nic ~ 1,
-                   id=participant_id,
-                   time=n_engaged,
-                   invar_effects=NULL,
-                   family = binomial(),
-                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
-                   spline_order = 3,
-                   penalty_function_order = 1,
-                   penalize = TRUE)
-
-#plot(model_tvem, exponentiate = TRUE)
-```
-
-```{r, fig.height = 5, fig.width = 7}
-exp_est <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"estimate"])
-exp_upper <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"upper"])
-exp_lower <- exp(model_tvem$grid_fitted_coefficients$`(Intercept)`[,"lower"])
-
-x_grid <- model_tvem$time_grid
-prevalence <- exp_est/(1 + exp_est)
-prevalence_upper <- exp_upper/(1 + exp_upper)
-prevalence_lower <- exp_lower/(1 + exp_lower)
-plot(x_grid, prevalence, ylim = c(0,1), type = "l", xlab = "No. of times engaged in self-regulatory strategies on day d", ylab = "Prevalance of cigarette use on day d")
-lines(x_grid, prevalence_upper, type = "l", lty = 2)
-lines(x_grid, prevalence_lower, type = "l", lty = 2)
-```
 
 # Time-varying association between engagement in self-regulatory strategies and cigarette use on current day
 
@@ -224,6 +201,9 @@ $$
 \text{logit} Pr\left(\text{ANY CIGARETTE USE}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
 $$
 
+```{r}
+dat_tvem <- dat_logreg
+```
 
 ```{r}
 list_collect_metrics <- list()
@@ -259,14 +239,147 @@ model_tvem <- tvem(data=dat_tvem,
                    spline_order = 3,
                    penalty_function_order = 1,
                    penalize = TRUE)
+```
 
+```{r}
+plot(model_tvem)
+
+plot(model_tvem, exponentiate = TRUE)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$n_engaged
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_logodds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_logodds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem_exp_scale <- dat_fitted_tvem
+
+dat_fitted_tvem_exp_scale[["estimate"]] <- exp(dat_fitted_tvem[["estimate"]])
+
+dat_fitted_tvem_exp_scale[["UB95"]] <- exp(dat_fitted_tvem[["UB95"]])
+dat_fitted_tvem_exp_scale[["LB95"]] <- exp(dat_fitted_tvem[["LB95"]])
+
+dat_fitted_tvem_exp_scale[["UB90"]] <- exp(dat_fitted_tvem[["UB90"]])
+dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_odds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][1]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_odds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+$$
+E\left(\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+$$
+
+```{r}
+dat_tvem <- dat_reg
+```
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=n_nic ~ n_engaged,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=n_nic ~ n_engaged,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+```
+
+```{r}
 plot(model_tvem)
 ```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$n_engaged
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_mean_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_mean_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
 
 # Marginal association between engagement in self-regulatory strategies and cigarette use on next day
 
 $$
-\mathrm{logit} Pr \left( S_{i,d + 1} = 1 \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} \right) = \beta_0 + \beta_1 X_{i,d}
+\mathrm{logit} Pr \left( S_{i,d + 1} = 1 \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} \right) = \beta_0 + \beta_1 S_{i,d} + \beta_2 X_{i,d}
 $$
 
 ```{r}
@@ -277,13 +390,17 @@ dat_logreg <- dat_for_analysis %>%
 ```
 
 ```{r}
-fit <- geeglm(any_nic_lead1 ~ n_engaged + any_nic, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
+fit <- geeglm(any_nic_lead1 ~ any_nic + n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
 ```
 
 ```{r}
 dat_results <- summary(fit)[["coefficients"]]
+
 dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
 dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
 
 dat_results_logodds_scale <- dat_results
 dat_results_logodds_scale %>% round(., 3)
@@ -293,11 +410,51 @@ dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.cs
 ```
 
 ```{r}
-dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), LB95 = exp(dat_results[["LB95"]]), UB95 = exp(dat_results[["UB95"]]))
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), 
+                                     # 95% CI
+                                     LB95 = exp(dat_results[["LB95"]]), 
+                                     UB95 = exp(dat_results[["UB95"]]),
+                                     # 90% CI
+                                     LB90 = exp(dat_results[["LB90"]]), 
+                                     UB90 = exp(dat_results[["UB90"]]))
+
+row.names(dat_results_odds_scale) <- row.names(dat_results_logodds_scale)
+
 dat_results_odds_scale %>% round(., 3)
 
 # Format output to 3 decimal places
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_odds_scale_lagged.csv"), row.names = TRUE)
+```
+
+$$
+E \left( S_{i,d + 1} \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} \right) = \beta_0 + \beta_1 S_{i,d} + \beta_2 X_{i,d}
+$$
+
+```{r}
+dat_reg <- dat_for_analysis %>% 
+  filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% 
+  mutate(drop_row = if_else((n_elig != n_obs_nic) | (n_elig_lead1 != n_obs_nic_lead1), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+fit <- geeglm(any_nic_lead1 ~ any_nic + n_engaged, data = dat_reg, id = participant_id, waves = cluster_id)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_mean_scale <- dat_results
+dat_results_mean_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_mean_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_mean_scale_lagged.csv"), row.names = TRUE)
 ```
 
 # Time-varying association between engagement in self-regulatory strategies and next day cigarette use
@@ -307,7 +464,7 @@ dat_tvem <- dat_logreg
 ```
 
 $$
-\text{logit} Pr\left(\text{ANY CIGARETTE USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{ANY CIGARETTE USE}_{i} \left(t_{i,j}\right)
+\text{logit} Pr\left(\text{ANY CIGARETTE USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{ANY CIGARETTE USE}_{i} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
 $$
 
 
@@ -316,7 +473,7 @@ list_collect_metrics <- list()
 
 for(current_num_knots in 1:3){
   model_tvem <- tvem(data=dat_tvem,
-                     formula=any_nic_lead1 ~ n_engaged + any_nic,
+                     formula=any_nic_lead1 ~ any_nic + n_engaged,
                      id=participant_id,
                      time=cluster_id,
                      invar_effects=NULL,
@@ -336,7 +493,7 @@ for(current_num_knots in 1:3){
 dat_all_metrics <- bind_rows(list_collect_metrics)
 
 model_tvem <- tvem(data=dat_tvem,
-                   formula=any_nic_lead1 ~ n_engaged + any_nic,
+                   formula=any_nic_lead1 ~ any_nic + n_engaged,
                    id=participant_id,
                    time=cluster_id,
                    invar_effects=NULL,
@@ -345,8 +502,140 @@ model_tvem <- tvem(data=dat_tvem,
                    spline_order = 3,
                    penalty_function_order = 1,
                    penalize = TRUE)
+```
 
+```{r}
+plot(model_tvem)
+
+plot(model_tvem, exponentiate = TRUE)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$n_engaged
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_logodds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.5))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_logodds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem_exp_scale <- dat_fitted_tvem
+
+dat_fitted_tvem_exp_scale[["estimate"]] <- exp(dat_fitted_tvem[["estimate"]])
+
+dat_fitted_tvem_exp_scale[["UB95"]] <- exp(dat_fitted_tvem[["UB95"]])
+dat_fitted_tvem_exp_scale[["LB95"]] <- exp(dat_fitted_tvem[["LB95"]])
+
+dat_fitted_tvem_exp_scale[["UB90"]] <- exp(dat_fitted_tvem[["UB90"]])
+dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_odds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[CU][paste(",")][2]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_odds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+dat_tvem <- dat_reg
+```
+
+$$
+E\left(\text{NO. OF CIGARETTES SMOKED}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{ANY CIGARETTE USE}_{i} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+$$
+
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=any_nic_lead1 ~ any_nic + n_engaged,
+                     id=participant_id,
+                     time=cluster_id,
+                     invar_effects=NULL,
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=any_nic_lead1 ~ any_nic + n_engaged,
+                   id=participant_id,
+                   time=cluster_id,
+                   invar_effects=NULL,
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+```
+
+```{r}
 plot(model_tvem)
 ```
 
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$n_engaged
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$n_engaged$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_mean_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[CU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "tvem_day_level_mean_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
 
