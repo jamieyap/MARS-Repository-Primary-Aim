@@ -235,7 +235,7 @@ dat_logreg <- dat_for_analysis %>%
 ```
 
 ```{r}
-fit <- geeglm(substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+fit <- geeglm(substance_is_any_nicotine_lead1 ~ substance_is_any_nicotine + Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
 ```
 
 ```{r}
@@ -285,7 +285,7 @@ list_collect_metrics <- list()
 
 for(current_num_knots in 1:3){
   model_tvem <- tvem(data=dat_tvem,
-                     formula=substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine,
+                     formula=substance_is_any_nicotine_lead1 ~ substance_is_any_nicotine + Y,
                      id=participant_id,
                      time=decision_point,
                      invar_effects=NULL,
@@ -305,7 +305,7 @@ for(current_num_knots in 1:3){
 dat_all_metrics <- bind_rows(list_collect_metrics)
 
 model_tvem <- tvem(data=dat_tvem,
-                   formula=substance_is_any_nicotine_lead1 ~ Y + substance_is_any_nicotine,
+                   formula=substance_is_any_nicotine_lead1 ~ substance_is_any_nicotine + Y,
                    id=participant_id,
                    time=decision_point,
                    invar_effects=NULL,
