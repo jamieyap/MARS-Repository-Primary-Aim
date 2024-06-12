@@ -89,8 +89,8 @@ dat_summary_demogs_binary <- dat_analysis %>%
             pct_not_latino_and_other = mean(is_not_latino_and_other) * 100,
             n_not_latino_and_white = sum(is_not_latino_and_white),
             pct_not_latino_and_white = mean(is_not_latino_and_white) * 100,
-            n_has_partner = sum(has_partner, na.rm = FALSE),
-            pct_has_partner = mean(has_partner, na.rm = FALSE))
+            n_has_partner = sum(has_partner, na.rm = TRUE),
+            pct_has_partner = mean(has_partner, na.rm = TRUE) * 100)
 
 ################################################################################
 # Select only the columns needed
