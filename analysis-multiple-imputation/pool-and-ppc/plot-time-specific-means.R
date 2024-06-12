@@ -28,7 +28,7 @@ lines(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_
 lines(dat_all_pool_stats_prompt_by_dp$decision_point, dat_all_pool_stats_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
 
 legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to prompt (any type)")
+title(main = "Estimates among eligible decision points micro-randomized to prompt (any type)")
 dev.off()
 
 png(filename = file.path("analysis-multiple-imputation", "formatted-output", "ppc_est_prob_prompt_by_dp.png"), width = 10, height = 10, units = "in", res = 1000)
@@ -37,7 +37,7 @@ abline(h = 0.5, lwd = 3, lty = 2)
 abline(h = 0.95, lwd = 3, lty = 2)
 abline(h = 0.05, lwd = 3, lty = 2)
 legend("bottomright", legend = c("PPC for estimate", "Displays 0.05, 0.50, 0.95"), col = c("red", "black"), lty = c(1,2), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to prompt (any type)")
+title(main = "Estimates among eligible decision points micro-randomized to prompt (any type)")
 dev.off()
 
 ###############################################################################
@@ -53,7 +53,7 @@ lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_p
 lines(dat_all_pool_stats_no_prompt_by_dp$decision_point, dat_all_pool_stats_no_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
 
 legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to no prompt")
+title(main = "Estimates among eligible decision points micro-randomized to no prompt")
 dev.off()
 
 png(filename = file.path("analysis-multiple-imputation", "formatted-output", "ppc_est_prob_no_prompt_by_dp.png"), width = 10, height = 10, units = "in", res = 1000)
@@ -62,7 +62,7 @@ abline(h = 0.5, lwd = 3, lty = 2)
 abline(h = 0.95, lwd = 3, lty = 2)
 abline(h = 0.05, lwd = 3, lty = 2)
 legend("bottomright", legend = c("PPC for estimate", "Displays 0.05, 0.50, 0.95"), col = c("red", "black"), lty = c(1,2), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to no prompt")
+title(main = "Estimates among eligible decision points micro-randomized to no prompt")
 dev.off()
 
 ###############################################################################
@@ -78,7 +78,7 @@ lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_s
 lines(dat_all_pool_stats_high_effort_prompt_by_dp$decision_point, dat_all_pool_stats_high_effort_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
 
 legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to high effort prompt")
+title(main = "Estimates among decision points micro-randomized to high effort prompt")
 dev.off()
 
 png(filename = file.path("analysis-multiple-imputation", "formatted-output", "ppc_est_prob_high_effort_prompt_by_dp.png"), width = 10, height = 10, units = "in", res = 1000)
@@ -87,7 +87,7 @@ abline(h = 0.5, lwd = 3, lty = 2)
 abline(h = 0.95, lwd = 3, lty = 2)
 abline(h = 0.05, lwd = 3, lty = 2)
 legend("bottomright", legend = c("PPC for estimate", "Displays 0.05, 0.50, 0.95"), col = c("red", "black"), lty = c(1,2), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to high effort prompt")
+title(main = "Estimates among decision points micro-randomized to high effort prompt")
 dev.off()
 
 ###############################################################################
@@ -103,7 +103,7 @@ lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point, dat_all_pool_st
 lines(dat_all_pool_stats_low_effort_prompt_by_dp$decision_point, dat_all_pool_stats_low_effort_prompt_by_dp$conf_int_ub, type = "b", lty = 2, lwd = 0.5, col = "blue")
 
 legend("bottomright", legend = c("complete case", "MI"), col = c("black", "blue"), lty = c(1,1), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to low effort prompt")
+title(main = "Estimates among decision points micro-randomized to low effort prompt")
 dev.off()
 
 png(filename = file.path("analysis-multiple-imputation", "formatted-output", "ppc_est_prob_low_effort_prompt_by_dp.png"), width = 10, height = 10, units = "in", res = 1000)
@@ -112,7 +112,7 @@ abline(h = 0.5, lwd = 3, lty = 2)
 abline(h = 0.95, lwd = 3, lty = 2)
 abline(h = 0.05, lwd = 3, lty = 2)
 legend("bottomright", legend = c("PPC for estimate", "Displays 0.05, 0.50, 0.95"), col = c("red", "black"), lty = c(1,2), lwd = c(3,3))
-title(main = "Mean among eligible decision points micro-randomized to low effort prompt")
+title(main = "Estimates among decision points micro-randomized to low effort prompt")
 dev.off()
 
 ###############################################################################
