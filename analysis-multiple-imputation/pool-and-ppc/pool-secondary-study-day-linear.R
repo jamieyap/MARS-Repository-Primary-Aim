@@ -68,7 +68,7 @@ row.names(fit_pooled) <- c("High Effort Prompt (versus No Prompt)",
                            "Low Effort Prompt (versus No Prompt)",
                            "Low Effort Prompt (versus No Prompt) x Day in Study",
                            "Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study",
-                           paste("High vs. Low at Day ", 2:9, sep = ""))
+                           paste("High vs. Low at Day ", 1:8, sep = ""))
 fit_pooled_causal <- fit_pooled
 
 dat_pool_stats <- bind_rows(list_pool_stats)
@@ -77,7 +77,7 @@ row.names(dat_pool_stats) <- c("High Effort Prompt (versus No Prompt)",
                                "Low Effort Prompt (versus No Prompt)",
                                "Low Effort Prompt (versus No Prompt) x Day in Study",
                                "Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study",
-                               paste("High vs. Low at Day ", 2:9, sep = ""))
+                               paste("High vs. Low at Day ", 1:8, sep = ""))
 
 # Control part of the analysis model ------------------------------------------
 results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", 1, "results_obj_secondary_study_day_linear.rds"))
@@ -163,7 +163,7 @@ row.names(dat_pbcom) <- c("High Effort Prompt (versus No Prompt)",
                           "Low Effort Prompt (versus No Prompt)",
                           "Low Effort Prompt (versus No Prompt) x Day in Study",
                           "Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study",
-                          paste("High vs. Low at Day ", 2:9, sep = ""))
+                          paste("High vs. Low at Day ", 1:8, sep = ""))
 
 ###############################################################################
 # Save output
@@ -184,18 +184,18 @@ write.csv(dat_pool_stats_formatted, file = file.path("analysis-multiple-imputati
 
 png(file = file.path("analysis-multiple-imputation", "formatted-output", "log_risk_ratio_scale_secondary_study_day_linear.png"), width = 6, height = 6, units = "in", res = 600)
 
-plot(2:9, fit_pooled_causal[-c(1:6),]$Estimate, type = "o", ylim = c(-0.10, 0.40), xlab = "Study Day", ylab = "Treatment Effect on the Log-Scale")
-lines(2:9, fit_pooled_causal[-c(1:6),]$LCL, type = "o", lty = 2)
-lines(2:9, fit_pooled_causal[-c(1:6),]$UCL, type = "o", lty = 2)
+plot(1:8, fit_pooled_causal[-c(1:6),]$Estimate, type = "o", ylim = c(-0.10, 0.40), xlab = "Study Day", ylab = "Treatment Effect on the Log-Scale")
+lines(1:8, fit_pooled_causal[-c(1:6),]$LCL, type = "o", lty = 2)
+lines(1:8, fit_pooled_causal[-c(1:6),]$UCL, type = "o", lty = 2)
 abline(h = 0, lty = 2, col = "red")
 
 dev.off()
 
 png(file = file.path("analysis-multiple-imputation", "formatted-output", "risk_ratio_scale_secondary_study_day_linear.png"), width = 6, height = 6, units = "in", res = 600)
 
-plot(2:9, exp(fit_pooled_causal[-c(1:6),]$Estimate), type = "o", ylim = c(0.7,1.5), xlab = "Study Day", ylab = "Treatment Effect on the Risk Ratio-Scale")
-lines(2:9, exp(fit_pooled_causal[-c(1:6),]$LCL), type = "o", lty = 2)
-lines(2:9, exp(fit_pooled_causal[-c(1:6),]$UCL), type = "o", lty = 2)
+plot(1:8, exp(fit_pooled_causal[-c(1:6),]$Estimate), type = "o", ylim = c(0.7,1.5), xlab = "Study Day", ylab = "Treatment Effect on the Risk Ratio-Scale")
+lines(1:8, exp(fit_pooled_causal[-c(1:6),]$LCL), type = "o", lty = 2)
+lines(1:8, exp(fit_pooled_causal[-c(1:6),]$UCL), type = "o", lty = 2)
 abline(h = 1, lty = 2, col = "red")
 
 dev.off()

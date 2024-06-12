@@ -89,7 +89,7 @@ fit1 <- tryCatch(expr = {emee(
 if(class(fit1) == "character"){
   results_obj <- "Hey, a warning"
 }else{
-  Lmat <- matrix(c(rep(1,8), 2:9, (2:9)*(2:9)), ncol = 3, byrow = FALSE)
+  Lmat <- matrix(c(rep(1,8), 1:8, (1:8)*(1:8)), ncol = 3, byrow = FALSE)
   results_obj <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
 }
 
@@ -118,7 +118,7 @@ for(idx_replicate in 1:max_replicate_id){
   if(class(fit1) == "character"){
     results_obj <- "Hey, a warning"
   }else{
-    Lmat <- matrix(c(rep(1,8), 2:9, (2:9)*(2:9)), ncol = 3, byrow = FALSE)
+    Lmat <- matrix(c(rep(1,8), 1:8, (1:8)*(1:8)), ncol = 3, byrow = FALSE)
     results_obj <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
   }
   

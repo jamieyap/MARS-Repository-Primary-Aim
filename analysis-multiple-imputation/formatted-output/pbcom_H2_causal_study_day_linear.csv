@@ -5,6 +5,7 @@
 "Low Effort Prompt (versus No Prompt) x Day in Study","0.560","0.800"
 "Indicator for High vs. Low","0.380","0.800"
 "Indicator for High vs. Low x Day in Study","0.520","0.940"
+"High vs. Low at Day 1","0.360","0.740"
 "High vs. Low at Day 2","0.340","0.700"
 "High vs. Low at Day 3","0.300","0.640"
 "High vs. Low at Day 4","0.180","0.560"
@@ -12,4 +13,3 @@
 "High vs. Low at Day 6","0.220","0.480"
 "High vs. Low at Day 7","0.240","0.680"
 "High vs. Low at Day 8","0.320","0.760"
-"High vs. Low at Day 9","0.340","0.820"

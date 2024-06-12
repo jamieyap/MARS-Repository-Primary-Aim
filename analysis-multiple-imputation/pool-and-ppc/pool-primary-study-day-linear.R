@@ -60,11 +60,11 @@ fit_pooled[["LCL"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm
 fit_pooled[["UCL"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.975)
 fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["StdErr"]]), lower.tail = FALSE)
 
-row.names(fit_pooled) <- c("Treatment (Prompt = 1, No Prompt = 0)", "Treatment x Day", paste("Treatment Effect on Day ", 2:9, sep = ""))
+row.names(fit_pooled) <- c("Treatment (Prompt = 1, No Prompt = 0)", "Treatment x Day", paste("Treatment Effect on Day ", 1:8, sep = ""))
 fit_pooled_causal <- fit_pooled
 
 dat_pool_stats <- bind_rows(list_pool_stats)
-row.names(dat_pool_stats) <- c("Treatment (Prompt = 1, No Prompt = 0)", "Treatment x Day", paste("Treatment Effect on Day ", 2:9, sep = ""))
+row.names(dat_pool_stats) <- c("Treatment (Prompt = 1, No Prompt = 0)", "Treatment x Day", paste("Treatment Effect on Day ", 1:8, sep = ""))
 
 # Control part of the analysis model ------------------------------------------
 results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", 1, "results_obj_primary_study_day_linear.rds"))
@@ -165,18 +165,18 @@ write.csv(dat_pool_stats_formatted, file = file.path("analysis-multiple-imputati
 
 png(file = file.path("analysis-multiple-imputation", "formatted-output", "log_risk_ratio_scale_primary_study_day_linear.png"), width = 6, height = 6, units = "in", res = 600)
 
-plot(2:9, fit_pooled_causal[-c(1:2),]$Estimate, type = "o", ylim = c(-0.10, 0.40), xlab = "Study Day", ylab = "Treatment Effect on the Log-Scale")
-lines(2:9, fit_pooled_causal[-c(1:2),]$LCL, type = "o", lty = 2)
-lines(2:9, fit_pooled_causal[-c(1:2),]$UCL, type = "o", lty = 2)
+plot(1:8, fit_pooled_causal[-c(1:2),]$Estimate, type = "o", ylim = c(-0.10, 0.40), xlab = "Study Day", ylab = "Treatment Effect on the Log-Scale")
+lines(1:8, fit_pooled_causal[-c(1:2),]$LCL, type = "o", lty = 2)
+lines(1:8, fit_pooled_causal[-c(1:2),]$UCL, type = "o", lty = 2)
 abline(h = 0, lty = 2, col = "red")
 
 dev.off()
 
 png(file = file.path("analysis-multiple-imputation", "formatted-output", "risk_ratio_scale_primary_study_day_linear.png"), width = 6, height = 6, units = "in", res = 600)
 
-plot(2:9, exp(fit_pooled_causal[-c(1:2),]$Estimate), type = "o", ylim = c(0.7,1.5), xlab = "Study Day", ylab = "Treatment Effect on the Risk Ratio-Scale")
-lines(2:9, exp(fit_pooled_causal[-c(1:2),]$LCL), type = "o", lty = 2)
-lines(2:9, exp(fit_pooled_causal[-c(1:2),]$UCL), type = "o", lty = 2)
+plot(1:8, exp(fit_pooled_causal[-c(1:2),]$Estimate), type = "o", ylim = c(0.7,1.5), xlab = "Study Day", ylab = "Treatment Effect on the Risk Ratio-Scale")
+lines(1:8, exp(fit_pooled_causal[-c(1:2),]$LCL), type = "o", lty = 2)
+lines(1:8, exp(fit_pooled_causal[-c(1:2),]$UCL), type = "o", lty = 2)
 abline(h = 1, lty = 2, col = "red")
 
 dev.off()

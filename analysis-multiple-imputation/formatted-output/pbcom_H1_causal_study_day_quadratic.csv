@@ -2,6 +2,7 @@
 "(Intercept)","0.480","0.280"
 "days_between_v1_and_coinflip_local","0.520","0.540"
 "I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.520","0.620"
+"(Intercept) + days_between_v1_and_coinflip_local + I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.540","0.200"
 "(Intercept) + 2*days_between_v1_and_coinflip_local + 4*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.540","0.160"
 "(Intercept) + 3*days_between_v1_and_coinflip_local + 9*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.480","0.260"
 "(Intercept) + 4*days_between_v1_and_coinflip_local + 16*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.500","0.640"
@@ -9,4 +10,3 @@
 "(Intercept) + 6*days_between_v1_and_coinflip_local + 36*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.520","0.800"
 "(Intercept) + 7*days_between_v1_and_coinflip_local + 49*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.600","0.740"
 "(Intercept) + 8*days_between_v1_and_coinflip_local + 64*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.540","0.700"
-"(Intercept) + 9*days_between_v1_and_coinflip_local + 81*I(days_between_v1_and_coinflip_local * days_between_v1_and_coinflip_local)","0.540","0.640"

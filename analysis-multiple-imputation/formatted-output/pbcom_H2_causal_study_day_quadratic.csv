@@ -8,6 +8,7 @@
 "Indicator for High vs. Low","0.220","0.560"
 "Indicator for High vs. Low x Day in Study","0.800","0.340"
 "Indicator for High vs. Low x Square of Day in Study","0.200","0.380"
+"High vs. Low at Day 1","0.200","0.660"
 "High vs. Low at Day 2","0.240","0.680"
 "High vs. Low at Day 3","0.320","0.540"
 "High vs. Low at Day 4","0.380","0.280"
@@ -15,4 +16,3 @@
 "High vs. Low at Day 6","0.420","0.200"
 "High vs. Low at Day 7","0.340","0.560"
 "High vs. Low at Day 8","0.260","0.800"
-"High vs. Low at Day 9","0.260","0.760"

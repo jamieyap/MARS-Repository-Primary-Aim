@@ -1,6 +1,7 @@
 "","Estimate","StdErr","LCL","UCL","p_value"
 "Treatment (Prompt = 1, No Prompt = 0)"," 0.246","0.085"," 0.080","0.412","0.004"
 "Treatment x Day","-0.025","0.014","-0.052","0.003","0.076"
+"Treatment Effect on Day 1"," 0.221","0.072"," 0.080","0.363","0.002"
 "Treatment Effect on Day 2"," 0.197","0.060"," 0.078","0.315","0.001"
 "Treatment Effect on Day 3"," 0.172","0.050"," 0.075","0.270","0.001"
 "Treatment Effect on Day 4"," 0.148","0.041"," 0.067","0.228","0.000"
@@ -8,4 +9,3 @@
 "Treatment Effect on Day 6"," 0.099","0.035"," 0.029","0.168","0.005"
 "Treatment Effect on Day 7"," 0.074","0.040","-0.005","0.153","0.065"
 "Treatment Effect on Day 8"," 0.050","0.049","-0.045","0.145","0.306"
-"Treatment Effect on Day 9"," 0.025","0.059","-0.091","0.141","0.671"

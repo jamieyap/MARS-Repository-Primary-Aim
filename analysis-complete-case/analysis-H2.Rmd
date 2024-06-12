@@ -510,9 +510,9 @@ n_terms_control <- fit1_converted$fit$dims$q
 n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(cbind(rep(1,8),
-                     seq(2,9,1),
+                     seq(1,8,1),
                      rep(-1,8),
-                     -1*seq(2,9,1)), ncol = 4, byrow = FALSE)
+                     -1*seq(1,8,1)), ncol = 4, byrow = FALSE)
 causal_est <- as.matrix(fit1_converted$fit$beta_hat)
 causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
 
@@ -529,14 +529,14 @@ test_stat_contrast <- est_contrast/se_contrast
 p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
 
 results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
-results_contrast$days_since_start <- 2:9
+results_contrast$days_since_start <- 1:8
 ```
 
 ```{r, fig.width = 8, fig.height = 12}
 dat_result_for_plotting <- results_contrast
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2, 9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear.png"), dpi = 1200)
 ```
@@ -548,7 +548,7 @@ dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast
 dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=2) + geom_point(size = 4) + geom_line(linewidth=2) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=2, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0.7,1.5), breaks = seq(0.7,1.5,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=2) + geom_point(size = 4) + geom_line(linewidth=2) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=2, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0.7,2.0), breaks = seq(0.7,1.5,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "zoomed_risk_ratio_scale_H2_linear.png"), dpi = 1200)
 ```
@@ -560,7 +560,7 @@ dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast
 dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_H2_linear.png"), dpi = 1200)
 ```
@@ -806,11 +806,11 @@ n_terms_control <- fit1_converted$fit$dims$q
 n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
 
 Lmat <- matrix(cbind(rep(1,8),
-                     seq(2,9,1),
-                     seq(2,9,1) * seq(2,9,1),
+                     seq(1,8,1),
+                     seq(1,8,1) * seq(1,8,1),
                      -1*rep(1,8),
-                     -1*seq(2,9,1),
-                     -1*seq(2,9,1) * seq(2,9,1)), ncol = 6, byrow = FALSE)
+                     -1*seq(1,8,1),
+                     -1*seq(1,8,1) * seq(1,8,1)), ncol = 6, byrow = FALSE)
 causal_est <- as.matrix(fit1_converted$fit$beta_hat)
 causal_vcov_adjusted <- fit1_converted$fit$varcov_adjusted[(n_terms_control + 1):n_terms_total,(n_terms_control + 1):n_terms_total]
 
@@ -827,14 +827,14 @@ test_stat_contrast <- est_contrast/se_contrast
 p_value_contrast <- 2 * pt(abs(test_stat_contrast), df = degrees_of_freedom, lower.tail = FALSE)  # two-sided
 
 results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_contrast, ucl_contrast = ucl_contrast, se_contrast = se_contrast, test_stat_contrast = test_stat_contrast, degrees_of_freedom = degrees_of_freedom, p_value = p_value_contrast)
-results_contrast$days_since_start <- 2:9
+results_contrast$days_since_start <- 1:8
 ```
 
 ```{r, fig.width = 8, fig.height = 12}
 dat_result_for_plotting <- results_contrast
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2, 9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=0, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on log scale", limits=c(-1.5,1.0), breaks = seq(-1.5,1.0,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic.png"), dpi = 1200)
 ```
@@ -846,7 +846,7 @@ dat_result_for_plotting$lcl_contrast <- exp(dat_result_for_plotting$lcl_contrast
 dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast)
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(2,9), breaks = seq(2,9,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=1) + geom_point(size = 2) + geom_line(linewidth=1) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=1, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0,2), breaks = seq(0,2,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_H2_quadratic.png"), dpi = 1200)
 ```
