@@ -81,7 +81,7 @@ dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
 list_all_pool_stats <- list()
 
 for(dp in 1:60){
-  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 1) %>% nrow(.)
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 0) %>% nrow(.)
   pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
                              U = mi_var_logodds[, dp], 
                              n = num_participants, 
@@ -126,7 +126,7 @@ dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
 list_all_pool_stats <- list()
 
 for(dp in 1:60){
-  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 1) %>% nrow(.)
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_high_effort == 1) %>% nrow(.)
   pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
                              U = mi_var_logodds[, dp], 
                              n = num_participants, 
@@ -171,7 +171,7 @@ dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
 list_all_pool_stats <- list()
 
 for(dp in 1:60){
-  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 1) %>% nrow(.)
+  num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_low_effort == 1) %>% nrow(.)
   pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
                              U = mi_var_logodds[, dp], 
                              n = num_participants, 

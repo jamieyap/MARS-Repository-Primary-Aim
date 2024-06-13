@@ -1,0 +1,2 @@
+"n","Qbar","logodds_scale_pooled_stderr","logodds_scale_conf_int_lb","logodds_scale_conf_int_ub","est_prob","conf_int_lb","conf_int_ub","Ubar","B","m","total_var","lambda","r","v_com","v_obs","v_old","v","gamma"
+1151,0.384,0.118,0.152,0.616,0.595,0.538,0.649,0.012,0.002,50,0.014,0.111,0.124,1150,1021.02,4004.762,813.593,0.113
