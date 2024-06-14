@@ -23,6 +23,8 @@ list_all_estimates_by_dp <- list()
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
   dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+  
   dat_long_completed <- dat_long_completed %>% filter(replicate_id == 1) %>% filter(eligibility == 1) %>% filter(coinflip == 1)
   list_current_fit_by_dp <- dat_long_completed %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
   list_current_estimates_by_dp <- lapply(list_current_fit_by_dp,
@@ -36,13 +38,13 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
   list_all_estimates_by_dp <- append(list_all_estimates_by_dp, list(list_current_estimates_by_dp))
 }
 
-all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
-all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
+all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
+all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
-  for(dp in 1:60){
-    all_est_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["est_logodds_scale"]]
-    all_var_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["var_logodds_scale"]]
+  for(idx_decision_point in 1:48){
+    all_est_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["est_logodds_scale"]]
+    all_var_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["var_logodds_scale"]]
   }
 }
 
@@ -56,6 +58,8 @@ list_all_estimates_by_dp <- list()
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
   dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+  
   dat_long_completed <- dat_long_completed %>% filter(replicate_id == 1) %>% filter(eligibility == 1) %>% filter(coinflip == 0)
   list_current_fit_by_dp <- dat_long_completed %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
   list_current_estimates_by_dp <- lapply(list_current_fit_by_dp,
@@ -69,13 +73,13 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
   list_all_estimates_by_dp <- append(list_all_estimates_by_dp, list(list_current_estimates_by_dp))
 }
 
-all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
-all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
+all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
+all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
-  for(dp in 1:60){
-    all_est_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["est_logodds_scale"]]
-    all_var_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["var_logodds_scale"]]
+  for(idx_decision_point in 1:48){
+    all_est_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["est_logodds_scale"]]
+    all_var_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["var_logodds_scale"]]
   }
 }
 
@@ -89,6 +93,8 @@ list_all_estimates_by_dp <- list()
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
   dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+  
   dat_long_completed <- dat_long_completed %>% filter(replicate_id == 1) %>% filter(eligibility == 1) %>% filter(is_high_effort == 1)
   list_current_fit_by_dp <- dat_long_completed %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
   list_current_estimates_by_dp <- lapply(list_current_fit_by_dp,
@@ -102,13 +108,13 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
   list_all_estimates_by_dp <- append(list_all_estimates_by_dp, list(list_current_estimates_by_dp))
 }
 
-all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
-all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
+all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
+all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
-  for(dp in 1:60){
-    all_est_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["est_logodds_scale"]]
-    all_var_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["var_logodds_scale"]]
+  for(idx_decision_point in 1:48){
+    all_est_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["est_logodds_scale"]]
+    all_var_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["var_logodds_scale"]]
   }
 }
 
@@ -122,6 +128,8 @@ list_all_estimates_by_dp <- list()
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
   dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_long_completed", ".rds", sep = "")))
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+  
   dat_long_completed <- dat_long_completed %>% filter(replicate_id == 1) %>% filter(eligibility == 1) %>% filter(is_low_effort == 1)
   list_current_fit_by_dp <- dat_long_completed %>% group_by(decision_point) %>% group_map(~ geeglm(Y ~ 1, data = .x, id = participant_id, family = binomial))
   list_current_estimates_by_dp <- lapply(list_current_fit_by_dp,
@@ -135,13 +143,13 @@ for(mi_dataset_num in 1:.__total_imputed_datasets){
   list_all_estimates_by_dp <- append(list_all_estimates_by_dp, list(list_current_estimates_by_dp))
 }
 
-all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
-all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 60), nrow = .__total_imputed_datasets, ncol = 60)
+all_est_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
+all_var_logodds_scale <- matrix(rep(NA, .__total_imputed_datasets * 48), nrow = .__total_imputed_datasets, ncol = 48)
 
 for(mi_dataset_num in 1:.__total_imputed_datasets){
-  for(dp in 1:60){
-    all_est_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["est_logodds_scale"]]
-    all_var_logodds_scale[mi_dataset_num, dp] <- list_all_estimates_by_dp[[mi_dataset_num]][[dp]][["var_logodds_scale"]]
+  for(idx_decision_point in 1:48){
+    all_est_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["est_logodds_scale"]]
+    all_var_logodds_scale[mi_dataset_num, idx_decision_point] <- list_all_estimates_by_dp[[mi_dataset_num]][[idx_decision_point]][["var_logodds_scale"]]
   }
 }
 

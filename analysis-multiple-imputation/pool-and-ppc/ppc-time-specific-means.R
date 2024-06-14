@@ -31,20 +31,22 @@ replicates_var_logodds <- readRDS(file = file.path(path_multiple_imputation_pipe
 
 comparison_est <- ((exp(replicates_est_logodds)/(1 + exp(replicates_est_logodds))) >= (exp(mi_est_logodds)/(1 + exp(mi_est_logodds))))
 ppc_est <- colMeans(comparison_est)
-dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
+dat_ppc <- tibble(decision_point = 7:54, ppc_est = ppc_est)
 
 list_all_pool_stats <- list()
 
-for(dp in 1:60){
+for(idx_decision_point in 1:48){
+  dp <- idx_decision_point
+  
   num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 1) %>% nrow(.)
-  pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
-                             U = mi_var_logodds[, dp], 
+  pool_manual <- pool.scalar(Q = mi_est_logodds[, idx_decision_point], 
+                             U = mi_var_logodds[, idx_decision_point], 
                              n = num_participants, 
                              k = 1)
   
   pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
   pool_stats$n <- num_participants
-  pool_stats$Qbar <- mean(mi_est_logodds[, dp])
+  pool_stats$Qbar <- mean(mi_est_logodds[, idx_decision_point])
   pool_stats$logodds_scale_pooled_stderr <- sqrt(pool_stats$total_var)
   pool_stats$logodds_scale_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
   pool_stats$logodds_scale_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
@@ -57,7 +59,7 @@ for(dp in 1:60){
 
 dat_all_pool_stats <- bind_rows(list_all_pool_stats)
 dat_all_pool_stats <- dat_all_pool_stats %>% 
-  mutate(decision_point = 1:60) %>% 
+  mutate(decision_point = 7:54) %>% 
   select(decision_point, n, Qbar, logodds_scale_pooled_stderr, logodds_scale_conf_int_lb, logodds_scale_conf_int_ub, est_prob, conf_int_lb, conf_int_ub, everything())
 
 dat_ppc <- dat_ppc %>% round(., digits = 3)
@@ -76,20 +78,22 @@ replicates_var_logodds <- readRDS(file = file.path(path_multiple_imputation_pipe
 
 comparison_est <- ((exp(replicates_est_logodds)/(1 + exp(replicates_est_logodds))) >= (exp(mi_est_logodds)/(1 + exp(mi_est_logodds))))
 ppc_est <- colMeans(comparison_est)
-dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
+dat_ppc <- tibble(decision_point = 7:54, ppc_est = ppc_est)
 
 list_all_pool_stats <- list()
 
-for(dp in 1:60){
+for(idx_decision_point in 1:48){
+  dp <- idx_decision_point
+  
   num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(coinflip == 0) %>% nrow(.)
-  pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
-                             U = mi_var_logodds[, dp], 
+  pool_manual <- pool.scalar(Q = mi_est_logodds[, idx_decision_point], 
+                             U = mi_var_logodds[, idx_decision_point], 
                              n = num_participants, 
                              k = 1)
   
   pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
   pool_stats$n <- num_participants
-  pool_stats$Qbar <- mean(mi_est_logodds[, dp])
+  pool_stats$Qbar <- mean(mi_est_logodds[, idx_decision_point])
   pool_stats$logodds_scale_pooled_stderr <- sqrt(pool_stats$total_var)
   pool_stats$logodds_scale_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
   pool_stats$logodds_scale_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
@@ -102,7 +106,7 @@ for(dp in 1:60){
 
 dat_all_pool_stats <- bind_rows(list_all_pool_stats)
 dat_all_pool_stats <- dat_all_pool_stats %>% 
-  mutate(decision_point = 1:60) %>% 
+  mutate(decision_point = 7:54) %>% 
   select(decision_point, n, Qbar, logodds_scale_pooled_stderr, logodds_scale_conf_int_lb, logodds_scale_conf_int_ub, est_prob, conf_int_lb, conf_int_ub, everything())
 
 dat_ppc <- dat_ppc %>% round(., digits = 3)
@@ -121,20 +125,22 @@ replicates_var_logodds <- readRDS(file = file.path(path_multiple_imputation_pipe
 
 comparison_est <- ((exp(replicates_est_logodds)/(1 + exp(replicates_est_logodds))) >= (exp(mi_est_logodds)/(1 + exp(mi_est_logodds))))
 ppc_est <- colMeans(comparison_est)
-dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
+dat_ppc <- tibble(decision_point = 7:54, ppc_est = ppc_est)
 
 list_all_pool_stats <- list()
 
-for(dp in 1:60){
+for(idx_decision_point in 1:48){
+  dp <- idx_decision_point
+  
   num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_high_effort == 1) %>% nrow(.)
-  pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
-                             U = mi_var_logodds[, dp], 
+  pool_manual <- pool.scalar(Q = mi_est_logodds[, idx_decision_point], 
+                             U = mi_var_logodds[, idx_decision_point], 
                              n = num_participants, 
                              k = 1)
   
   pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
   pool_stats$n <- num_participants
-  pool_stats$Qbar <- mean(mi_est_logodds[, dp])
+  pool_stats$Qbar <- mean(mi_est_logodds[, idx_decision_point])
   pool_stats$logodds_scale_pooled_stderr <- sqrt(pool_stats$total_var)
   pool_stats$logodds_scale_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
   pool_stats$logodds_scale_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
@@ -147,7 +153,7 @@ for(dp in 1:60){
 
 dat_all_pool_stats <- bind_rows(list_all_pool_stats)
 dat_all_pool_stats <- dat_all_pool_stats %>% 
-  mutate(decision_point = 1:60) %>% 
+  mutate(decision_point = 7:54) %>% 
   select(decision_point, n, Qbar, logodds_scale_pooled_stderr, logodds_scale_conf_int_lb, logodds_scale_conf_int_ub, est_prob, conf_int_lb, conf_int_ub, everything())
 
 dat_ppc <- dat_ppc %>% round(., digits = 3)
@@ -166,20 +172,22 @@ replicates_var_logodds <- readRDS(file = file.path(path_multiple_imputation_pipe
 
 comparison_est <- ((exp(replicates_est_logodds)/(1 + exp(replicates_est_logodds))) >= (exp(mi_est_logodds)/(1 + exp(mi_est_logodds))))
 ppc_est <- colMeans(comparison_est)
-dat_ppc <- tibble(decision_point = 1:60, ppc_est = ppc_est)
+dat_ppc <- tibble(decision_point = 7:54, ppc_est = ppc_est)
 
 list_all_pool_stats <- list()
 
-for(dp in 1:60){
+for(idx_decision_point in 1:48){
+  dp <- idx_decision_point
+  
   num_participants <- dat_long_completed %>% filter(decision_point == dp) %>% filter(replicate_id == 0) %>% filter(eligibility == 1) %>% filter(is_low_effort == 1) %>% nrow(.)
-  pool_manual <- pool.scalar(Q = mi_est_logodds[, dp], 
-                             U = mi_var_logodds[, dp], 
+  pool_manual <- pool.scalar(Q = mi_est_logodds[, idx_decision_point], 
+                             U = mi_var_logodds[, idx_decision_point], 
                              n = num_participants, 
                              k = 1)
   
   pool_stats <- calculate_pool_statistics2(degrees_of_freedom = num_participants - 1, pool_manual = pool_manual)
   pool_stats$n <- num_participants
-  pool_stats$Qbar <- mean(mi_est_logodds[, dp])
+  pool_stats$Qbar <- mean(mi_est_logodds[, idx_decision_point])
   pool_stats$logodds_scale_pooled_stderr <- sqrt(pool_stats$total_var)
   pool_stats$logodds_scale_conf_int_lb <- pool_stats$Qbar - qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
   pool_stats$logodds_scale_conf_int_ub <- pool_stats$Qbar + qnorm(p = use_alpha, lower.tail = FALSE) * pool_stats$logodds_scale_pooled_stderr
@@ -192,7 +200,7 @@ for(dp in 1:60){
 
 dat_all_pool_stats <- bind_rows(list_all_pool_stats)
 dat_all_pool_stats <- dat_all_pool_stats %>% 
-  mutate(decision_point = 1:60) %>% 
+  mutate(decision_point = 7:54) %>% 
   select(decision_point, n, Qbar, logodds_scale_pooled_stderr, logodds_scale_conf_int_lb, logodds_scale_conf_int_ub, est_prob, conf_int_lb, conf_int_ub, everything())
 
 dat_ppc <- dat_ppc %>% round(., digits = 3)

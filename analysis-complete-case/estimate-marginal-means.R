@@ -18,6 +18,8 @@ select <- dplyr::select
 
 # This is the data frame that is the output of the very last step of our data pipeline
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- dat_primary_aim %>% filter((decision_point >= 7) & (decision_point <= 54))
+
 use_alpha <- 0.05/2
 
 ###############################################################################

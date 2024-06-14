@@ -18,6 +18,8 @@ select <- dplyr::select
 
 # This is the data frame that is the output of the very last step of our data pipeline
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- dat_primary_aim %>% filter((decision_point >= 7) & (decision_point <= 54))
+
 use_alpha <- 0.05/2
 
 ###############################################################################
@@ -47,7 +49,7 @@ list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp,
                                           return(results_mu_scale)
                                           })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$decision_point <- 1:60
+dat_estimates_by_dp_mu_scale$decision_point <- 7:54
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
@@ -80,7 +82,7 @@ list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp,
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$decision_point <- 1:60
+dat_estimates_by_dp_mu_scale$decision_point <- 7:54
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
@@ -113,7 +115,7 @@ list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp,
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$decision_point <- 1:60
+dat_estimates_by_dp_mu_scale$decision_point <- 7:54
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
@@ -146,7 +148,7 @@ list_estimates_by_dp_mu_scale <- lapply(list_fit_by_dp,
                                           return(results_mu_scale)
                                         })
 dat_estimates_by_dp_mu_scale <- bind_rows(list_estimates_by_dp_mu_scale)
-dat_estimates_by_dp_mu_scale$decision_point <- 1:60
+dat_estimates_by_dp_mu_scale$decision_point <- 7:54
 dat_estimates_by_dp_mu_scale <- left_join(x = dat_count_total, y = dat_estimates_by_dp_mu_scale, by = join_by(decision_point == decision_point))
 dat_estimates_by_dp_mu_scale <- dat_estimates_by_dp_mu_scale %>% round(., digits = 3)
 
