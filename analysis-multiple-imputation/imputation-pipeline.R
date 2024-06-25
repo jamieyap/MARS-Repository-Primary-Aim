@@ -58,6 +58,10 @@ for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-hour-quadratic.R"))
 }
 
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal-risk-difference-scale.R"))
+}
+
 ###############################################################################
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
@@ -67,6 +71,7 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-s
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-study-day-quadratic.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-hour-linear.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-hour-quadratic.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-risk-difference-scale.R"))
 
 ###############################################################################
 # Data analysis
@@ -91,6 +96,10 @@ for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-hour-quadratic.R"))
 }
 
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal-risk-difference-scale.R"))
+}
+
 ###############################################################################
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
@@ -99,6 +108,7 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-study-day-quadratic.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-linear.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-quadratic.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-risk-difference-scale.R"))
 
 ###############################################################################
 # Data analysis

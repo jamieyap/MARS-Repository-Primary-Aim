@@ -50,9 +50,11 @@ for(j in 1:num_terms){
   list_pooled_std_err <- append(list_pooled_std_err, sqrt(pool_manual$t))
 }
 
-fit_pooled <- data.frame(Estimate = unlist(list_pooled_est), StdErr = unlist(list_pooled_std_err), LCL = NA_real_, UCL = NA_real_, p_value = NA_real_)
+fit_pooled <- data.frame(Estimate = unlist(list_pooled_est), StdErr = unlist(list_pooled_std_err), LCL = NA_real_, UCL = NA_real_, LCL90 = NA_real_, UCL90 = NA_real_, p_value = NA_real_)
 fit_pooled[["LCL"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.975)
 fit_pooled[["UCL"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.975)
+fit_pooled[["LCL90"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.95)
+fit_pooled[["UCL90"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.95)
 fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["StdErr"]]), lower.tail = FALSE)
 
 row.names(fit_pooled) <- c("Treatment (Prompt = 1, No Prompt = 0)", "Treatment x Hour", paste("Treatment Effect on Hour ", 0:24, sep = ""))
@@ -86,9 +88,11 @@ for(j in 1:num_terms){
   list_pooled_std_err <- append(list_pooled_std_err, sqrt(pool_manual$t))
 }
 
-fit_pooled <- data.frame(Estimate = unlist(list_pooled_est), StdErr = unlist(list_pooled_std_err), LCL = NA_real_, UCL = NA_real_, p_value = NA_real_)
+fit_pooled <- data.frame(Estimate = unlist(list_pooled_est), StdErr = unlist(list_pooled_std_err), LCL = NA_real_, UCL = NA_real_, LCL90 = NA_real_, UCL90 = NA_real_, p_value = NA_real_)
 fit_pooled[["LCL"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.975)
 fit_pooled[["UCL"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.975)
+fit_pooled[["LCL90"]] <- fit_pooled[["Estimate"]] - fit_pooled[["StdErr"]] * qnorm(0.95)
+fit_pooled[["UCL90"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm(0.95)
 fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["StdErr"]]), lower.tail = FALSE)
 
 row.names(fit_pooled) <- row.names(results_obj$control_variables)
@@ -149,4 +153,25 @@ write.csv(fit_pooled_causal_formatted, file = file.path("analysis-multiple-imput
 write.csv(fit_pooled_control_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pooled_H1_control_hour_linear.csv"), row.names = TRUE)
 write.csv(dat_pbcom_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "pbcom_H1_causal_hour_linear.csv"), row.names = TRUE)
 
+###############################################################################
+# Workflow: Plot
+###############################################################################
+
+png(file = file.path("analysis-multiple-imputation", "formatted-output", "log_risk_ratio_scale_primary_hour_linear.png"), width = 6, height = 6, units = "in", res = 600)
+
+plot(0:24, fit_pooled_causal[-c(1:2),]$Estimate, type = "o", ylim = c(-0.50, 0.70), xlab = "Hour of Day", ylab = "Treatment Effect on the Log-Scale")
+lines(0:24, fit_pooled_causal[-c(1:2),]$LCL, type = "o", lty = 2)
+lines(0:24, fit_pooled_causal[-c(1:2),]$UCL, type = "o", lty = 2)
+abline(h = 0, lty = 2, col = "red")
+
+dev.off()
+
+png(file = file.path("analysis-multiple-imputation", "formatted-output", "risk_ratio_scale_primary_hour_linear.png"), width = 6, height = 6, units = "in", res = 600)
+
+plot(0:24, exp(fit_pooled_causal[-c(1:2),]$Estimate), type = "o", ylim = c(0.7,2), xlab = "Hour of Day", ylab = "Treatment Effect on the Risk Ratio-Scale")
+lines(0:24, exp(fit_pooled_causal[-c(1:2),]$LCL), type = "o", lty = 2)
+lines(0:24, exp(fit_pooled_causal[-c(1:2),]$UCL), type = "o", lty = 2)
+abline(h = 1, lty = 2, col = "red")
+
+dev.off()
 
