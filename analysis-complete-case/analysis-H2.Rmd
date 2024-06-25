@@ -344,12 +344,10 @@ results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-
 
 ```{r}
 exp_estimates <- exp(results_contrast$est_contrast)
-var_rr <- diag(exp_estimates) %*% vcov_contrast %*% t(diag(exp_estimates))
-stderr_rr <- sqrt(diag(var_rr))
-rrLB95 <- exp_estimates - critical_value * stderr_rr
-rrUB95 <- exp_estimates + critical_value * stderr_rr
+rrLB95 <- exp(results_contrast$lcl_contrast)
+rrUB95 <- exp(results_contrast$ucl_contrast)
 
-dat_exp_scale <- data.frame(exp_estimates = exp_estimates, stderr_rr = stderr_rr, rrLB95 = rrLB95, rrUB95 = rrUB95)
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
 
 dat_exp_scale
 
@@ -1149,12 +1147,10 @@ results_contrast %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-
 
 ```{r}
 exp_estimates <- exp(results_contrast$est_contrast)
-var_rr <- diag(exp_estimates) %*% vcov_contrast %*% t(diag(exp_estimates))
-stderr_rr <- sqrt(diag(var_rr))
-rrLB95 <- exp_estimates - critical_value * stderr_rr
-rrUB95 <- exp_estimates + critical_value * stderr_rr
+rrLB95 <- exp(results_contrast$lcl_contrast)
+rrUB95 <- exp(results_contrast$ucl_contrast)
 
-dat_exp_scale <- data.frame(exp_estimates = exp_estimates, stderr_rr = stderr_rr, rrLB95 = rrLB95, rrUB95 = rrUB95)
+dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
 
 dat_exp_scale
 
