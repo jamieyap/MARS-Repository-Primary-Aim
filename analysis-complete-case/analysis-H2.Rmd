@@ -554,7 +554,7 @@ dat_result_for_plotting$ucl_contrast <- exp(dat_result_for_plotting$ucl_contrast
 dat_result_for_plotting$days_since_start <- 1:8 
 
 dat_result_for_plotting %>% 
-  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=2) + geom_point(size = 4) + geom_line(linewidth=2) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=2, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0.7,2.0), breaks = seq(0.7,1.5,0.10)) + theme(legend.position = "none") 
+  ggplot(aes(x=days_since_start, y=est_contrast, color="red")) + geom_hline(yintercept=1, linetype=1, color = "black", size=2) + geom_point(size = 4) + geom_line(linewidth=2) + geom_ribbon(aes(ymin=lcl_contrast, ymax=ucl_contrast), linetype=3, linewidth=2, alpha=0.2) + scale_x_continuous(name="Day (t)", limits=c(1,8), breaks = seq(1,8,1)) + scale_y_continuous(name="Estimate on risk ratio scale", limits=c(0.7,1.6), breaks = seq(0.7,1.6,0.10)) + theme(legend.position = "none") 
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "zoomed_risk_ratio_scale_H2_linear.png"), dpi = 1200)
 ```
@@ -598,6 +598,61 @@ results_contrast <- data.frame(est_contrast = est_contrast, lcl_contrast = lcl_c
 row.names(results_contrast) <- c("Indicator for High vs. Low", "Indicator for High vs. Low x Day in Study")
 
 results_contrast
+```
+
+### Calculate 90% CI's
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE, conf_level = 0.90)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL90 = round(fit1_causal[,"90% LCL"], 3),
+                          UCL90 = round(fit1_causal[,"90% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          test_stat = round(fit1_causal[,"t_value"], 3),
+                          df = round(fit1_causal[, "df"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt) x Day in Study")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL90 = round(fit1_control[,"90% LCL"], 3),
+                          UCL90 = round(fit1_control[,"90% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_day_CI90.csv"), row.names = TRUE)
 ```
 
 ```{r}
@@ -777,6 +832,60 @@ results_contrast_all <- rbind(results_contrast, results_contrast2)
 results_contrast_all %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_hour_contrast.csv"), row.names = TRUE)
 ```
 
+### Calculate 90% CI's
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE, conf_level = 0.90)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3"),
+                          estimate = round(fit1_causal[,"Estimate"], 3),
+                          LCL90 = round(fit1_causal[,"90% LCL"], 3),
+                          UCL90 = round(fit1_causal[,"90% UCL"], 3),
+                          SE = round(fit1_causal[,"StdErr"], 3),
+                          test_stat = round(fit1_causal[,"t_value"], 3),
+                          df = round(fit1_causal[, "df"], 3),
+                          p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt) x Hour")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL90 = round(fit1_control[,"90% LCL"], 3),
+                          UCL90 = round(fit1_control[,"90% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_linear_hour_CI90.csv"), row.names = TRUE)
+```
 
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
@@ -1027,6 +1136,64 @@ dat_result_for_plotting %>%
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H2", "risk_ratio_scale_H2_quadratic.png"), dpi = 1200)
 ```
 
+### Calculate 90% CI's
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE, conf_level = 0.90)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3", "beta4", "beta5"),
+                         estimate = round(fit1_causal[,"Estimate"], 3),
+                         LCL90 = round(fit1_causal[,"90% LCL"], 3),
+                         UCL90 = round(fit1_causal[,"90% UCL"], 3),
+                         SE = round(fit1_causal[,"StdErr"], 3),
+                         test_stat = round(fit1_causal[,"t_value"], 3),
+                         df = round(fit1_causal[, "df"], 3),
+                         p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "High Effort Prompt (versus No Prompt) x Day in Study x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "5", "Low Effort Prompt (versus No Prompt) x Day in Study")
+new_row_names <- replace(new_row_names, orig_row_names == "6", "Low Effort Prompt (versus No Prompt) x Day in Study x Day in Study")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL90 = round(fit1_control[,"90% LCL"], 3),
+                          UCL90 = round(fit1_control[,"90% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_day_CI90.csv"), row.names = TRUE)
+```
+
 ```{r}
 n_terms_control <- fit1_converted$fit$dims$q
 n_terms_total <- fit1_converted$fit$dims$q + fit1_converted$fit$dims$p
@@ -1238,6 +1405,63 @@ results_contrast_all <- rbind(results_contrast, results_contrast2)
 
 # Format output to 3 decimal places
 results_contrast_all %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_hour_contrast.csv"), row.names = TRUE)
+```
+
+### Calculate 90% CI's
+
+```{r}
+# The output of emee_categorical_trt_with_Delta does not contain 
+# confidence intervals or p-values by default; in this code snippet, we
+# call the functions convert_to_emee_fit_object and summary to facilitate this calculation
+fit1_converted <- convert_to_emee_fit_object(fit1, dat_for_analysis, "participant_id")
+fit1_results <- summary(fit1_converted, show_control_fit = TRUE, conf_level = 0.90)
+fit1_causal <- fit1_results$causal_excursion_effect
+fit1_control <- fit1_results$control_variables
+```
+
+```{r}
+dat_causal <- data.frame(coefficient = c("beta0", "beta1","beta2", "beta3", "beta4", "beta5"),
+                         estimate = round(fit1_causal[,"Estimate"], 3),
+                         LCL90 = round(fit1_causal[,"90% LCL"], 3),
+                         UCL90 = round(fit1_causal[,"90% UCL"], 3),
+                         SE = round(fit1_causal[,"StdErr"], 3),
+                         test_stat = round(fit1_causal[,"t_value"], 3),
+                         df = round(fit1_causal[, "df"], 3),
+                         p = round(fit1_causal[,"p-value"], 3))
+```
+
+```{r}
+orig_row_names <- row.names(dat_causal)
+new_row_names <- orig_row_names
+new_row_names <- replace(new_row_names, orig_row_names == "1", "High Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "2", "High Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "3", "High Effort Prompt (versus No Prompt) x Hour x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "4", "Low Effort Prompt (versus No Prompt)")
+new_row_names <- replace(new_row_names, orig_row_names == "5", "Low Effort Prompt (versus No Prompt) x Hour")
+new_row_names <- replace(new_row_names, orig_row_names == "6", "Low Effort Prompt (versus No Prompt) x Hour x Hour")
+row.names(dat_causal) <- new_row_names
+```
+
+```{r}
+dat_control <- data.frame(coefficient = paste("alpha", 0:(length(fit1_control[,"Estimate"])-1), sep=""),
+                          estimate = round(fit1_control[,"Estimate"], 3),
+                          LCL90 = round(fit1_control[,"90% LCL"], 3),
+                          UCL90 = round(fit1_control[,"90% UCL"], 3),
+                          SE = round(fit1_control[,"StdErr"], 3),
+                          test_stat = round(fit1_control[,"t_value"], 3),
+                          df = round(fit1_control[,"df"], 3),
+                          p = round(fit1_control[,"p-value"], 3))
+```
+
+```{r}
+dat_result <- rbind(dat_causal, dat_control)
+
+dat_result
+
+dat_result <- as.data.frame(dat_result) %>% select(-coefficient)
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "log_risk_ratio_scale_H2_quadratic_hour_CI90.csv"), row.names = TRUE)
 ```
 
 ```{r}
