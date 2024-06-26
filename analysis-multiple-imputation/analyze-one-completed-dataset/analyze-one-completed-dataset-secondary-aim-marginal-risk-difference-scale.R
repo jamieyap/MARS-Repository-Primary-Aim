@@ -107,7 +107,7 @@ dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (dec
 dat_for_analysis <- dat_long_completed %>% filter(replicate_id == 0)
 dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
 
-fit <- tryCatch(expr = {geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, 
+fit <- tryCatch(expr = {geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
                                family = "gaussian", 
                                data = dat_for_analysis_elig, 
                                id = participant_id, 
@@ -126,10 +126,10 @@ if(length(fit) == 1){
                             LCL95 = summary(fit)$coefficients[,"Estimate"] - qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
                             UCL95 = summary(fit)$coefficients[,"Estimate"] + qnorm(0.975)*summary(fit)$coefficients[,"Std.err"])
   
-  Lmat <- matrix(c(0,1,0, rep(0,11),
-                   0,0,1, rep(0,11),
-                   0,1,-1, rep(0,11)), 
-                 ncol = 14, byrow = TRUE)
+  Lmat <- matrix(c(0,1,0, rep(0,13),
+                   0,0,1, rep(0,13),
+                   0,1,-1, rep(0,13)), 
+                 ncol = 16, byrow = TRUE)
   
   est_contrast <- Lmat %*% as.matrix(fit$coefficients)
   est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
@@ -156,7 +156,7 @@ for(idx_replicate in 1:max_replicate_id){
   dat_for_analysis <- dat_long_completed %>% filter(replicate_id == idx_replicate)
   dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
   
-  fit <- tryCatch(expr = {geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, 
+  fit <- tryCatch(expr = {geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, 
                                  family = "gaussian", 
                                  data = dat_for_analysis_elig, 
                                  id = participant_id, 
@@ -175,10 +175,10 @@ for(idx_replicate in 1:max_replicate_id){
                               LCL95 = summary(fit)$coefficients[,"Estimate"] - qnorm(0.975)*summary(fit)$coefficients[,"Std.err"],
                               UCL95 = summary(fit)$coefficients[,"Estimate"] + qnorm(0.975)*summary(fit)$coefficients[,"Std.err"])
     
-    Lmat <- matrix(c(0,1,0, rep(0,11),
-                     0,0,1, rep(0,11),
-                     0,1,-1, rep(0,11)), 
-                   ncol = 14, byrow = TRUE)
+    Lmat <- matrix(c(0,1,0, rep(0,13),
+                     0,0,1, rep(0,13),
+                     0,1,-1, rep(0,13)), 
+                   ncol = 16, byrow = TRUE)
     
     est_contrast <- Lmat %*% as.matrix(fit$coefficients)
     est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
