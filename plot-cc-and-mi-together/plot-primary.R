@@ -172,13 +172,13 @@ png(file = file.path("plot-cc-and-mi-together", "log_risk_ratio_scale_primary_ho
 
 par(mfrow = c(1,2))
 
-plot(0:24, cc_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
+plot(0:24, cc_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
 lines(0:24, cc_linear_hour[3:27,]$X95..LCL, type = "l", lty = 2, lwd = 2)
 lines(0:24, cc_linear_hour[3:27,]$X95..UCL, type = "l", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "95% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, mi_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
+plot(0:24, mi_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
 lines(0:24, mi_linear_hour[3:27,]$LCL, type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, mi_linear_hour[3:27,]$UCL, type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
@@ -190,13 +190,13 @@ png(file = file.path("plot-cc-and-mi-together", "log_risk_ratio_scale_primary_ho
 
 par(mfrow = c(1,2))
 
-plot(0:24, cc_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
+plot(0:24, cc_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
 lines(0:24, cc_linear_hour[3:27,]$X90..LCL, type = "l", lty = 2, lwd = 2)
 lines(0:24, cc_linear_hour[3:27,]$X90..UCL, type = "l", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "95% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, mi_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
+plot(0:24, mi_linear_hour[3:27,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
 lines(0:24, mi_linear_hour[3:27,]$LCL90, type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, mi_linear_hour[3:27,]$UCL90, type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
@@ -208,13 +208,13 @@ png(file = file.path("plot-cc-and-mi-together", "risk_ratio_scale_primary_hour_l
 
 par(mfrow = c(1,2))
 
-plot(0:24, exp(cc_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
+plot(0:24, exp(cc_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
 lines(0:24, exp(cc_linear_hour[3:27,]$X95..LCL), type = "l", lty = 2, lwd = 2)
 lines(0:24, exp(cc_linear_hour[3:27,]$X95..UCL), type = "l", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "95% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, exp(mi_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
+plot(0:24, exp(mi_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
 lines(0:24, exp(mi_linear_hour[3:27,]$LCL), type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, exp(mi_linear_hour[3:27,]$UCL), type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
@@ -226,13 +226,13 @@ png(file = file.path("plot-cc-and-mi-together", "risk_ratio_scale_primary_hour_l
 
 par(mfrow = c(1,2))
 
-plot(0:24, exp(cc_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
+plot(0:24, exp(cc_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
 lines(0:24, exp(cc_linear_hour[3:27,]$X90..LCL), type = "l", lty = 2, lwd = 2)
 lines(0:24, exp(cc_linear_hour[3:27,]$X90..UCL), type = "l", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "90% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, exp(mi_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
+plot(0:24, exp(mi_linear_hour[3:27,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
 lines(0:24, exp(mi_linear_hour[3:27,]$LCL90), type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, exp(mi_linear_hour[3:27,]$UCL90), type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
@@ -248,13 +248,13 @@ png(file = file.path("plot-cc-and-mi-together", "log_risk_ratio_scale_primary_ho
 
 par(mfrow = c(1,2))
 
-plot(0:24, cc_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
+plot(0:24, cc_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
 lines(0:24, cc_quadratic_hour[4:28,]$X95..LCL, type = "l", lty = 2, lwd = 2)
 lines(0:24, cc_quadratic_hour[4:28,]$X95..UCL, type = "l", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "95% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, mi_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
+plot(0:24, mi_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
 lines(0:24, mi_quadratic_hour[4:28,]$LCL, type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, mi_quadratic_hour[4:28,]$UCL, type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
@@ -266,13 +266,13 @@ png(file = file.path("plot-cc-and-mi-together", "log_risk_ratio_scale_primary_ho
 
 par(mfrow = c(1,2))
 
-plot(0:24, cc_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
+plot(0:24, cc_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", lwd = 2)
 lines(0:24, cc_quadratic_hour[4:28,]$X90..LCL, type = "l", lty = 2, lwd = 2)
 lines(0:24, cc_quadratic_hour[4:28,]$X90..UCL, type = "l", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "90% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, mi_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Study hour", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
+plot(0:24, mi_quadratic_hour[4:28,]$Estimate, type = "l", ylim = c(-0.2, 0.8), xlab = "Hour of day", ylab = "Treatment Effect on the Log-Scale", col = "blue", lwd = 2)
 lines(0:24, mi_quadratic_hour[4:28,]$LCL90, type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, mi_quadratic_hour[4:28,]$UCL90, type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 0, lty = 3, col = "red", lwd = 2)
@@ -284,13 +284,13 @@ png(file = file.path("plot-cc-and-mi-together", "risk_ratio_scale_primary_hour_q
 
 par(mfrow = c(1,2))
 
-plot(0:24, exp(cc_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
+plot(0:24, exp(cc_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
 lines(0:24, exp(cc_quadratic_hour[4:28,]$X95..LCL), type = "l", lty = 2, lwd = 2)
 lines(0:24, exp(cc_quadratic_hour[4:28,]$X95..UCL), type = "l", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "95% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, exp(mi_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
+plot(0:24, exp(mi_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
 lines(0:24, exp(mi_quadratic_hour[4:28,]$LCL), type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, exp(mi_quadratic_hour[4:28,]$UCL), type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
@@ -302,13 +302,13 @@ png(file = file.path("plot-cc-and-mi-together", "risk_ratio_scale_primary_hour_q
 
 par(mfrow = c(1,2))
 
-plot(0:24, exp(cc_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
+plot(0:24, exp(cc_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", lwd = 2)
 lines(0:24, exp(cc_quadratic_hour[4:28,]$X90..LCL), type = "l", lty = 2, lwd = 2)
 lines(0:24, exp(cc_quadratic_hour[4:28,]$X90..UCL), type = "l", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
 legend("topright", legend = c("estimates: CC", "90% CI: CC"), col = c("black", "black"), lty = c(1,2), lwd = c(2,2))
 
-plot(0:24, exp(mi_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Study hour", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
+plot(0:24, exp(mi_quadratic_hour[4:28,]$Estimate), type = "l", ylim = c(0.7, 2), xlab = "Hour of day", ylab = "Treatment Effect on the Risk Ratio-Scale", col = "blue", lwd = 2)
 lines(0:24, exp(mi_quadratic_hour[4:28,]$LCL90), type = "l", col = "blue", lty = 2, lwd = 2)
 lines(0:24, exp(mi_quadratic_hour[4:28,]$UCL90), type = "l", col = "blue", lty = 2, lwd = 2)
 abline(h = 1, lty = 3, col = "red", lwd = 2)
