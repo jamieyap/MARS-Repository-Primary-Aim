@@ -1727,7 +1727,7 @@ dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-com
 ## Estimated effect on the risk difference scale
 
 ```{r}
-fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs, family = "gaussian", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
+fit <- geeglm(Y ~ is_high_effort + is_low_effort + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + any_recent_eligible_dp + engagement_most_recent_eligible, family = "gaussian", data = dat_for_analysis_elig, id = participant_id, waves = decision_point)
 
 dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
                          estimates = summary(fit)$coefficients[,"Estimate"],
@@ -1737,14 +1737,14 @@ dat_result <- data.frame(variable = rownames(summary(fit)$coefficients),
 
 dat_result
 
-dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_H2.csv"), row.names = TRUE)
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_risk_difference_scale_H2.csv"), row.names = TRUE)
 ```
 
 ```{r}
-Lmat <- matrix(c(0,1,0, rep(0,11),
-                 0,0,1, rep(0,11),
-                 0,1,-1, rep(0,11)), 
-               ncol = 14, byrow = TRUE)
+Lmat <- matrix(c(0,1,0, rep(0,13),
+                 0,0,1, rep(0,13),
+                 0,1,-1, rep(0,13)), 
+               ncol = 16, byrow = TRUE)
 
 est_contrast <- Lmat %*% as.matrix(fit$coefficients)
 est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
@@ -1756,7 +1756,7 @@ dat_result <- data.frame(contrast = c("high vs none", "low vs none", "high vs lo
 
 dat_result
 
-dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "risk_difference_scale_contrast_H2.csv"), row.names = TRUE)
+dat_result %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_risk_difference_scale_contrast_H2.csv"), row.names = TRUE)
 ```
 
 ```{r}
