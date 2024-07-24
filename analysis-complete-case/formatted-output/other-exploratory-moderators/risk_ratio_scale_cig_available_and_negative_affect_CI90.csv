@@ -1,5 +1,0 @@
-"","exp_estimates","rrLB","rrUB"
-"(Intercept)","1.028","0.932","1.134"
-"(Intercept) + negative_affect","1.191","0.910","1.560"
-"(Intercept) + cig_available","1.240","1.060","1.450"
-"(Intercept) + cig_available + negative_affect + I(cig_available * negative_affect)","1.038","0.833","1.293"

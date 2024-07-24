@@ -205,10 +205,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_age.csv"), row.names = TRUE)
@@ -319,10 +333,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_gender.csv"), row.names = TRUE)
@@ -433,10 +461,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_ethnicity.csv"), row.names = TRUE)
@@ -547,10 +589,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_baseline_tobacco_history.csv"), row.names = TRUE)
@@ -661,10 +717,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_has_partner.csv"), row.names = TRUE)
@@ -775,10 +845,24 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_income_val.csv"), row.names = TRUE)
@@ -888,14 +972,28 @@ fit1 <- emee(
 
 summary(fit1, show_control_fit = TRUE)
 
-# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
+# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included in complete case analysis.
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available.csv"), row.names = TRUE)
@@ -1004,151 +1102,31 @@ fit1 <- emee(
 
 summary(fit1, show_control_fit = TRUE)
 
-# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
+# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included in complete case analysis.
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
+
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_negative_affect.csv"), row.names = TRUE)
-```
-
-# Dichotomized brief survey response
-
-```{r}
-use_these_moderators <- c("dichotomized_2qs_response")
-```
-
-```{r}
-dat_for_analysis <- dat_primary_aim
-```
-
-```{r}
-logical_vec_cc <- dat_for_analysis %>% 
-  select(Y, eligibility,
-         hour_coinflip_local, days_between_v1_and_coinflip_local,
-         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
-         all_of(use_these_moderators)) %>%
-  complete.cases(.)
-
-dat_summary_observed <- dat_for_analysis %>% 
-  mutate(is_complete = logical_vec_cc) %>% 
-  filter(eligibility == 1) %>%
-  group_by(is_complete) %>%
-  summarise(total = n())
-
-n_participants_included_among_elig <- dat_for_analysis %>% 
-  mutate(is_complete = logical_vec_cc) %>% 
-  filter(eligibility == 1 & is_complete == 1) %>% 
-  summarise(total = length(unique(participant_id))) %>%
-  .[["total"]]
-
-n_participants_elig <- dat_for_analysis %>%
-  filter(eligibility == 1) %>%
-  .[["participant_id"]] %>%
-  unique(.) %>%
-  length(.)
-
-n_participants_excluded_among_elig <- n_participants_elig - n_participants_included_among_elig
-
-dat_summary <- data.frame(n_participants_elig = n_participants_elig,
-                          n_participants_included_among_elig = n_participants_included_among_elig,
-                          n_participants_excluded_among_elig = n_participants_excluded_among_elig,
-                          n_elig = sum(dat_summary_observed[["total"]]),
-                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
-                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
-
-dat_summary
-```
-
-```{r}
-dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
-dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility == 0)
-```
-
-```{r}
-logical_vec_cc <- dat_for_analysis_elig %>% 
-  select(Y,
-         hour_coinflip_local, days_between_v1_and_coinflip_local,
-         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
-         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
-         all_of(use_these_moderators)) %>%
-  complete.cases(.)
-```
-
-```{r}
-# Note that this line is needed because we are doing a complete case analysis
-# We would not need this line if we were doing a multiply imputed analysis
-dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility = if_else(logical_vec_cc, eligibility, 0))
-```
-
-```{r}
-dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
-dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
-dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
-```
-
-```{r}
-participants_fully_dropped <- dat_for_analysis %>% 
-  group_by(participant_id) %>% 
-  summarise(count_elig = sum(eligibility)) %>%
-  arrange(count_elig) %>%
-  filter(count_elig == 0) %>%
-  .[["participant_id"]]
-
-if(length(participants_fully_dropped) > 0){
-  dat_for_analysis <- dat_for_analysis %>% filter(!(participant_id %in% participants_fully_dropped))
-}
-```
-
-```{r}
-fit1 <- emee(
-  data = dat_for_analysis,
-  id = "participant_id",  
-  outcome = "Y",
-  treatment = "coinflip",
-  rand_prob = 0.5,
-  moderator_formula = ~ dichotomized_2qs_response,  
-  control_formula = ~ age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_recent_eligible_dp + engagement_most_recent_eligible + dichotomized_2qs_response, 
-  availability = "eligibility"
-)
-
-Lmat <- rbind(c(1,1))
-
-# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
-```
-
-## 95% CI's
-
-```{r}
-summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
-
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
-
-dat_result <- rbind(dat_result_causal, dat_result_control)
-
-# Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response_CI95.csv"), row.names = TRUE)
-```
-
-## 90% CI's
-
-```{r}
-summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)
-
-dat_result_causal <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
-
-dat_result <- rbind(dat_result_causal, dat_result_control)
-
-# Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_dichotomized_2qs_response_CI90.csv"), row.names = TRUE)
 ```
 
 # Cigarette availability and negative affect self-reported in brief survey
@@ -1252,83 +1230,72 @@ fit1 <- emee(
   availability = "eligibility"
 )
 
-Lmat <- rbind(c(1,0,0,0), # not vulnerable and receptive
-              c(1,0,1,0), # not vulnerable and not receptive
-              c(1,1,0,0), # vulnerable and receptive
-              c(1,1,1,1)) # vulnerable and not receptive
+Lmat <- rbind(c(1,0,0,0), # cigarettes were not available and negative emotions were not present
+              c(1,0,1,0), # cigarettes were not available and negative emotions were present
+              c(1,1,0,0), # cigarettes were available and negative emotions were not present
+              c(1,1,1,1)) # cigarettes were available and negative emotions were present
 
-# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included.
-```
-
-### 95% Confidence Intervals
-
-```{r}
-summary(fit1, show_control_fit = TRUE, lincomb = Lmat)
+# Note: removed any_response_2qs in the control variables since the value of this variable will be 1 for all blocks included in complete case analysis.
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
-# Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect_CI95.csv"), row.names = TRUE)
-```
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+dat_result <- cbind(dat_result, dat_result2)
 
-### 90% Confidence Intervals
-
-```{r}
-summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)
-```
-
-```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
-
-dat_result <- rbind(dat_result_causal, dat_result_control)
+these_row_names <- rownames(dat_result)
+dat_result <- as.data.frame(dat_result)
+dat_result <- dat_result %>% select(Estimate, StdErr, `95% LCL`, `95% UCL`, `90% LCL`, `90% UCL`, everything()) 
+dat_result <- as.matrix(dat_result)
+row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect_CI90.csv"), row.names = TRUE)
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the log-risk ratio scale
+
+```{r}
+dat_result
 ```
 
 ## Estimated effect on the risk ratio scale
 
-### 95% Confidence Intervals
 
 ```{r}
-dat_results_contrast <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat)$causal_excursion_effect[5:8,]
+exp_estimates <- exp(dat_result[,"Estimate"])
+
+rrLB95 <- exp(dat_result[,"95% LCL"])
+rrUB95 <- exp(dat_result[,"95% UCL"])
+
+rrLB90 <- exp(dat_result[,"90% LCL"])
+rrUB90 <- exp(dat_result[,"90% UCL"])
 ```
 
 ```{r}
-exp_estimates <- exp(dat_results_contrast[,"Estimate"])
-rrLB95 <- exp(dat_results_contrast[,"95% LCL"])
-rrUB95 <- exp(dat_results_contrast[,"95% UCL"])
-
-dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
-
-dat_exp_scale
-
-# Format output to 3 decimal places
-dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect_CI95.csv"), row.names = TRUE)
-```
-
-### 90% Confidence Intervals
-
-```{r}
-dat_results_contrast <- summary(fit1, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)$causal_excursion_effect[5:8,]
+dat_result_exp <- data.frame(variable = row.names(dat_result),
+                             exp_estimates = exp_estimates,
+                             rrLB95 = rrLB95, rrUB95 = rrUB95,
+                             rrLB90 = rrLB90, rrUB90 = rrUB90)
 ```
 
 ```{r}
-exp_estimates <- exp(dat_results_contrast[,"Estimate"])
-rrLB <- exp(dat_results_contrast[,"90% LCL"])
-rrUB <- exp(dat_results_contrast[,"90% UCL"])
-
-dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB = rrLB, rrUB = rrUB)
-
-dat_exp_scale
-
-# Format output to 3 decimal places
-dat_exp_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect_CI90.csv"), row.names = TRUE)
+dat_result_exp
 ```
 
+```{r}
+dat_result_exp_output <- dat_result_exp
+
+dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
+
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available_and_negative_affect.csv"), row.names = TRUE)
+```
