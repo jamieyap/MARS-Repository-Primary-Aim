@@ -958,6 +958,8 @@ if(length(participants_fully_dropped) > 0){
 }
 ```
 
+## Estimated effect on the log-risk ratio scale
+
 ```{r}
 fit1 <- emee(
   data = dat_for_analysis,
@@ -976,15 +978,18 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
+Lmat <- matrix(c(1,0,
+                 1,1), nrow = 2)
+
 fit <- fit1
 
-dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
-dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90, lincomb = Lmat)[["control_variables"]]
 dat_result2 <- rbind(dat_result_causal, dat_result_control)
 dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
 dat_result <- cbind(dat_result, dat_result2)
@@ -997,6 +1002,37 @@ row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_cig_available.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk ratio scale
+
+```{r}
+exp_estimates <- exp(dat_result[,"Estimate"])
+
+rrLB95 <- exp(dat_result[,"95% LCL"])
+rrUB95 <- exp(dat_result[,"95% UCL"])
+
+rrLB90 <- exp(dat_result[,"90% LCL"])
+rrUB90 <- exp(dat_result[,"90% UCL"])
+```
+
+```{r}
+dat_result_exp <- data.frame(variable = row.names(dat_result),
+                             exp_estimates = exp_estimates,
+                             rrLB95 = rrLB95, rrUB95 = rrUB95,
+                             rrLB90 = rrLB90, rrUB90 = rrUB90)
+```
+
+```{r}
+dat_result_exp
+```
+
+```{r}
+dat_result_exp_output <- dat_result_exp
+
+dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
+
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_cig_available.csv"), row.names = TRUE)
 ```
 
 # Negative affect self-reported in brief survey
@@ -1106,15 +1142,18 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
+Lmat <- matrix(c(1,0,
+                 1,1), nrow = 2)
+
 fit <- fit1
 
-dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
 
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
-dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
 dat_result2 <- rbind(dat_result_causal, dat_result_control)
 dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
 dat_result <- cbind(dat_result, dat_result2)
@@ -1127,6 +1166,37 @@ row.names(dat_result) <- these_row_names
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "log_risk_ratio_scale_negative_affect.csv"), row.names = TRUE)
+```
+
+## Estimated effect on the risk ratio scale
+
+```{r}
+exp_estimates <- exp(dat_result[,"Estimate"])
+
+rrLB95 <- exp(dat_result[,"95% LCL"])
+rrUB95 <- exp(dat_result[,"95% UCL"])
+
+rrLB90 <- exp(dat_result[,"90% LCL"])
+rrUB90 <- exp(dat_result[,"90% UCL"])
+```
+
+```{r}
+dat_result_exp <- data.frame(variable = row.names(dat_result),
+                             exp_estimates = exp_estimates,
+                             rrLB95 = rrLB95, rrUB95 = rrUB95,
+                             rrLB90 = rrLB90, rrUB90 = rrUB90)
+```
+
+```{r}
+dat_result_exp
+```
+
+```{r}
+dat_result_exp_output <- dat_result_exp
+
+dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
+
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "other-exploratory-moderators", "risk_ratio_scale_negative_affect.csv"), row.names = TRUE)
 ```
 
 # Cigarette availability and negative affect self-reported in brief survey

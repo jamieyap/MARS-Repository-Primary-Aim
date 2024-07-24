@@ -364,15 +364,25 @@ display: none;
 <li><a href="#socio-economic-status" id="toc-socio-economic-status"><span class="toc-section-number">6</span>
 Socio-economic status</a></li>
 <li><a href="#cigarette-availability-self-reported-in-brief-survey" id="toc-cigarette-availability-self-reported-in-brief-survey"><span class="toc-section-number">7</span> Cigarette availability self-reported
-in brief survey</a></li>
+in brief survey</a>
+<ul>
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">7.1</span> Estimated effect on the log-risk
+ratio scale</a></li>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">7.2</span> Estimated effect on the risk ratio
+scale</a></li>
+</ul></li>
 <li><a href="#negative-affect-self-reported-in-brief-survey" id="toc-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">8</span> Negative affect self-reported in
-brief survey</a></li>
+brief survey</a>
+<ul>
+<li><a href="#estimated-effect-on-the-risk-ratio-scale-1" id="toc-estimated-effect-on-the-risk-ratio-scale-1"><span class="toc-section-number">8.1</span> Estimated effect on the risk ratio
+scale</a></li>
+</ul></li>
 <li><a href="#cigarette-availability-and-negative-affect-self-reported-in-brief-survey" id="toc-cigarette-availability-and-negative-affect-self-reported-in-brief-survey"><span class="toc-section-number">9</span> Cigarette availability and negative
 affect self-reported in brief survey</a>
 <ul>
-<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">9.1</span> Estimated effect on the log-risk
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">9.1</span> Estimated effect on the log-risk
 ratio scale</a></li>
-<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">9.2</span> Estimated effect on the risk ratio
+<li><a href="#estimated-effect-on-the-risk-ratio-scale-2" id="toc-estimated-effect-on-the-risk-ratio-scale-2"><span class="toc-section-number">9.2</span> Estimated effect on the risk ratio
 scale</a></li>
 </ul></li>
 </ul>
@@ -617,6 +627,9 @@ status</h1>
 self-reported in brief survey</h1>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
 ## 1                  99                                 87                                 12   3858                  1282                  2576</code></pre>
+<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Estimated effect on
+the log-risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~cig_available, 
@@ -647,6 +660,30 @@ self-reported in brief survey</h1>
 ## any_recent_eligible_dp             -1.005092e+00 -1.468311549 -0.541873365 0.232313063 -4.326456903 71 4.866859e-05
 ## engagement_most_recent_eligible     8.704645e-01  0.571907544  1.169021490 0.149731922  5.813486565 71 1.607439e-07
 ## cig_available                      -3.687781e-02 -0.231226005  0.157470378 0.097469263 -0.378353261 71 7.062971e-01</code></pre>
+</div>
+<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##                              variable exp_estimates    rrLB95    rrUB95    rrLB90    rrUB90
+## 1                         (Intercept)     1.0475136 0.9387631 1.1688624 0.9558089 1.1480170
+## 2                       cig_available     1.1475218 0.9492971 1.3871382 0.9793162 1.3446182
+## 3         (Intercept) + cig_available     1.2020448 1.0115666 1.4283900 1.0406269 1.3885011
+## 4                       cig_available     1.1475218 0.9492971 1.3871382 0.9793162 1.3446182
+## 5                         (Intercept)     0.8680476 0.5409484 1.3929361 0.5846207 1.2888812
+## 6                                 age     0.9978061 0.9903703 1.0052978 0.9915872 1.0040641
+## 7                             is_male     0.9096591 0.6457376 1.2814488 0.6831061 1.2113488
+## 8                           is_latino     1.2399419 0.8864802 1.7343375 0.9366854 1.6413791
+## 9             is_not_latino_and_black     1.1765399 0.8539857 1.6209243 0.9001103 1.5378629
+## 10            is_not_latino_and_other     1.1885858 0.7735876 1.8262135 0.8301001 1.7018864
+## 11           baseline_tobacco_history     1.0000199 0.9830518 1.0172809 0.9858175 1.0144269
+## 12                        has_partner     0.9801551 0.7731538 1.2425782 0.8038593 1.1951147
+## 13                         income_val     0.9937214 0.9561993 1.0327158 0.9622606 1.0262107
+## 14                hour_coinflip_local     1.0020946 0.9913098 1.0129967 0.9930723 1.0111988
+## 15 days_between_v1_and_coinflip_local     1.0023242 0.9837770 1.0212211 0.9867982 1.0180945
+## 16             any_recent_eligible_dp     0.3660108 0.2303140 0.5816576 0.2485117 0.5390648
+## 17    engagement_most_recent_eligible     2.3880199 1.7716433 3.2188414 1.8606415 3.0648778
+## 18                      cig_available     0.9637939 0.7935601 1.1705461 0.8192876 1.1337882</code></pre>
+</div>
 </div>
 <div id="negative-affect-self-reported-in-brief-survey" class="section level1" number="8">
 <h1><span class="header-section-number">8</span> Negative affect
@@ -683,13 +720,36 @@ self-reported in brief survey</h1>
 ## any_recent_eligible_dp             -1.0149543591 -1.429737715 -0.60017100 0.208021633 -4.87908081 71 6.319719e-06
 ## engagement_most_recent_eligible     0.8705686573  0.575407181  1.16573013 0.148029017  5.88106762 71 1.222260e-07
 ## negative_affect                     0.0306756540 -0.157929939  0.21928125 0.094589243  0.32430383 71 7.466615e-01</code></pre>
+<div id="estimated-effect-on-the-risk-ratio-scale-1" class="section level2" number="8.1">
+<h2><span class="header-section-number">8.1</span> Estimated effect on
+the risk ratio scale</h2>
+<pre><code>##                              variable exp_estimates    rrLB95    rrUB95    rrLB90    rrUB90
+## 1                         (Intercept)     1.1256056 1.0059563 1.2594862 1.0246882 1.2364620
+## 2                     negative_affect     0.9815908 0.7739746 1.2448995 0.8047659 1.1972682
+## 3       (Intercept) + negative_affect     1.1048842 0.8805062 1.3864400 0.9139384 1.3357236
+## 4                     negative_affect     0.9815908 0.7739746 1.2448995 0.8047659 1.1972682
+## 5                         (Intercept)     0.8462591 0.5308746 1.3490087 0.5731101 1.2495932
+## 6                                 age     0.9980137 0.9907690 1.0053114 0.9919547 1.0041097
+## 7                             is_male     0.9131429 0.6559763 1.2711282 0.6925819 1.2039442
+## 8                           is_latino     1.2321565 0.8817010 1.7219100 0.9314990 1.6298565
+## 9             is_not_latino_and_black     1.1682501 0.8470033 1.6113375 0.8929177 1.5284815
+## 10            is_not_latino_and_other     1.1752094 0.7634431 1.8090639 0.8194677 1.6853834
+## 11           baseline_tobacco_history     1.0006726 0.9849209 1.0166762 0.9874897 1.0140315
+## 12                        has_partner     0.9829751 0.7744256 1.2476860 0.8053441 1.1997852
+## 13                         income_val     0.9940547 0.9572178 1.0323092 0.9631703 1.0259295
+## 14                hour_coinflip_local     1.0022793 0.9913571 1.0133220 0.9931420 1.0115008
+## 15 days_between_v1_and_coinflip_local     1.0009611 0.9822402 1.0200388 0.9852894 1.0168821
+## 16             any_recent_eligible_dp     0.3624190 0.2393717 0.5487178 0.2562394 0.5125969
+## 17    engagement_most_recent_eligible     2.3882686 1.7778543 3.2082645 1.8661240 3.0565101
+## 18                    negative_affect     1.0311510 0.8539096 1.2451814 0.8807630 1.2072174</code></pre>
+</div>
 </div>
 <div id="cigarette-availability-and-negative-affect-self-reported-in-brief-survey" class="section level1" number="9">
 <h1><span class="header-section-number">9</span> Cigarette availability
 and negative affect self-reported in brief survey</h1>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
 ## 1                  99                                 87                                 12   3858                  1282                  2576</code></pre>
-<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="9.1">
+<div id="estimated-effect-on-the-log-risk-ratio-scale-1" class="section level2" number="9.1">
 <h2><span class="header-section-number">9.1</span> Estimated effect on
 the log-risk ratio scale</h2>
 <pre><code>##                                                                                         Estimate      StdErr      95% LCL     95% UCL      90% LCL      90% UCL     t_value df      p-value
@@ -718,7 +778,7 @@ the log-risk ratio scale</h2>
 ## negative_affect                                                                    -0.0297098648 0.147633200 -0.324386966  0.26496724 -0.275949659  0.216529929 -0.20124108 67 8.411198e-01
 ## I(cig_available * negative_affect)                                                  0.1307018901 0.207830588 -0.284129700  0.54553348 -0.215942097  0.477345877  0.62888669 67 5.315616e-01</code></pre>
 </div>
-<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="9.2">
+<div id="estimated-effect-on-the-risk-ratio-scale-2" class="section level2" number="9.2">
 <h2><span class="header-section-number">9.2</span> Estimated effect on
 the risk ratio scale</h2>
 <pre><code>##                                                                              variable exp_estimates    rrLB95    rrUB95    rrLB90    rrUB90
