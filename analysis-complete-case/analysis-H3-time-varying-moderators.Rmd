@@ -291,10 +291,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_ashamed_lag1.csv"), row.names = TRUE)
@@ -411,10 +420,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_guilty_lag1.csv"), row.names = TRUE)
@@ -531,10 +549,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_happy_lag1.csv"), row.names = TRUE)
@@ -651,10 +678,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_src_scored_lag1.csv"), row.names = TRUE)
@@ -771,10 +807,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_cigarette_availability_lag1.csv"), row.names = TRUE)
@@ -891,10 +936,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_stressor_lag1.csv"), row.names = TRUE)
@@ -1011,10 +1065,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_lag1.csv"), row.names = TRUE)
@@ -1131,10 +1194,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_nicotine_lag1.csv"), row.names = TRUE)
@@ -1251,10 +1323,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_cigarette_counts_lag1.csv"), row.names = TRUE)
@@ -1371,10 +1452,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_alcohol_lag1.csv"), row.names = TRUE)
@@ -1491,10 +1581,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_alcohol_counts_lag1.csv"), row.names = TRUE)
@@ -1611,10 +1710,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_marijuana_or_cannabis_lag1.csv"), row.names = TRUE)
@@ -1731,10 +1839,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_cigarettes_lag1.csv"), row.names = TRUE)
@@ -1853,10 +1970,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_ashamed_mean_past24hrs.csv"), row.names = TRUE)
@@ -1973,10 +2099,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_guilty_mean_past24hrs.csv"), row.names = TRUE)
@@ -2093,10 +2228,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_happy_mean_past24hrs.csv"), row.names = TRUE)
@@ -2213,10 +2357,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_src_scored_mean_past24hrs.csv"), row.names = TRUE)
@@ -2333,10 +2486,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_cigarette_availability_mean_past24hrs.csv"), row.names = TRUE)
@@ -2453,10 +2615,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_stressor_is_any_sum_past24hrs.csv"), row.names = TRUE)
@@ -2573,10 +2744,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_sum_past24hrs.csv"), row.names = TRUE)
@@ -2693,10 +2873,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_nicotine_sum_past24hrs.csv"), row.names = TRUE)
@@ -2813,10 +3002,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_cigarette_counts_sum_past24hrs.csv"), row.names = TRUE)
@@ -2933,10 +3131,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_alcohol_sum_past24hrs.csv"), row.names = TRUE)
@@ -3053,10 +3260,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_alcohol_counts_sum_past24hrs.csv"), row.names = TRUE)
@@ -3173,10 +3389,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_marijuana_or_cannabis_sum_past24hrs.csv"), row.names = TRUE)
@@ -3296,13 +3521,27 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_cigarettes_sum_past24hrs.csv"), row.names = TRUE)
 ```
 
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/H3-time-varying-moderators/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/H3-time-varying-moderators/Thumbs.db")
+}
+```
 
