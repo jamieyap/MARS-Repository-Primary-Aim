@@ -224,10 +224,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_srq_mean.csv"), row.names = TRUE)
@@ -344,10 +353,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_mdes_pos_mean.csv"), row.names = TRUE)
@@ -464,10 +482,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_mdes_neg_mean.csv"), row.names = TRUE)
@@ -584,10 +611,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_uclals_mean.csv"), row.names = TRUE)
@@ -704,10 +740,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_Nicotine_dep.csv"), row.names = TRUE)
@@ -824,10 +869,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_phqa_problem.csv"), row.names = TRUE)
@@ -946,10 +1000,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ecig_1.csv"), row.names = TRUE)
@@ -1066,10 +1129,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ecig_2.csv"), row.names = TRUE)
@@ -1186,10 +1258,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ecig_3.csv"), row.names = TRUE)
@@ -1306,10 +1387,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ecig_4.csv"), row.names = TRUE)
@@ -1426,10 +1516,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_maas_total.csv"), row.names = TRUE)
@@ -1548,10 +1647,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_FFMQ_total.csv"), row.names = TRUE)
@@ -1668,10 +1776,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ffmq_nonjudge.csv"), row.names = TRUE)
@@ -1788,10 +1905,19 @@ summary(fit1, show_control_fit = TRUE)
 ```
 
 ```{r}
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+fit <- fit1
 
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_ffmq_aware.csv"), row.names = TRUE)
@@ -1905,112 +2031,88 @@ fit1 <- emee(
   control_formula = ~ gratitude + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
   availability = "eligibility"
 )
-```
 
-#### 95% CI's
-
-```{r}
 summary(fit1, show_control_fit = TRUE)
+```
 
-dat_result_causal <- summary(fit1, show_control_fit = TRUE)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE)[["control_variables"]]
+```{r}
+fit <- fit1
 
+vals_to_display <- seq(1,7,0.05)
+
+Lmat <- matrix(c(rep(1, length(vals_to_display)),
+                 vals_to_display),
+               byrow = FALSE,
+               ncol = 2)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
 dat_result <- rbind(dat_result_causal, dat_result_control)
 
-# Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI95.csv"), row.names = TRUE)
-```
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
 
-```{r}
-vals_to_display <- seq(1,7,0.1)
-Lmat <- cbind(rep(1,length(vals_to_display)),
-              vals_to_display)
-fit_with_contrast <- summary(fit1, show_control_fit = FALSE, lincomb = Lmat)
-```
-
-```{r}
-est <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"Estimate"])
-LB95 <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"95% LCL"])
-UB95 <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"95% UCL"])
-
-dat_plot <- data.frame(val = vals_to_display, est = est, LB95 = LB95, UB95 = UB95)
-
-dat_plot
-
-g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = LB95, ymax = UB95))
-g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5), name = "Log Risk Ratio and 95% CI's") + geom_abline(slope = 0, intercept = 0, color = "red", linewidth = 0.9) + scale_x_continuous(name = "Higher scores indicate higher gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
-
-g
-
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI95.png"), width = 5, height = 5, units = "in")
-```
-
-```{r}
-est <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"Estimate"])
-LB95 <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"95% LCL"])
-UB95 <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"95% UCL"])
-
-dat_plot <- data.frame(val = vals_to_display, est = est, LB95 = LB95, UB95 = UB95)
-
-dat_plot
-
-g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = LB95, ymax = UB95))
-g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_continuous(limits = c(0.5,3.5), breaks = seq(0.5, 3.5, 0.5), name = "Risk Ratio and 95% CI's") + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 0.9) + scale_x_continuous(name = "Higher scores indicate higher gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
-
-g
-
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI95.png"), width = 5, height = 5, units = "in")
-```
-
-#### 90% CI's
-
-```{r}
-summary(fit1, show_control_fit = TRUE, conf_level = 0.90)
-
-dat_result_causal <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
-dat_result_control <- summary(fit1, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
-
-dat_result <- rbind(dat_result_causal, dat_result_control)
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI90.csv"), row.names = TRUE)
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude.csv"), row.names = TRUE)
+```
+
+### Estimated effect on the risk ratio scale
+
+```{r}
+exp_estimates <- exp(dat_result[,"Estimate"])
+
+rrLB95 <- exp(dat_result[,"95% LCL"])
+rrUB95 <- exp(dat_result[,"95% UCL"])
+
+rrLB90 <- exp(dat_result[,"90% LCL"])
+rrUB90 <- exp(dat_result[,"90% UCL"])
 ```
 
 ```{r}
-vals_to_display <- seq(1,7,0.1)
-Lmat <- cbind(rep(1,length(vals_to_display)),
-              vals_to_display)
-fit_with_contrast <- summary(fit1, show_control_fit = FALSE, lincomb = Lmat, conf_level = 0.90)
+dat_result_exp <- data.frame(variable = row.names(dat_result),
+                             exp_estimates = exp_estimates,
+                             rrLB95 = rrLB95, rrUB95 = rrUB95,
+                             rrLB90 = rrLB90, rrUB90 = rrUB90)
 ```
 
 ```{r}
-est <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"Estimate"])
-LB90 <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"90% LCL"])
-UB90 <- (fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"90% UCL"])
+dat_result_exp
+```
 
-dat_plot <- data.frame(val = vals_to_display, est = est, LB90 = LB90, UB90 = UB90)
+```{r}
+dat_result_exp_output <- dat_result_exp
+
+dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
+
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_plot <- data.frame(val = vals_to_display, est = exp_estimates[3:123], rrLB95 = rrLB95[3:123], rrUB95 = rrUB95[3:123])
 
 dat_plot
 
-g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = LB90, ymax = UB90))
-g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5), name = "Log Risk Ratio and 90% CI's") + geom_abline(slope = 0, intercept = 0, color = "red", linewidth = 0.9) + scale_x_continuous(name = "Higher scores indicate higher gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
+g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = rrLB95, ymax = rrUB95))
+g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + geom_ribbon(alpha = 0.3) + geom_line(linewidth = 2) + scale_y_continuous(limits = c(0.5,3.5), breaks = seq(0.5, 3.5, 0.5), name = "Risk Ratio and 95% CI's") + scale_x_continuous(name = "Value of Gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
 
 g
 
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_CI90.png"), width = 7, height = 5, units = "in")
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI95.png"), width = 7, height = 5, units = "in")
 ```
 
-```{r}
-est <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"Estimate"])
-LB90 <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"90% LCL"])
-UB90 <- exp(fit_with_contrast$causal_excursion_effect[3:nrow(fit_with_contrast$causal_excursion_effect),"90% UCL"])
 
-dat_plot <- data.frame(val = vals_to_display, est = est, LB90 = LB90, UB90 = UB90)
+```{r}
+dat_plot <- data.frame(val = vals_to_display, est = exp_estimates[3:123], rrLB90 = rrLB90[3:123], rrUB90 = rrUB90[3:123])
 
 dat_plot
 
-g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = LB90, ymax = UB90))
-g <- g + geom_errorbar() + geom_point(size=2, shape=21, fill="white") + scale_y_continuous(limits = c(0.5,3.5), breaks = seq(0.5, 3.5, 0.5), name = "Risk Ratio and 90% CI's") + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 0.9) + scale_x_continuous(name = "Higher scores indicate higher gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
+g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = rrLB90, ymax = rrUB90))
+g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + geom_ribbon(alpha = 0.3) + geom_line(linewidth = 2) + scale_y_continuous(limits = c(0.5,3.5), breaks = seq(0.5, 3.5, 0.5), name = "Risk Ratio and 90% CI's") + scale_x_continuous(name = "Value of Gratitude", breaks = c(1,2,3,4,5,6,7), labels = c(1,2,3,4,5,6,7))
 
 g
 
@@ -2022,5 +2124,3 @@ if(file.exists("analysis-complete-case/formatted-output/H3-baseline-moderators/T
   file.remove("analysis-complete-case/formatted-output/H3-baseline-moderators/Thumbs.db")
 }
 ```
-
-
