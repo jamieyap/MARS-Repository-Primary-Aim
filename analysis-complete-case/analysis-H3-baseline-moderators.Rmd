@@ -2119,6 +2119,139 @@ g
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_CI90.png"), width = 7, height = 5, units = "in")
 ```
 
+### Exploratory Plots
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_summary <- dat_for_analysis_elig %>% select(participant_id, gratitude) %>% unique(.)
+dat_for_summary <- dat_for_summary %>% arrange(gratitude) %>% mutate(plot_id = 1:nrow(.))
+
+summary(dat_for_summary$gratitude)
+
+quantile(dat_for_summary$gratitude, probs = seq(0,1,0.01), na.rm = TRUE)
+```
+
+```{r}
+g <- ggplot(data = dat_for_summary, aes(x = 0, y = gratitude))
+g <- g + geom_boxplot(fill = "goldenrod", size = 1, width = 0.05) + scale_y_continuous(limits = c(1,7), breaks = seq(1,7,0.25), name = "Gratitude") + scale_x_continuous(limits = c(-0.2,0.2), name = "", breaks = c(10), labels = "") + geom_dotplot(binaxis='y', stackdir='center', alpha = 0.3, dotsize = 0.7)
+
+g
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "boxplot_H3_gratitude.png"), width = 7, height = 12, units = "in")
+```
+
+### Estimated effect on the log-risk ratio scale after standardizing gratitude
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
+dat_for_summary <- dat_for_analysis_elig %>% select(participant_id, gratitude) %>% unique(.)
+
+mu <- mean(dat_for_summary$gratitude, na.rm = TRUE)
+std_dev <- sd(dat_for_summary$gratitude, na.rm = TRUE)
+```
+
+```{r}
+dat_for_analysis <- dat_for_analysis %>% mutate(gratitude_cs = (gratitude - mu)/std_dev)
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ gratitude_cs,  
+  control_formula = ~ gratitude_cs + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+```{r}
+fit <- fit1
+
+vals_to_display <- seq(-2,2,0.5)
+
+Lmat <- matrix(c(rep(1, length(vals_to_display)),
+                 vals_to_display),
+               byrow = FALSE,
+               ncol = 2)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat)[["control_variables"]]
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, lincomb = Lmat, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_cs.csv"), row.names = TRUE)
+```
+
+### Estimated effect on the risk ratio scale after standardizing gratitude
+
+```{r}
+exp_estimates <- exp(dat_result[,"Estimate"])
+
+rrLB95 <- exp(dat_result[,"95% LCL"])
+rrUB95 <- exp(dat_result[,"95% UCL"])
+
+rrLB90 <- exp(dat_result[,"90% LCL"])
+rrUB90 <- exp(dat_result[,"90% UCL"])
+```
+
+```{r}
+dat_result_exp <- data.frame(variable = row.names(dat_result),
+                             exp_estimates = exp_estimates,
+                             rrLB95 = rrLB95, rrUB95 = rrUB95,
+                             rrLB90 = rrLB90, rrUB90 = rrUB90)
+```
+
+```{r}
+dat_result_exp
+```
+
+```{r}
+dat_result_exp_output <- dat_result_exp
+
+dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
+
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_plot <- data.frame(val = vals_to_display, est = exp_estimates[3:11], rrLB95 = rrLB95[3:11], rrUB95 = rrUB95[3:11])
+
+dat_plot
+
+g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = rrLB95, ymax = rrUB95))
+g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + geom_ribbon(alpha = 0.3) + geom_line(linewidth = 2) + scale_y_continuous(limits = c(0.75,2), breaks = seq(0.75, 2, 0.25), name = "Risk Ratio and 95% CI's") + scale_x_continuous(name = "Number of standard deviations above or below mean of gratitude", breaks = seq(-2,2,0.5), labels = seq(-2,2,0.5))
+
+g
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs_CI95.png"), width = 7, height = 5, units = "in")
+```
+
+```{r}
+dat_plot <- data.frame(val = vals_to_display, est = exp_estimates[3:11], rrLB90 = rrLB90[3:11], rrUB90 = rrUB90[3:11])
+
+dat_plot
+
+g <- ggplot(data = dat_plot, aes(x = val, y = est, ymin = rrLB90, ymax = rrUB90))
+g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + geom_ribbon(alpha = 0.3) + geom_line(linewidth = 2) + scale_y_continuous(limits = c(0.75,2), breaks = seq(0.75, 2, 0.25), name = "Risk Ratio and 90% CI's") + scale_x_continuous(name = "Number of standard deviations above or below mean of gratitude", breaks = seq(-2,2,0.5), labels = seq(-2,2,0.5))
+
+g
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs_CI90.png"), width = 7, height = 5, units = "in")
+```
+
 ```{r}
 if(file.exists("analysis-complete-case/formatted-output/H3-baseline-moderators/Thumbs.db")){
   file.remove("analysis-complete-case/formatted-output/H3-baseline-moderators/Thumbs.db")
