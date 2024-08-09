@@ -2140,7 +2140,7 @@ g
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "boxplot_H3_gratitude.png"), width = 7, height = 12, units = "in")
 ```
 
-### Estimated effect on the log-risk ratio scale after standardizing gratitude
+### Estimated effect on the log-risk ratio scale after centering gratitude
 
 ```{r}
 dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility == 1)
@@ -2155,7 +2155,7 @@ print(out)
 ```
 
 ```{r}
-dat_for_analysis <- dat_for_analysis %>% mutate(gratitude_cs = (gratitude - mu)/std_dev)
+dat_for_analysis <- dat_for_analysis %>% mutate(gratitude_c = (gratitude - mu))
 ```
 
 ```{r}
@@ -2165,8 +2165,8 @@ fit1 <- emee(
   outcome = "Y",
   treatment = "coinflip",
   rand_prob = 0.5,
-  moderator_formula = ~ gratitude_cs,  
-  control_formula = ~ gratitude_cs + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  moderator_formula = ~ gratitude_c,  
+  control_formula = ~ gratitude_c + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
   availability = "eligibility"
 )
 
@@ -2176,7 +2176,7 @@ summary(fit1, show_control_fit = TRUE)
 ```{r}
 fit <- fit1
 
-vals_to_display <- seq(-2,2,0.5)
+vals_to_display <- c(-2*std_dev, -1.5*std_dev, -std_dev, -0.5*std_dev, 0, 0.5*std_dev, std_dev, 1.5*std_dev, 2*std_dev)
 
 Lmat <- matrix(c(rep(1, length(vals_to_display)),
                  vals_to_display),
@@ -2196,10 +2196,10 @@ dat_result <- cbind(dat_result, dat_result2)
 dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
 
 # Format output to 3 decimal places
-dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_cs.csv"), row.names = TRUE)
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "log_risk_ratio_scale_H3_gratitude_c.csv"), row.names = TRUE)
 ```
 
-### Estimated effect on the risk ratio scale after standardizing gratitude
+### Estimated effect on the risk ratio scale after centering gratitude
 
 ```{r}
 exp_estimates <- exp(dat_result[,"Estimate"])
@@ -2227,7 +2227,7 @@ dat_result_exp_output <- dat_result_exp
 
 dat_result_exp_output[,2:ncol(dat_result_exp_output)] <- format(round(dat_result_exp_output[,2:ncol(dat_result_exp_output)], 3), nsmall = 3)
 
-dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs.csv"), row.names = TRUE)
+dat_result_exp_output %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_c.csv"), row.names = TRUE)
 ```
 
 ```{r}
@@ -2240,7 +2240,7 @@ g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + g
 
 g
 
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs_CI95.png"), width = 7, height = 5, units = "in")
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_c_CI95.png"), width = 7, height = 5, units = "in")
 ```
 
 ```{r}
@@ -2253,7 +2253,7 @@ g <- g + geom_abline(slope = 0, intercept = 1, color = "red", linewidth = 1) + g
 
 g
 
-ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_cs_CI90.png"), width = 7, height = 5, units = "in")
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "H3-baseline-moderators", "risk_ratio_scale_H3_gratitude_c_CI90.png"), width = 7, height = 5, units = "in")
 ```
 
 ```{r}
