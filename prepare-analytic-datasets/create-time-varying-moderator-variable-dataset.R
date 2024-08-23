@@ -253,6 +253,7 @@ lookup <- c(substance_is_none = "Q19_response_cleaned_none",
             substance_is_smokeless_tobacco_snus_or_dissolvable_tobacco = "Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco",
             substance_is_marijuana_or_cannabis = "Q19_response_cleaned_marijuana_or_cannabis",
             substance_is_any_nicotine = "Q19_response_cleaned_any_nicotine",
+            substance_is_any_tobacco = "Q19_response_cleaned_any_tobacco",
             substance_is_any = "Q19_response_cleaned_any",
             cigarette_counts = "Q20_response_cleaned",
             alcohol_counts = "Q30_response_cleaned",
@@ -328,6 +329,7 @@ lookup <- c(stressor_is_any_sum_past24hrs = "stressor_is_any_sum_past24hrs",
             alcohol_counts_sum_past24hrs = "alcohol_counts_sum_past24hrs",
             substance_is_any_sum_past24hrs = "substance_is_any_sum_past24hrs",
             substance_is_any_nicotine_sum_past24hrs = "substance_is_any_nicotine_sum_past24hrs",
+            substance_is_any_tobacco_sum_past24hrs = "substance_is_any_tobacco_sum_past24hrs",
             substance_is_marijuana_or_cannabis_sum_past24hrs = "substance_is_marijuana_or_cannabis_sum_past24hrs",
             substance_is_alcohol_sum_past24hrs = "substance_is_alcohol_sum_past24hrs",
             substance_is_cigarettes_sum_past24hrs = "substance_is_cigarettes_sum_past24hrs",
@@ -339,6 +341,7 @@ dat_analysis[["cigarette_counts_sum_past24hrs"]] <- NA
 dat_analysis[["alcohol_counts_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_nicotine_sum_past24hrs"]] <- NA
+dat_analysis[["substance_is_any_tobacco_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_sum_past24hrs"]] <- NA
 dat_analysis[["substance_is_cigarettes_sum_past24hrs"]] <- NA
@@ -349,6 +352,7 @@ dat_analysis[["cigarette_counts_nreported_past24hrs"]] <- NA
 dat_analysis[["alcohol_counts_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_any_nicotine_nreported_past24hrs"]] <- NA
+dat_analysis[["substance_is_any_tobacco_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_marijuana_or_cannabis_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_alcohol_nreported_past24hrs"]] <- NA
 dat_analysis[["substance_is_cigarettes_nreported_past24hrs"]] <- NA
@@ -375,6 +379,7 @@ for(i in 1:n_ids){
         dat_current_participant[j,"alcohol_counts_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["alcohol_counts"]]))
         dat_current_participant[j,"substance_is_any_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_any"]]))
         dat_current_participant[j,"substance_is_any_nicotine_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_any_nicotine"]]))
+        dat_current_participant[j,"substance_is_any_tobacco_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_any_tobacco"]]))
         dat_current_participant[j,"substance_is_marijuana_or_cannabis_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_marijuana_or_cannabis"]]))
         dat_current_participant[j,"substance_is_alcohol_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_alcohol"]]))
         dat_current_participant[j,"substance_is_cigarettes_nreported_past24hrs"] <- sum(!is.na(dat_within_range[["substance_is_cigarettes"]]))
@@ -402,6 +407,10 @@ for(i in 1:n_ids){
         
         if(n_rand_past24hrs == dat_current_participant[j,"substance_is_any_nicotine_nreported_past24hrs"]){
           dat_current_participant[j,"substance_is_any_nicotine_sum_past24hrs"] <- sum(dat_within_range[["substance_is_any_nicotine"]], na.rm = TRUE)
+        }
+        
+        if(n_rand_past24hrs == dat_current_participant[j,"substance_is_any_tobacco_nreported_past24hrs"]){
+          dat_current_participant[j,"substance_is_any_tobacco_sum_past24hrs"] <- sum(dat_within_range[["substance_is_any_tobacco"]], na.rm = TRUE)
         }
         
         if(n_rand_past24hrs == dat_current_participant[j,"substance_is_marijuana_or_cannabis_nreported_past24hrs"]){

@@ -112,6 +112,7 @@ clean_response_substance_use_multiple_select <- function(cleaned_data_frame){
            Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco = replace(Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco, is.na(Q19_response), NA),
            Q19_response_cleaned_marijuana_or_cannabis = replace(Q19_response_cleaned_marijuana_or_cannabis, is.na(Q19_response), NA)) %>%
     mutate(Q19_response_cleaned_any_nicotine = if_else(Q19_response_cleaned_cigarettes + Q19_response_cleaned_vape_juul_or_ecigarettes + Q19_response_cleaned_cigars_cigarillos_or_little_cigars + Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco >= 1, 1, 0)) %>%
+    mutate(Q19_response_cleaned_any_tobacco = if_else(Q19_response_cleaned_cigarettes + Q19_response_cleaned_cigars_cigarillos_or_little_cigars + Q19_response_cleaned_smokeless_tobacco_snus_or_dissolvable_tobacco >= 1, 1, 0)) %>%
     mutate(Q19_response_cleaned_any = abs(Q19_response_cleaned_none - 1)) 
   
   return(cleaned_data_frame)
