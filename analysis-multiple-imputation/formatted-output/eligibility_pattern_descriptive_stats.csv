@@ -1,0 +1,5 @@
+"","which_pattern_factor","which_pattern","count"
+"1","Participant-decision points eligible at t and were also eligible at t-1",1,4226
+"2","Participant-decision points eligible at t, ineligible at t-1, but had at least one eligible decision point prior to t",2,224
+"3","Participant-decision points which were eligible at t but had no eligible decision point prior to t since the start of the MRT",3,99
+"4","Participant-decision points not eligible at t",4,1391
