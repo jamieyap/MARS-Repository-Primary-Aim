@@ -34,7 +34,8 @@ dat_primary_aim <- dat_primary_aim %>%
 ###############################################################################
 dat_stats <- dat_primary_aim %>%
   group_by(which_pattern) %>%
-  summarise(count = n()) %>%
+  summarise(count = n(),
+            n_observed = sum(!is.na(Y))) %>%
   mutate(which_pattern_factor = case_when(
     which_pattern == 1 ~ "Participant-decision points eligible at t and were also eligible at t-1",
     which_pattern == 2 ~ "Participant-decision points eligible at t, ineligible at t-1, but had at least one eligible decision point prior to t",
@@ -43,7 +44,7 @@ dat_stats <- dat_primary_aim %>%
     .default = NULL
   )) %>%
   mutate(which_pattern_factor = as_factor(which_pattern_factor)) %>%
-  select(which_pattern_factor, which_pattern, count)
+  select(which_pattern_factor, which_pattern, count, n_observed)
 
 write.csv(dat_stats, file = file.path("analysis-multiple-imputation", "formatted-output", "eligibility_pattern_descriptive_stats.csv"))
 
@@ -52,7 +53,8 @@ write.csv(dat_stats, file = file.path("analysis-multiple-imputation", "formatted
 ###############################################################################
 dat_stats_by_dp <- dat_primary_aim %>%
   group_by(decision_point, which_pattern) %>%
-  summarise(count = n())
+  summarise(count = n(),
+            n_observed = sum(!is.na(Y)))
 
 dat_all <- expand.grid(decision_point = 1:60, which_pattern = 1:4)
 
@@ -62,7 +64,8 @@ dat_stats_by_dp <- full_join(x = dat_all,
                                           which_pattern == which_pattern))
 
 dat_stats_by_dp <- dat_stats_by_dp %>% 
-  mutate(count = replace(count, is.na(count), 0))
+  mutate(count = replace(count, is.na(count), 0),
+         n_observed = replace(n_observed, count == 0, 0))
 
 dat_stats_by_dp <- dat_stats_by_dp %>%
   mutate(which_pattern_factor = case_when(
@@ -81,7 +84,18 @@ ggplot(dat_stats_by_dp, aes(x = decision_point, y = count, color = which_pattern
   theme(axis.text = element_text(size = 18), title = element_text(size = 20), legend.position = "top") +
   guides(col=guide_legend(title="Eligibility Pattern"))
 
-ggsave(filename = file.path("analysis-multiple-imputation", "formatted-output", "eligibility_pattern_descriptive_stats_by_dp.png"), width = 16, height = 8, units = "in", dpi = 1000)
+ggsave(filename = file.path("analysis-multiple-imputation", "formatted-output", "eligibility_pattern_descriptive_stats_totalcount_by_dp.png"), width = 16, height = 7, units = "in", dpi = 1000)
+
+dat_stats_by_dp %>%
+  mutate(n_observed = replace(n_observed, which_pattern == 4, -1.3)) %>% # Induce some offset to that plotting is clearer
+  ggplot(aes(x = decision_point, y = n_observed, color = which_pattern_factor)) +
+  geom_point(size = 3) + geom_line(linewidth = 1) +
+  scale_x_continuous(name = "Decision Point", breaks = seq(0,60,6)) +
+  scale_y_continuous(name = "Number of participants", limits = c(-2,100), breaks = seq(0,100,10)) +
+  theme(axis.text = element_text(size = 18), title = element_text(size = 20), legend.position = "top") +
+  guides(col=guide_legend(title="Eligibility Pattern"))
+
+ggsave(filename = file.path("analysis-multiple-imputation", "formatted-output", "eligibility_pattern_descriptive_stats_nobserved_by_dp.png"), width = 16, height = 7, units = "in", dpi = 1000)
 
 ###############################################################################
 # Clean up
