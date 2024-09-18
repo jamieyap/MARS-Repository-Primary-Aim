@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-08-06" />
+<meta name="date" content="2024-09-18" />
 
 <title>MARS MRT: H3</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">MARS MRT: H3</h1>
-<h4 class="date">August 06, 2024</h4>
+<h4 class="date">September 18, 2024</h4>
 
 </div>
 
@@ -379,6 +379,8 @@ counts</a></li>
 cannabis</a></li>
 <li><a href="#substance-use-cigarette-use" id="toc-substance-use-cigarette-use"><span class="toc-section-number">1.13</span> Substance use – Cigarette
 use</a></li>
+<li><a href="#substance-use-tobacco-use" id="toc-substance-use-tobacco-use"><span class="toc-section-number">1.14</span> Substance use – Tobacco
+use</a></li>
 </ul></li>
 <li><a href="#time-varying-moderators-operationalization-2" id="toc-time-varying-moderators-operationalization-2"><span class="toc-section-number">2</span> Time-varying moderators:
 Operationalization 2</a>
@@ -402,6 +404,8 @@ counts</a></li>
 <li><a href="#substance-use-any-marijuana-or-cannabis-use" id="toc-substance-use-any-marijuana-or-cannabis-use"><span class="toc-section-number">2.12</span> Substance use – any marijuana or
 cannabis use</a></li>
 <li><a href="#substance-use-cigarette-use-1" id="toc-substance-use-cigarette-use-1"><span class="toc-section-number">2.13</span> Substance use – cigarette
+use</a></li>
+<li><a href="#substance-use-tobacco-use-1" id="toc-substance-use-tobacco-use-1"><span class="toc-section-number">2.14</span> Substance use – tobacco
 use</a></li>
 </ul></li>
 </ul>
@@ -968,6 +972,42 @@ Cigarette use</h2>
 ## any_response_2qs                    0.0295592527 -0.109875268  0.168993773 0.069978157  0.42240685 74 6.739529e-01
 ## engagement_most_recent_eligible     0.8692715369  0.600132680  1.138410394 0.135073015  6.43556775 74 1.087369e-08</code></pre>
 </div>
+<div id="substance-use-tobacco-use" class="section level2" number="1.14">
+<h2><span class="header-section-number">1.14</span> Substance use –
+Tobacco use</h2>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 90                                  9   3638                  1641                  1997</code></pre>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~substance_is_any_tobacco_lag1, 
+##     control_formula = ~substance_is_any_tobacco_lag1 + age + 
+##         is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + 
+##         baseline_tobacco_history + has_partner + income_val + 
+##         hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;eligibility_overall_past_dp&quot;)
+## 
+## $causal_excursion_effect
+##                                 Estimate      95% LCL   95% UCL     StdErr  t_value df    p-value
+## (Intercept)                   0.08023079 -0.008209137 0.1686707 0.04438544 1.807592 74 0.07473389
+## substance_is_any_tobacco_lag1 0.11763436 -0.082407875 0.3176766 0.10039541 1.171710 74 0.24507210
+## 
+## $control_variables
+##                                        Estimate      95% LCL      95% UCL      StdErr    t_value df      p-value
+## (Intercept)                        -1.310663006 -1.823711264 -0.797614748 0.257484095 -5.0902678 74 2.628980e-06
+## substance_is_any_tobacco_lag1      -0.178368242 -0.345445944 -0.011290541 0.083851470 -2.1271928 74 3.673687e-02
+## age                                 0.002142966 -0.005002989  0.009288921 0.003586348  0.5975343 74 5.519749e-01
+## is_male                            -0.134074797 -0.431453086  0.163303492 0.149245570 -0.8983503 74 3.719126e-01
+## is_latino                           0.183950032 -0.112988322  0.480888387 0.149024779  1.2343587 74 2.209748e-01
+## is_not_latino_and_black             0.131726720 -0.145814107  0.409267547 0.139289721  0.9457031 74 3.473778e-01
+## is_not_latino_and_other             0.106234988 -0.283110061  0.495580037 0.195401029  0.5436767 74 5.882982e-01
+## baseline_tobacco_history            0.001128753 -0.012228268  0.014485774 0.006703503  0.1683826 74 8.667417e-01
+## has_partner                         0.027607277 -0.187834467  0.243049022 0.108123986  0.2553298 74 7.991767e-01
+## income_val                         -0.007238597 -0.039829046  0.025351852 0.016356205 -0.4425597 74 6.593751e-01
+## hour_coinflip_local                 0.002226675 -0.008680710  0.013134061 0.005474102  0.4067654 74 6.853544e-01
+## days_between_v1_and_coinflip_local -0.001243116 -0.016805926  0.014319694 0.007810525 -0.1591590 74 8.739772e-01
+## any_response_2qs                    0.029938818 -0.109251707  0.169129342 0.069855702  0.4285809 74 6.694733e-01
+## engagement_most_recent_eligible     0.870040251  0.602177230  1.137903272 0.134432710  6.4719387 74 9.325809e-09</code></pre>
+</div>
 </div>
 <div id="time-varying-moderators-operationalization-2" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Time-varying
@@ -1435,6 +1475,42 @@ cigarette use</h2>
 ## days_between_v1_and_coinflip_local     0.001770734 -0.028557778  0.03209925 0.01503874  0.1177448 43 9.068182e-01
 ## any_response_2qs                       0.174280555 -0.029871115  0.37843222 0.10123095  1.7216133 43 9.232745e-02
 ## engagement_most_recent_eligible        0.865330328  0.510149941  1.22051071 0.17612028  4.9132919 43 1.344016e-05</code></pre>
+</div>
+<div id="substance-use-tobacco-use-1" class="section level2" number="2.14">
+<h2><span class="header-section-number">2.14</span> Substance use –
+tobacco use</h2>
+<pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_elig n_included_among_elig n_excluded_among_elig
+## 1                  99                                 59                                 40   3809                   701                  3108</code></pre>
+<pre><code>## $call
+## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
+##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~substance_is_any_tobacco_sum_past24hrs, 
+##     control_formula = ~substance_is_any_tobacco_sum_past24hrs + 
+##         age + is_male + is_latino + is_not_latino_and_black + 
+##         is_not_latino_and_other + baseline_tobacco_history + 
+##         has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + 
+##         any_response_2qs + engagement_most_recent_eligible, availability = &quot;eligibility_overall_past_24h&quot;)
+## 
+## $causal_excursion_effect
+##                                            Estimate     95% LCL   95% UCL     StdErr    t_value df   p-value
+## (Intercept)                            -0.012903335 -0.14308120 0.1172745 0.06455019 -0.1998962 43 0.8425042
+## substance_is_any_tobacco_sum_past24hrs  0.006920213 -0.05062808 0.0644685 0.02853598  0.2425083 43 0.8095393
+## 
+## $control_variables
+##                                            Estimate      95% LCL     95% UCL      StdErr     t_value df      p-value
+## (Intercept)                            -1.222341288 -1.838409616 -0.60627296 0.305484559 -4.00131939 43 2.440887e-04
+## substance_is_any_tobacco_sum_past24hrs -0.046529093 -0.117599222  0.02454104 0.035240940 -1.32031363 43 1.937154e-01
+## age                                     0.002595820 -0.007592537  0.01278418 0.005052014  0.51381880 43 6.100091e-01
+## is_male                                -0.094229959 -0.422770748  0.23431083 0.162910725 -0.57841470 43 5.660015e-01
+## is_latino                               0.101335782 -0.238075066  0.44074663 0.168300769  0.60211122 43 5.502621e-01
+## is_not_latino_and_black                -0.033563335 -0.435575303  0.36844863 0.199342254 -0.16837040 43 8.670814e-01
+## is_not_latino_and_other                -0.069880859 -0.520262346  0.38050063 0.223326835 -0.31290847 43 7.558628e-01
+## baseline_tobacco_history                0.001532782 -0.018355942  0.02142151 0.009862052  0.15542224 43 8.772158e-01
+## has_partner                             0.146103767 -0.100211229  0.39241876 0.122138121  1.19621758 43 2.381662e-01
+## income_val                             -0.028241871 -0.067448836  0.01096509 0.019441224 -1.45267964 43 1.535716e-01
+## hour_coinflip_local                     0.003739047 -0.007207180  0.01468527 0.005427813  0.68886812 43 4.946066e-01
+## days_between_v1_and_coinflip_local     -0.001200819 -0.032513594  0.03011196 0.015526800 -0.07733846 43 9.387130e-01
+## any_response_2qs                        0.176897100 -0.027412357  0.38120656 0.101309192  1.74611105 43 8.793313e-02
+## engagement_most_recent_eligible         0.862856477  0.507182092  1.21853086 0.176365231  4.89244095 43 1.438607e-05</code></pre>
 </div>
 </div>
 

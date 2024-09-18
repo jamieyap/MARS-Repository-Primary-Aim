@@ -91,6 +91,7 @@ dat_primary_aim <- dat_primary_aim %>%
          cigarette_counts_lag1 = lag(cigarette_counts), 
          alcohol_counts_lag1 = lag(alcohol_counts),
          substance_is_cigarettes_lag1 = lag(substance_is_cigarettes),
+         substance_is_any_tobacco_lag1 = lag(substance_is_any_tobacco),
          cigarette_availability_lag1 = lag(cigarette_availability)) %>%
   mutate(eligibility_lag1 = replace(eligibility_lag1, decision_point == 1, 0)) %>%
   mutate(eligibility_overall_past_dp = if_else(eligibility == 1 & eligibility_lag1 == 1, 1, 0),
@@ -131,6 +132,7 @@ my_list <- list(Y = -1,
                 cigarette_counts_lag1 = -1,
                 alcohol_counts_lag1 = -1,
                 substance_is_cigarettes_lag1 = -1,
+                substance_is_any_tobacco_lag1 = -1,
                 cigarette_availability_lag1 = -1,
                 # Past 24 hours
                 coinflip_sum_past24hrs = -1,
@@ -146,7 +148,8 @@ my_list <- list(Y = -1,
                 substance_is_any_nicotine_sum_past24hrs = -1,
                 substance_is_marijuana_or_cannabis_sum_past24hrs = -1,
                 substance_is_alcohol_sum_past24hrs = -1,
-                substance_is_cigarettes_sum_past24hrs = -1)
+                substance_is_cigarettes_sum_past24hrs = -1,
+                substance_is_any_tobacco_sum_past24hrs = -1)
 
 # This is a masterlist of moderators we are using in this script
 use_these_moderators <- c("ashamed_lag1",
@@ -1857,6 +1860,135 @@ dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_cigarettes_lag1.csv"), row.names = TRUE)
 ```
 
+## Substance use -- Tobacco use
+
+```{r}
+use_these_moderators <- c("substance_is_any_tobacco_lag1")
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_dp, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators))
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis %>% 
+  select(Y, eligibility_overall_past_dp,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_dp == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+n_participants_included_among_elig <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_dp == 1 & is_complete == 1) %>% 
+  summarise(total = length(unique(participant_id))) %>%
+  .[["total"]]
+
+n_participants_elig <- dat_for_analysis %>%
+  filter(eligibility_overall_past_dp == 1) %>%
+  .[["participant_id"]] %>%
+  unique(.) %>%
+  length(.)
+
+n_participants_excluded_among_elig <- n_participants_elig - n_participants_included_among_elig
+
+dat_summary <- data.frame(n_participants_elig = n_participants_elig,
+                          n_participants_included_among_elig = n_participants_included_among_elig,
+                          n_participants_excluded_among_elig = n_participants_excluded_among_elig,
+                          n_elig = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility_overall_past_dp == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility_overall_past_dp == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility_overall_past_dp = if_else(logical_vec_cc, eligibility_overall_past_dp, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+participants_fully_dropped <- dat_for_analysis %>% 
+  group_by(participant_id) %>% 
+  summarise(count_elig = sum(eligibility_overall_past_dp)) %>%
+  arrange(count_elig) %>%
+  filter(count_elig == 0) %>%
+  .[["participant_id"]]
+
+if(length(participants_fully_dropped) > 0){
+  dat_for_analysis <- dat_for_analysis %>% filter(!(participant_id %in% participants_fully_dropped))
+}
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_tobacco_lag1,  
+  control_formula = ~ substance_is_any_tobacco_lag1 + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility_overall_past_dp"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+```{r}
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_tobacco_lag1.csv"), row.names = TRUE)
+```
+
 # Time-varying moderators: Operationalization 2
 
 ## Ashamed
@@ -3515,9 +3647,6 @@ fit1 <- emee(
 )
 
 summary(fit1, show_control_fit = TRUE)
-
-# There is no variability in response to 2qs; thus you need to remove it from the model for the model to converge
-# table(dat_for_analysis$any_response_2qs, dat_for_analysis$substance_is_cigarettes_sum_past24hrs)
 ```
 
 ```{r}
@@ -3538,6 +3667,136 @@ dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","
 # Format output to 3 decimal places
 dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_cigarettes_sum_past24hrs.csv"), row.names = TRUE)
 ```
+
+## Substance use -- tobacco use
+
+```{r}
+use_these_moderators <- c("substance_is_any_tobacco_sum_past24hrs")
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, decision_point, eligibility_overall_past_24h, 
+         coinflip, Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val,
+         all_of(use_these_moderators))
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis %>% 
+  select(Y, eligibility_overall_past_24h,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+
+dat_summary_observed <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_24h == 1) %>%
+  group_by(is_complete) %>%
+  summarise(total = n())
+
+n_participants_included_among_elig <- dat_for_analysis %>% 
+  mutate(is_complete = logical_vec_cc) %>% 
+  filter(eligibility_overall_past_24h == 1 & is_complete == 1) %>% 
+  summarise(total = length(unique(participant_id))) %>%
+  .[["total"]]
+
+n_participants_elig <- dat_for_analysis %>%
+  filter(eligibility_overall_past_24h == 1) %>%
+  .[["participant_id"]] %>%
+  unique(.) %>%
+  length(.)
+
+n_participants_excluded_among_elig <- n_participants_elig - n_participants_included_among_elig
+
+dat_summary <- data.frame(n_participants_elig = n_participants_elig,
+                          n_participants_included_among_elig = n_participants_included_among_elig,
+                          n_participants_excluded_among_elig = n_participants_excluded_among_elig,
+                          n_elig = sum(dat_summary_observed[["total"]]),
+                          n_included_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == TRUE, ][["total"]],
+                          n_excluded_among_elig = dat_summary_observed[dat_summary_observed[["is_complete"]] == FALSE, ][["total"]])
+
+dat_summary
+```
+
+```{r}
+dat_for_analysis_elig <- dat_for_analysis %>% filter(eligibility_overall_past_24h == 1)
+dat_for_analysis_not_elig <- dat_for_analysis %>% filter(eligibility_overall_past_24h == 0)
+```
+
+```{r}
+logical_vec_cc <- dat_for_analysis_elig %>% 
+  select(Y,
+         hour_coinflip_local, days_between_v1_and_coinflip_local,
+         any_response_2qs, any_recent_eligible_dp, engagement_most_recent_eligible,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, baseline_tobacco_history, has_partner, income_val, 
+         all_of(use_these_moderators)) %>%
+  complete.cases(.)
+```
+
+```{r}
+# Note that this line is needed because we are doing a complete case analysis
+# We would not need this line if we were doing a multiply imputed analysis
+dat_for_analysis_elig <- dat_for_analysis_elig %>% mutate(eligibility_overall_past_24h = if_else(logical_vec_cc, eligibility_overall_past_24h, 0))
+```
+
+```{r}
+dat_for_analysis <- rbind(dat_for_analysis_elig, dat_for_analysis_not_elig)
+dat_for_analysis <- dat_for_analysis %>% arrange(participant_id, decision_point)
+dat_for_analysis <- dat_for_analysis %>% replace_na(my_list)
+```
+
+```{r}
+participants_fully_dropped <- dat_for_analysis %>% 
+  group_by(participant_id) %>% 
+  summarise(count_elig = sum(eligibility_overall_past_24h)) %>%
+  arrange(count_elig) %>%
+  filter(count_elig == 0) %>%
+  .[["participant_id"]]
+
+if(length(participants_fully_dropped) > 0){
+  dat_for_analysis <- dat_for_analysis %>% filter(!(participant_id %in% participants_fully_dropped))
+}
+```
+
+```{r}
+fit1 <- emee(
+  data = dat_for_analysis,
+  id = "participant_id",  
+  outcome = "Y",
+  treatment = "coinflip",
+  rand_prob = 0.5,
+  moderator_formula = ~ substance_is_any_tobacco_sum_past24hrs,  
+  control_formula = ~ substance_is_any_tobacco_sum_past24hrs + age + is_male + is_latino + is_not_latino_and_black + is_not_latino_and_other + baseline_tobacco_history + has_partner + income_val + hour_coinflip_local + days_between_v1_and_coinflip_local + any_response_2qs + engagement_most_recent_eligible, 
+  availability = "eligibility_overall_past_24h"
+)
+
+summary(fit1, show_control_fit = TRUE)
+```
+
+```{r}
+fit <- fit1
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE)[["control_variables"]]
+dat_result <- rbind(dat_result_causal, dat_result_control)
+
+dat_result_causal <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["causal_excursion_effect"]]
+dat_result_control <- summary(fit, show_control_fit = TRUE, conf_level = 0.90)[["control_variables"]]
+dat_result2 <- rbind(dat_result_causal, dat_result_control)
+dat_result2 <- dat_result2[, c("90% LCL", "90% UCL")]
+
+dat_result <- cbind(dat_result, dat_result2)
+dat_result <- dat_result[, c("Estimate","StdErr","95% LCL","95% UCL","90% LCL","90% UCL","t_value","df","p-value")]
+
+# Format output to 3 decimal places
+dat_result %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H3-time-varying-moderators", "log_risk_ratio_scale_H3_substance_is_any_tobacco_sum_past24hrs.csv"), row.names = TRUE)
+```
+
 
 ```{r}
 if(file.exists("analysis-complete-case/formatted-output/H3-time-varying-moderators/Thumbs.db")){
