@@ -1,0 +1,545 @@
+---
+title: "MARS MRT: Block-Level Analyses"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(geepack)
+library(tvem)
+```
+
+```{r}
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output"))
+}
+
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use"))
+}
+```
+
+```{r}
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
+```
+
+```{r}
+dat_for_analysis <- dat_primary_aim %>%
+  select(participant_id, cluster_id, decision_point, days_between_v1_and_coinflip_local,
+         Y, substance_is_any_tobacco, eligibility, coinflip, is_high_effort, is_low_effort,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>% 
+  mutate(coinflip = replace(coinflip, eligibility == 0, 0)) %>% 
+  mutate(any_prompt = 1*(coinflip == 1)) %>%
+  group_by(participant_id) %>% 
+  mutate(substance_is_any_tobacco_lead1 = lead(substance_is_any_tobacco),
+         eligibility_lead1 = lead(eligibility)) %>%
+  ungroup(.) %>%
+  filter((decision_point >= 7) & (decision_point <= 54))
+```
+
+# Association between engagement in self-regulatory strategies and tobacco use on current person-block
+
+$$
+\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,j} = 1 \Big| I_{i, j} = 1 , \text{control covariates}, \text{WHETHER ENGAGED}_{i,j} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt}_{i,j}\beta_9 + \text{WHETHER ENGAGED}_{i,j} \beta_{10}
+$$
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter(eligibility == 1) %>% 
+  select(participant_id, decision_point, substance_is_any_tobacco, Y,
+         coinflip, any_prompt,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+dat_tmp <- dat_logreg %>% 
+  select(participant_id,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  unique(.)
+```
+
+```{r}
+dat_tmp_summary <- dat_tmp %>%
+  summarise(m_age = mean(age),
+            m_is_male = mean(is_male),
+            m_is_latino = mean(is_latino),
+            m_is_not_latino_and_black = mean(is_not_latino_and_black),
+            m_is_not_latino_and_other = mean(is_not_latino_and_other),
+            m_baseline_tobacco_history = mean(baseline_tobacco_history),
+            m_has_partner = mean(has_partner),
+            m_income_val = mean(income_val))
+```
+
+```{r}
+dat_logreg <- cbind(dat_logreg, dat_tmp_summary)
+```
+
+```{r}
+dat_tmp2 <- dat_logreg %>% 
+  select(participant_id, decision_point, any_prompt)
+```
+
+```{r}
+dat_tmp2_summary <- dat_tmp2 %>%
+  group_by(decision_point) %>%
+  summarise(m_any_prompt = mean(any_prompt))
+```
+
+```{r}
+dat_logreg <- left_join(x = dat_logreg, y = dat_tmp2_summary, by = join_by(decision_point == decision_point))
+```
+
+```{r}
+dat_logreg <- dat_logreg %>%
+  mutate(c_age = age - m_age,
+         c_is_male = is_male - m_is_male, 
+         c_is_latino = is_latino - m_is_latino, 
+         c_is_not_latino_and_black = is_not_latino_and_black - m_is_not_latino_and_black, 
+         c_is_not_latino_and_other = is_not_latino_and_other - m_is_not_latino_and_other, 
+         c_baseline_tobacco_history = baseline_tobacco_history - m_baseline_tobacco_history, 
+         c_has_partner = has_partner - m_has_partner, 
+         c_income_val = income_val - m_income_val) %>%
+  mutate(c_any_prompt = any_prompt - m_any_prompt)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_tobacco ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_log_odds_scale_concurrent.csv"), row.names = TRUE)
+```
+
+```{r}
+expit <- function(x){
+  exp(x)/(1+exp(x))
+}
+
+est_beta <- as.matrix(dat_results$Estimate)
+Lmat <- rbind(c(1, rep(0,10)),
+              c(1, rep(0,9), 1))
+Vmat <- vcov(fit)
+
+est_logodds_scale <- Lmat %*% est_beta
+std_err_logodds_scale <- sqrt(diag(Lmat %*% Vmat %*% t(Lmat)))
+
+LB95_logodds_scale <- est_logodds_scale - qnorm(0.975)*std_err_logodds_scale
+UB95_logodds_scale <- est_logodds_scale + qnorm(0.975)*std_err_logodds_scale
+
+LB90_logodds_scale <- est_logodds_scale - qnorm(0.95)*std_err_logodds_scale
+UB90_logodds_scale <- est_logodds_scale + qnorm(0.95)*std_err_logodds_scale
+
+est_probability_scale <- expit(Lmat %*% est_beta)
+
+LB95_probability_scale <- expit(LB95_logodds_scale)
+UB95_probability_scale <- expit(UB95_logodds_scale)
+
+LB90_probability_scale <- expit(LB90_logodds_scale)
+UB90_probability_scale <- expit(UB90_logodds_scale)
+
+dat_results_probability_scale <- data.frame(estimate = est_probability_scale,
+                                            # 95% CI
+                                            LB95 = LB95_probability_scale, 
+                                            UB95 = UB95_probability_scale,
+                                            # 90% CI
+                                            LB90 = LB90_probability_scale, 
+                                            UB90 = UB90_probability_scale)
+
+row.names(dat_results_probability_scale) <- c("probability of smoking at the mean of control covariates when did not engage", "probability of smoking at the mean of control covariates when engaged")
+
+dat_results_probability_scale  %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_probability_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_probability_scale_concurrent.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), 
+                                     # 95% CI
+                                     LB95 = exp(dat_results[["LB95"]]), 
+                                     UB95 = exp(dat_results[["UB95"]]),
+                                     # 90% CI
+                                     LB90 = exp(dat_results[["LB90"]]), 
+                                     UB90 = exp(dat_results[["UB90"]]))
+
+row.names(dat_results_odds_scale) <- row.names(dat_results_logodds_scale)
+
+dat_results_odds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_odds_scale_concurrent.csv"), row.names = TRUE)
+```
+
+# Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
+
+$$
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j} \right) = 1\right) = \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{c_ANY PROMPT} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right)
+$$
+where $\boldsymbol{Z}_c$ denotes centered baseline covariates.
+
+```{r}
+dat_tvem <- dat_logreg
+```
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=substance_is_any_tobacco ~ c_any_prompt + Y,
+                     id=participant_id,
+                     time=decision_point,
+                     invar_effects=~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
+                     family = binomial(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=substance_is_any_tobacco ~ c_any_prompt + Y,
+                   id=participant_id,
+                   time=decision_point,
+                   invar_effects=~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
+                   family = binomial(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+```
+
+```{r}
+plot(model_tvem)
+
+plot(model_tvem, exponentiate = TRUE)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$Y
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$Y$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$Y$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$Y$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$Y$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$Y$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))  
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_logodds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_logodds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem_exp_scale <- dat_fitted_tvem
+
+dat_fitted_tvem_exp_scale[["estimate"]] <- exp(dat_fitted_tvem[["estimate"]])
+
+dat_fitted_tvem_exp_scale[["UB95"]] <- exp(dat_fitted_tvem[["UB95"]])
+dat_fitted_tvem_exp_scale[["LB95"]] <- exp(dat_fitted_tvem[["LB95"]])
+
+dat_fitted_tvem_exp_scale[["UB90"]] <- exp(dat_fitted_tvem[["UB90"]])
+dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_odds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_odds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+# Association between engagement in self-regulatory strategies and tobacco use on next person-block
+
+$$
+\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,j + 1} = 1 \Big| \left\{I_{i, j} = 1\right\} \cap \left\{I_{i, j+1} = 1\right\}, \text{control covariates}, \text{WHETHER ENGAGED}_{i,j} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt}_{i,j}\beta_9 + \text{ANY TOBACCO USE}_{i,j+1}\beta_{10} + \text{WHETHER ENGAGED}_{i,j} \beta_{11}
+$$
+
+```{r}
+dat_logreg <- dat_for_analysis %>% 
+  filter((eligibility == 1) & (eligibility_lead1 == 1)) %>% 
+  select(participant_id, decision_point, substance_is_any_tobacco_lead1, substance_is_any_tobacco, Y,
+         coinflip, any_prompt,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
+  filter(drop_row == 0)
+```
+
+```{r}
+dat_tmp <- dat_logreg %>% 
+  select(participant_id,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  unique(.)
+```
+
+```{r}
+dat_tmp_summary <- dat_tmp %>%
+  summarise(m_age = mean(age),
+            m_is_male = mean(is_male),
+            m_is_latino = mean(is_latino),
+            m_is_not_latino_and_black = mean(is_not_latino_and_black),
+            m_is_not_latino_and_other = mean(is_not_latino_and_other),
+            m_baseline_tobacco_history = mean(baseline_tobacco_history),
+            m_has_partner = mean(has_partner),
+            m_income_val = mean(income_val))
+```
+
+```{r}
+dat_logreg <- cbind(dat_logreg, dat_tmp_summary)
+```
+
+```{r}
+dat_tmp2 <- dat_logreg %>% 
+  select(participant_id, decision_point, substance_is_any_tobacco, any_prompt)
+```
+
+```{r}
+dat_tmp2_summary <- dat_tmp2 %>%
+  group_by(decision_point) %>%
+  summarise(m_any_prompt = mean(any_prompt),
+            m_substance_is_any_tobacco = mean(substance_is_any_tobacco))
+```
+
+```{r}
+dat_logreg <- left_join(x = dat_logreg, y = dat_tmp2_summary, by = join_by(decision_point == decision_point))
+```
+
+```{r}
+dat_logreg <- dat_logreg %>%
+  mutate(c_age = age - m_age,
+         c_is_male = is_male - m_is_male, 
+         c_is_latino = is_latino - m_is_latino, 
+         c_is_not_latino_and_black = is_not_latino_and_black - m_is_not_latino_and_black, 
+         c_is_not_latino_and_other = is_not_latino_and_other - m_is_not_latino_and_other, 
+         c_baseline_tobacco_history = baseline_tobacco_history - m_baseline_tobacco_history, 
+         c_has_partner = has_partner - m_has_partner, 
+         c_income_val = income_val - m_income_val) %>%
+  mutate(c_any_prompt = any_prompt - m_any_prompt) %>%
+  mutate(c_substance_is_any_tobacco = substance_is_any_tobacco - m_substance_is_any_tobacco)
+```
+
+```{r}
+fit <- geeglm(substance_is_any_tobacco_lead1 ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + c_substance_is_any_tobacco + Y, family = "binomial", data = dat_logreg, id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_log_odds_scale_lagged.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_results_odds_scale <- data.frame(estimate = exp(dat_results$Estimate), 
+                                     # 95% CI
+                                     LB95 = exp(dat_results[["LB95"]]), 
+                                     UB95 = exp(dat_results[["UB95"]]),
+                                     # 90% CI
+                                     LB90 = exp(dat_results[["LB90"]]), 
+                                     UB90 = exp(dat_results[["UB90"]]))
+
+row.names(dat_results_odds_scale) <- row.names(dat_results_logodds_scale)
+
+dat_results_odds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_odds_scale_lagged.csv"), row.names = TRUE)
+```
+
+# Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
+
+$$
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{c_ANY PROMPT}_{i} \left(t_{i,j} \right) + \beta_2 \left(t_{i,j}\right) \text{c_ANY TOBACCO USE}_{i} \left(t_{i,j} \right) + \beta_3 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right)
+$$
+
+where $\boldsymbol{Z}_c$ denotes centered baseline covariates.
+
+```{r}
+dat_tvem <- dat_logreg
+```
+
+```{r}
+list_collect_metrics <- list()
+
+for(current_num_knots in 1:3){
+  model_tvem <- tvem(data=dat_tvem,
+                     formula=substance_is_any_tobacco_lead1 ~ c_any_prompt + c_substance_is_any_tobacco + Y,
+                     id=participant_id,
+                     time=decision_point,
+                     invar_effects=~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
+                     family = binomial(),
+                     num_knots = current_num_knots,
+                     spline_order = 3,
+                     penalty_function_order = 1,
+                     penalize = TRUE)
+  
+  dat_current_metrics <- data.frame(total_knots = current_num_knots,
+                                    penalty = 1,
+                                    aic_value = model_tvem$model_information$pseudo_aic,
+                                    bic_value = model_tvem$model_information$pseudo_bic)
+  list_collect_metrics <- append(list_collect_metrics, list(dat_current_metrics))
+}
+
+dat_all_metrics <- bind_rows(list_collect_metrics)
+
+model_tvem <- tvem(data=dat_tvem,
+                   formula=substance_is_any_tobacco_lead1 ~ c_any_prompt + c_substance_is_any_tobacco + Y,
+                   id=participant_id,
+                   time=decision_point,
+                   invar_effects=~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
+                   family = binomial(),
+                   num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
+                   spline_order = 3,
+                   penalty_function_order = 1,
+                   penalize = TRUE)
+```
+
+```{r}
+plot(model_tvem)
+
+plot(model_tvem, exponentiate = TRUE)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem <- model_tvem$grid_fitted_coefficients$Y
+
+dat_fitted_tvem[["time_grid"]] <- model_tvem$time_grid
+
+dat_fitted_tvem[["UB95"]] <- model_tvem$grid_fitted_coefficients$Y$estimate + qnorm(0.975)*model_tvem$grid_fitted_coefficients$Y$standard_error
+dat_fitted_tvem[["LB95"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qnorm(0.975)*model_tvem$grid_fitted_coefficients$Y$standard_error
+
+dat_fitted_tvem[["UB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate + qnorm(0.95)*model_tvem$grid_fitted_coefficients$Y$standard_error
+dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$Y$estimate - qnorm(0.95)*model_tvem$grid_fitted_coefficients$Y$standard_error
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_logodds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_logodds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+dat_fitted_tvem_exp_scale <- dat_fitted_tvem
+
+dat_fitted_tvem_exp_scale[["estimate"]] <- exp(dat_fitted_tvem[["estimate"]])
+
+dat_fitted_tvem_exp_scale[["UB95"]] <- exp(dat_fitted_tvem[["UB95"]])
+dat_fitted_tvem_exp_scale[["LB95"]] <- exp(dat_fitted_tvem[["LB95"]])
+
+dat_fitted_tvem_exp_scale[["UB90"]] <- exp(dat_fitted_tvem[["UB90"]])
+dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_odds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+# Create ggplot version of plot
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + xlim(7,54) + xlab("Decision Point j") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
+
+ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "tvem_block_level_odds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
+```
+
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/Exploratory-Analysis-Associational-Tobacco-Use/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/Exploratory-Analysis-Associational-Tobacco-Use/Thumbs.db")
+}
+```
+

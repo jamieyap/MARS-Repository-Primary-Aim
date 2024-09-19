@@ -48,24 +48,30 @@ if(isFALSE(is_dir_exist)){
 
 ```{r}
 # This is the data frame that is the output of the very last step of our data pipeline
-dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
+```
+
+```{r}
+these_control_covariates <- c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val", "hour_coinflip_local", "days_between_v1_and_coinflip_local", "any_response_2qs", "any_recent_eligible_dp", "engagement_most_recent_eligible")
+```
+
+```{r}
+dat_baseline <- dat_primary_aim %>% filter(decision_point == 1) %>% select(participant_id, all_of(these_control_covariates))
 ```
 
 ```{r}
 dat_for_analysis <- dat_primary_aim %>%
   select(participant_id, cluster_id, decision_point,
          Y, substance_is_any_nicotine, eligibility, coinflip, is_high_effort, is_low_effort) %>%
-  mutate(coinflip = replace(coinflip, eligibility == 0, 0),
-         is_high_effort = replace(is_high_effort, eligibility == 0, 0)) %>%
+  mutate(coinflip = replace(coinflip, eligibility == 0, 0)) %>%
   group_by(participant_id, cluster_id) %>%
   summarise(n_elig = sum(eligibility),
             n_any_prompt = sum(coinflip),
-            n_high_effort_prompt = sum(is_high_effort),
-            n_low_effort_prompt = sum(is_low_effort),
             n_obs_engaged = sum(!is.na(Y)),
             n_obs_nic = sum(!is.na(substance_is_any_nicotine)),
             n_engaged = sum(Y, na.rm = TRUE),
-            n_nic = sum(substance_is_any_nicotine, na.rm = TRUE))
+            n_nic = sum(substance_is_any_nicotine, na.rm = TRUE)) %>%
+  ungroup(.)
 ```
 
 ```{r}
@@ -74,11 +80,7 @@ dat_for_analysis <- dat_for_analysis %>%
          n_elig_lag1 = lag(n_elig),
          n_obs_nic_lag1 = lag(n_obs_nic),
          n_engaged_lag1 = lag(n_engaged)) %>%
-  mutate(n_any_prompt_lag1 = lag(n_any_prompt),
-         n_high_effort_prompt_lag1 = lag(n_high_effort_prompt),
-         n_low_effort_prompt_lag1 = lag(n_low_effort_prompt)) %>%
-  mutate(n_engaged_lag1_by_n_any_prompt = n_engaged_lag1 * n_any_prompt,
-         n_engaged_lag1_by_n_high_effort_prompt = n_engaged_lag1 * n_high_effort_prompt) %>%
+  mutate(n_any_prompt_lag1 = lag(n_any_prompt)) %>%
   mutate(n_obs_nic_lead1 = lead(n_obs_nic),
          n_nic_lead1 = lead(n_nic),
          n_elig_lead1 = lead(n_elig)) %>%
@@ -92,21 +94,86 @@ dat_for_analysis <- dat_for_analysis %>%
 dat_for_analysis <- dat_for_analysis %>% mutate(cluster_id = cluster_id - 1) # So that day in MRT will begin at 0 rather than 1
 ```
 
-# Marginal association between engagement in self-regulatory strategies and nicotine use on current day
+```{r}
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_baseline, by = join_by(participant_id == participant_id))
+```
+
+# Association between engagement in self-regulatory strategies and use of any nicotine-containing product on current day
 
 $$
-\mathrm{logit} Pr \left( S_{i,d} = 1 \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1 \right) = \beta_0 + \beta_1 X_{i,d}
+\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,d} = 1 \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1, \text{control covariates}, \text{NO. OF TIMES ENGAGED}_{i,d} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt_counts}_{i,d}\beta_9 + \text{NO. TIMES ENGAGED}_{i,d} \beta_{10}
 $$
 
 ```{r}
 dat_logreg <- dat_for_analysis %>% 
-  filter(n_elig > 0) %>% 
-  mutate(drop_row = if_else(n_elig != n_obs_nic, 1, 0)) %>%
+  filter(n_elig > 0) %>%
+  filter(n_elig == n_obs_nic) %>%
+  select(participant_id, cluster_id, 
+         n_elig, n_obs_nic, n_any_prompt,
+         any_nic, n_engaged,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
   filter(drop_row == 0)
 ```
 
 ```{r}
-fit <- geeglm(any_nic ~ n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
+dat_tmp <- dat_logreg %>% 
+  select(participant_id,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  unique(.)
+```
+
+```{r}
+dat_tmp_summary <- dat_tmp %>%
+  summarise(m_age = mean(age),
+            m_is_male = mean(is_male),
+            m_is_latino = mean(is_latino),
+            m_is_not_latino_and_black = mean(is_not_latino_and_black),
+            m_is_not_latino_and_other = mean(is_not_latino_and_other),
+            m_baseline_tobacco_history = mean(baseline_tobacco_history),
+            m_has_partner = mean(has_partner),
+            m_income_val = mean(income_val))
+```
+
+```{r}
+dat_logreg <- cbind(dat_logreg, dat_tmp_summary)
+```
+
+```{r}
+dat_tmp2 <- dat_logreg %>% select(participant_id, cluster_id, n_any_prompt)
+```
+
+```{r}
+dat_tmp2_summary <- dat_tmp2 %>%
+  group_by(cluster_id) %>%
+  summarise(m_any_prompt_counts = mean(n_any_prompt))
+```
+
+```{r}
+dat_logreg <- left_join(x = dat_logreg, y = dat_tmp2_summary, by = join_by(cluster_id == cluster_id))
+```
+
+```{r}
+dat_logreg <- dat_logreg %>%
+  mutate(c_age = age - m_age,
+         c_is_male = is_male - m_is_male, 
+         c_is_latino = is_latino - m_is_latino, 
+         c_is_not_latino_and_black = is_not_latino_and_black - m_is_not_latino_and_black, 
+         c_is_not_latino_and_other = is_not_latino_and_other - m_is_not_latino_and_other, 
+         c_baseline_tobacco_history = baseline_tobacco_history - m_baseline_tobacco_history, 
+         c_has_partner = has_partner - m_has_partner, 
+         c_income_val = income_val - m_income_val) %>%
+  mutate(c_any_prompt_counts = n_any_prompt - m_any_prompt_counts)
+```
+
+```{r}
+fit <- geeglm(any_nic ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt_counts + n_engaged, 
+              family = "binomial", 
+              data = dat_logreg, 
+              id = participant_id, 
+              waves = cluster_id)
 ```
 
 ```{r}
@@ -117,6 +184,7 @@ dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.e
 
 dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
 dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
 
 dat_results_logodds_scale <- dat_results
 dat_results_logodds_scale %>% round(., 3)
@@ -142,12 +210,13 @@ dat_results_odds_scale %>% round(., 3)
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_odds_scale_concurrent.csv"), row.names = TRUE)
 ```
 
-# Time-varying association between engagement in self-regulatory strategies and nicotine use on current day
+# Time-varying association between engagement in self-regulatory strategies and use of any nicotine-containing product on current day
 
 $$
-\text{logit} Pr\left(\text{ANY NICOTINE USE}_{i} \left(t_{i,j} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,d} \right) = 1\right) = \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,d}\right) + \text{c_any_prompt_counts}\left(t_{i,d}\right) \beta_1 \left(t_{i,d}\right)  + \text{NO. OF TIMES ENGAGED} \left(t_{i,d}\right) \beta_2 \left(t_{i,d}\right) 
 $$
 
+where $\boldsymbol{Z}_c$ denotes centered baseline covariates.
 
 ```{r}
 dat_tvem <- dat_logreg
@@ -158,10 +227,10 @@ list_collect_metrics <- list()
 
 for(current_num_knots in 1:3){
   model_tvem <- tvem(data=dat_tvem,
-                     formula=any_nic ~ n_engaged,
+                     formula=any_nic ~ c_any_prompt_counts + n_engaged,
                      id=participant_id,
                      time=cluster_id,
-                     invar_effects=NULL,
+                     invar_effects=~c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
                      family = binomial(),
                      num_knots = current_num_knots,
                      spline_order = 3,
@@ -178,10 +247,10 @@ for(current_num_knots in 1:3){
 dat_all_metrics <- bind_rows(list_collect_metrics)
 
 model_tvem <- tvem(data=dat_tvem,
-                   formula=any_nic ~ n_engaged,
+                   formula=any_nic ~ c_any_prompt_counts + n_engaged,
                    id=participant_id,
                    time=cluster_id,
-                   invar_effects=NULL,
+                   invar_effects=~c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
                    family = binomial(),
                    num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
                    spline_order = 3,
@@ -210,18 +279,17 @@ dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estim
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[NU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_logodds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[NU][paste(",")][1]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_logodds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
-
 
 ```{r}
 # Create ggplot version of plot
@@ -238,33 +306,94 @@ dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[NU][paste(",")][1]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_odds_scale_concurrent_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[NU][paste(",")][1]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_odds_scale_concurrent_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
-# Marginal association between engagement in self-regulatory strategies and nicotine use on next day
+# Association between engagement in self-regulatory strategies and use of any nicotine-containing product on next day
 
 $$
-\mathrm{logit} Pr \left( S_{i,d + 1} = 1 \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} \right) = \beta_0 + \beta_1 S_{i,d} + \beta_2 X_{i,d}
+\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,d + 1} = 1 \Bigg| \left\{\sum_{b = 1}^6 I_{i,d, b} \geq 1\right\} \cap \left\{\sum_{b = 1}^6 I_{i,d+1, b} \geq 1\right\} , \text{control covariates}, \text{NO. OF TIMES ENGAGED}_{i,d} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt_counts}_{i,d}\beta_9 + \text{ANY TOBACCO USE}_{i,d}\beta_{10} + \text{NO. TIMES ENGAGED}_{i,d} \beta_{11}
 $$
 
 ```{r}
 dat_logreg <- dat_for_analysis %>% 
-  filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% 
-  mutate(drop_row = if_else((n_elig != n_obs_nic) | (n_elig_lead1 != n_obs_nic_lead1), 1, 0)) %>%
+  filter((n_elig > 0) & (n_elig_lead1 > 0)) %>%
+  filter((n_elig == n_obs_nic) & (n_elig_lead1 == n_obs_nic_lead1)) %>%
+  select(participant_id, cluster_id, 
+         n_elig, n_obs_nic, n_any_prompt,
+         n_elig_lead1, n_obs_nic_lead1,
+         any_nic, n_engaged,
+         any_nic_lead1,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
   filter(drop_row == 0)
 ```
 
 ```{r}
-fit <- geeglm(any_nic_lead1 ~ any_nic + n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
+dat_tmp <- dat_logreg %>% 
+  select(participant_id,
+         age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+         baseline_tobacco_history, has_partner, income_val) %>%
+  unique(.)
+```
+
+```{r}
+dat_tmp_summary <- dat_tmp %>%
+  summarise(m_age = mean(age),
+            m_is_male = mean(is_male),
+            m_is_latino = mean(is_latino),
+            m_is_not_latino_and_black = mean(is_not_latino_and_black),
+            m_is_not_latino_and_other = mean(is_not_latino_and_other),
+            m_baseline_tobacco_history = mean(baseline_tobacco_history),
+            m_has_partner = mean(has_partner),
+            m_income_val = mean(income_val))
+```
+
+```{r}
+dat_logreg <- cbind(dat_logreg, dat_tmp_summary)
+```
+
+```{r}
+dat_tmp2 <- dat_logreg %>% select(participant_id, cluster_id, n_any_prompt, any_nic)
+```
+
+```{r}
+dat_tmp2_summary <- dat_tmp2 %>%
+  group_by(cluster_id) %>%
+  summarise(m_any_prompt_counts = mean(n_any_prompt),
+            m_any_nic = mean(any_nic))
+```
+
+```{r}
+dat_logreg <- left_join(x = dat_logreg, y = dat_tmp2_summary, by = join_by(cluster_id == cluster_id))
+```
+
+```{r}
+dat_logreg <- dat_logreg %>%
+  mutate(c_age = age - m_age,
+         c_is_male = is_male - m_is_male, 
+         c_is_latino = is_latino - m_is_latino, 
+         c_is_not_latino_and_black = is_not_latino_and_black - m_is_not_latino_and_black, 
+         c_is_not_latino_and_other = is_not_latino_and_other - m_is_not_latino_and_other, 
+         c_baseline_tobacco_history = baseline_tobacco_history - m_baseline_tobacco_history, 
+         c_has_partner = has_partner - m_has_partner, 
+         c_income_val = income_val - m_income_val) %>%
+  mutate(c_any_prompt_counts = n_any_prompt - m_any_prompt_counts,
+         c_any_nic = any_nic - m_any_nic)
+```
+
+```{r}
+fit <- geeglm(any_nic_lead1 ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt_counts + c_any_nic + n_engaged, family = "binomial", data = dat_logreg, id = participant_id, waves = cluster_id)
 ```
 
 ```{r}
@@ -300,15 +429,18 @@ dat_results_odds_scale %>% round(., 3)
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "day_level_odds_scale_lagged.csv"), row.names = TRUE)
 ```
 
-# Time-varying association between engagement in self-regulatory strategies and next day nicotine use
+# Time-varying association between engagement in self-regulatory strategies and next day use of any nicotine-containing product
 
 ```{r}
 dat_tvem <- dat_logreg
 ```
 
+
 $$
-\text{logit} Pr\left(\text{ANY NICOTINE USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{ANY NICOTINE USE}_{i} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{NO. OF TIMES ENGAGED} \left(t_{i,j}\right)
+\text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,d+1} \right) = 1\right)= \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,d}\right) + \beta_1 \left(t_{i,d}\right) \text{c_ANY PROMPT}_{i} \left(t_{i,d} \right) + \beta_2 \left(t_{i,d}\right) \text{c_ANY TOBACCO USE}_{i} \left(t_{i,d} \right) + \beta_3 \left(t_{i,d}\right) \text{WHETHER ENGAGED} \left(t_{i,d}\right)
 $$
+
+where $\boldsymbol{Z}_c$ denotes centered baseline covariates.
 
 
 ```{r}
@@ -316,10 +448,10 @@ list_collect_metrics <- list()
 
 for(current_num_knots in 1:3){
   model_tvem <- tvem(data=dat_tvem,
-                     formula=any_nic_lead1 ~ any_nic + n_engaged,
+                     formula=any_nic_lead1 ~ c_any_prompt_counts + c_any_nic + n_engaged,
                      id=participant_id,
                      time=cluster_id,
-                     invar_effects=NULL,
+                     invar_effects=~c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
                      family = binomial(),
                      num_knots = current_num_knots,
                      spline_order = 3,
@@ -336,10 +468,10 @@ for(current_num_knots in 1:3){
 dat_all_metrics <- bind_rows(list_collect_metrics)
 
 model_tvem <- tvem(data=dat_tvem,
-                   formula=any_nic_lead1 ~ any_nic + n_engaged,
+                   formula=any_nic_lead1 ~ c_any_prompt_counts + c_any_nic + n_engaged,
                    id=participant_id,
                    time=cluster_id,
-                   invar_effects=NULL,
+                   invar_effects=~c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val,
                    family = binomial(),
                    num_knots = dat_all_metrics[which.min(dat_all_metrics$bic_value),"total_knots"],
                    spline_order = 3,
@@ -368,14 +500,14 @@ dat_fitted_tvem[["LB90"]] <- model_tvem$grid_fitted_coefficients$n_engaged$estim
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[NU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_logodds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression(widehat(beta)[NU][paste(",")][2]*"(d)")) + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 0") + scale_y_continuous(limits = c(-1, 0.6))
+ggplot(dat_fitted_tvem, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.2, linetype = 2, linewidth = 2, color = "black", fill = "aquamarine4") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 0, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(-1.5, 1))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_logodds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
@@ -396,19 +528,21 @@ dat_fitted_tvem_exp_scale[["LB90"]] <- exp(dat_fitted_tvem[["LB90"]])
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[NU][paste(",")][2]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 95% CI, Red dotted line depicts where estimate and 95% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2.0))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB95, ymax = UB95), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_odds_scale_lagged_CI95.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
 ```{r}
 # Create ggplot version of plot
-ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab(expression("exp("*widehat(beta)[NU][paste(",")][2]*"(d))")) + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("Black solid line: Estimate, Black dashed lines: 90% CI, Red dotted line depicts where estimate and 90% CI are in relation to 1") + scale_y_continuous(limits = c(0.5, 2.0))
+ggplot(dat_fitted_tvem_exp_scale, aes(time_grid, estimate)) + geom_line(linewidth = 2) + geom_ribbon(aes(ymin = LB90, ymax = UB90), alpha = 0.3, linetype = 2, linewidth = 2, color = "black", fill = "thistle3") + scale_x_continuous(limits = c(1,8), breaks = seq(1,8,1)) + xlab("Day in MRT d") + ylab("") + geom_hline(yintercept = 1, color = "red", linewidth = 2, linetype = "dotted") + ggtitle("") + scale_y_continuous(limits = c(0, 2))
 
 ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Nicotine-Use", "tvem_day_level_odds_scale_lagged_CI90.png"), dpi = 1000, units = "in", height = 7, width = 12)
 ```
 
-
-
-
+```{r}
+if(file.exists("analysis-complete-case/formatted-output/Exploratory-Analysis-Associational-Nicotine-Use/Thumbs.db")){
+  file.remove("analysis-complete-case/formatted-output/Exploratory-Analysis-Associational-Nicotine-Use/Thumbs.db")
+}
+```
 

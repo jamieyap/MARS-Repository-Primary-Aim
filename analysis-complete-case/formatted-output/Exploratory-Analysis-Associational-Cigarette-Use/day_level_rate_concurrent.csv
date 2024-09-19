@@ -1,0 +1,4 @@
+"","estimate","LB95","UB95","LB90","UB90"
+"rate at the mean of control covariates when mu","2.394","1.890","2.898","1.971","2.817"
+"rate at the mean of control covariates when mu+1*sd","1.441","0.536","2.346","0.682","2.201"
+"rate at the mean of control covariates when mu-1*sd","3.346","2.552","4.141","2.680","4.013"
