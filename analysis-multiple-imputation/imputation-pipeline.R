@@ -38,6 +38,9 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 ###############################################################################
 # Data analysis
 ###############################################################################
+
+.__use_all_days <- FALSE
+
 for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
 }
@@ -63,6 +66,21 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 }
 
 ###############################################################################
+# Data analysis (sensitivity analysis)
+###############################################################################
+
+.__use_all_days <- TRUE
+
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal-risk-difference-scale.R"))
+}
+
+###############################################################################
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "ppc-time-specific-means.R"))
@@ -73,9 +91,15 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-h
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-hour-quadratic.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-primary-risk-difference-scale.R"))
 
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity-pool-primary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity-pool-primary-risk-difference-scale.R"))
+
 ###############################################################################
 # Data analysis
 ###############################################################################
+
+.__use_all_days <- FALSE
+
 for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
 }
@@ -101,6 +125,20 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 }
 
 ###############################################################################
+# Data analysis (sensitivity analysis)
+###############################################################################
+
+.__use_all_days <- TRUE
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal-risk-difference-scale.R"))
+}
+
+###############################################################################
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary.R"))
@@ -109,6 +147,9 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-linear.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-hour-quadratic.R"))
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "pool-secondary-risk-difference-scale.R"))
+
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity-pool-secondary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity-pool-secondary-risk-difference-scale.R"))
 
 ###############################################################################
 # Data analysis

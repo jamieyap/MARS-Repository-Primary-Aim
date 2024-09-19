@@ -67,7 +67,12 @@ dat_long_completed <- dat_long_completed %>% replace_na(my_list)
 # effect.
 ###############################################################################
 dat_long_completed <- dat_long_completed %>% arrange(replicate_id, participant_id, decision_point)
-dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+
+if(isTRUE(.__use_all_days)){
+  dat_long_completed <- dat_long_completed
+}else{
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+}
 
 ###############################################################################
 # We will set up the dataset so that in analysis, we may have the following 
@@ -93,13 +98,6 @@ dat_long_completed <- dat_long_completed %>%
 
 # rand_prob_A0 is the randomization probability corresponding to the reference category (whatever was coded to take on a value of 0 in treatment_cate)
 dat_long_completed[["rand_prob_A0"]] <- dat_long_completed %>% filter(treatment_cate == 0) %>% .[["rand_prob"]] %>% unique(.)
-
-###############################################################################
-# Grab subset of decision points which will be used to estimate the treatment
-# effect.
-###############################################################################
-dat_long_completed <- dat_long_completed %>% arrange(replicate_id, participant_id, decision_point)
-dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
 
 ###############################################################################
 # Analysis with completed dataset
@@ -144,9 +142,15 @@ if(length(fit) == 1){
                                     UB95 = UB95)
 }
 
-saveRDS(fit_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_secondary_marginal_risk_difference.rds"))
-saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_secondary_marginal_risk_difference.rds"))
-saveRDS(dat_result_contrast, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "contrast_secondary_marginal_risk_difference.rds"))
+if(isTRUE(.__use_all_days)){
+  add_prefix <- "sensitivity_"
+}else{
+  add_prefix <- ""
+}
+
+saveRDS(fit_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "fit_obj_secondary_marginal_risk_difference.rds", sep = "")))
+saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "results_obj_secondary_marginal_risk_difference.rds", sep = "")))
+saveRDS(dat_result_contrast, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "contrast_secondary_marginal_risk_difference.rds", sep = "")))
 
 ###############################################################################
 # Analysis with replicated dataset
@@ -193,8 +197,14 @@ for(idx_replicate in 1:max_replicate_id){
                                       UB95 = UB95)
   }
   
-  saveRDS(fit_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit_obj_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(dat_result_contrast, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("contrast_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
+  if(isTRUE(.__use_all_days)){
+    add_prefix <- "sensitivity_"
+  }else{
+    add_prefix <- ""
+  }
+  
+  saveRDS(fit_converted, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "fit_obj_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
+  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "results_obj_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
+  saveRDS(dat_result_contrast, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "contrast_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
 }
 

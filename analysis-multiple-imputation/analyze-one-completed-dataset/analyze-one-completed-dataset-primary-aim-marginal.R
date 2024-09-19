@@ -67,7 +67,12 @@ dat_long_completed <- dat_long_completed %>% replace_na(my_list)
 # effect.
 ###############################################################################
 dat_long_completed <- dat_long_completed %>% arrange(replicate_id, participant_id, decision_point)
-dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+
+if(isTRUE(.__use_all_days)){
+  dat_long_completed <- dat_long_completed
+}else{
+  dat_long_completed <- dat_long_completed %>% filter((decision_point >= 7) & (decision_point <= 54))
+}
 
 ###############################################################################
 # Analysis with completed dataset
@@ -92,8 +97,14 @@ if(class(fit1) == "character"){
   results_obj <- summary(fit1, show_control_fit = TRUE)
 }
 
-saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "fit_obj_primary_marginal.rds"))
-saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "results_obj_primary_marginal.rds"))
+if(isTRUE(.__use_all_days)){
+  add_prefix <- "sensitivity_"
+}else{
+  add_prefix <- ""
+}
+
+saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "fit_obj_primary_marginal.rds", sep = "")))
+saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "results_obj_primary_marginal.rds", sep = "")))
 
 ###############################################################################
 # Analysis with replicated dataset
@@ -121,7 +132,13 @@ for(idx_replicate in 1:max_replicate_id){
     results_obj <- summary(fit1, show_control_fit = TRUE) 
   }
   
-  saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("fit_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
-  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("results_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
+  if(isTRUE(.__use_all_days)){
+    add_prefix <- "sensitivity_"
+  }else{
+    add_prefix <- ""
+  }
+  
+  saveRDS(fit1, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "fit_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
+  saveRDS(results_obj, file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste(add_prefix, "results_obj_primary_marginal", "_replicate_", idx_replicate, ".rds", sep = "")))
 }
 
