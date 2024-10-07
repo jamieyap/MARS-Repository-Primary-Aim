@@ -98,6 +98,56 @@ dat_for_analysis <- dat_for_analysis %>% mutate(cluster_id = cluster_id - 1) # S
 dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_baseline, by = join_by(participant_id == participant_id))
 ```
 
+# Analytic Population
+
+## Concurrent analysis
+
+```{r}
+dat_for_analytic_population_concurrent <- dat_for_analysis %>% select(-n_elig_lead1, -any_nic_lead1) %>% mutate(is_cc = complete.cases(.))
+analytic_population_concurrent_count <- dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
+analytic_population_concurrent_count_by_day <- dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% group_by(cluster_id) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
+```
+
+```{r}
+analytic_population_concurrent_count
+```
+
+```{r}
+png(file = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "analytic_population_by_day_concurrent.png"), width = 10, height = 10, units = "in", res = 600)
+
+plot(analytic_population_concurrent_count_by_day$cluster_id, analytic_population_concurrent_count_by_day$count, type = "o", ylim = c(0,100), xaxt = "n", xlab = "Day", ylab = "Number of participants", lwd = 4, col = "blue")
+axis(1, at = seq(2,9,1))
+lines(analytic_population_concurrent_count_by_day$cluster_id, analytic_population_concurrent_count_by_day$count_cc_only, type = "o", lwd = 4, col = "black")
+legend("bottomright", legend = c("Number of participants who had at least 1 eligible decision point on current day", "Among participants who participants who had at least 1 eligible decision point on current day, how many had complete cases"), col = c("blue", "black"), lwd = c(3,3), cex = 0.80)
+title(main = "Concurrent analysis at the day level: Cigarette Use")
+
+dev.off()
+```
+
+## Lagged analysis
+
+```{r}
+dat_for_analytic_population_lagged <- dat_for_analysis %>% mutate(is_cc = complete.cases(.))
+analytic_population_lagged_count <- dat_for_analytic_population_lagged %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% summarise(count = sum(1*((n_elig > 0) & (n_elig_lead1 > 0))), count_cc_only = sum(is_cc))
+analytic_population_lagged_count_by_day <- dat_for_analytic_population_lagged %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% group_by(cluster_id) %>% summarise(count = sum(1*((n_elig > 0) & (n_elig_lead1 > 0))), count_cc_only = sum(is_cc))
+```
+
+```{r}
+analytic_population_lagged_count
+```
+
+```{r}
+png(file = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "analytic_population_by_day_lagged.png"), width = 10, height = 10, units = "in", res = 600)
+
+plot(analytic_population_lagged_count_by_day$cluster_id, analytic_population_lagged_count_by_day$count, type = "o", ylim = c(0,100), xaxt = "n", xlab = "Day", ylab = "Number of participants", lwd = 4, col = "blue")
+axis(1, at = seq(2,9,1))
+lines(analytic_population_lagged_count_by_day$cluster_id, analytic_population_lagged_count_by_day$count_cc_only, type = "o", lwd = 4, col = "black")
+legend("bottomright", legend = c("Number of participants who had at least 1 eligible decision point on current day and next day", "Among participants who participants who had at least 1 eligible decision point on current day and next day, how many had complete cases"), col = c("blue", "black"), lwd = c(3,3), cex = 0.80)
+title(main = "Lagged analysis at the day level: Cigarette Use")
+
+dev.off()
+```
+
 # Association between engagement in self-regulatory strategies and cigarette use on current day
 
 $$

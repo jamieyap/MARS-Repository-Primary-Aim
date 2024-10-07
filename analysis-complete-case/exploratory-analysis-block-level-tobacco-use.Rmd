@@ -65,6 +65,57 @@ dat_for_analysis <- dat_primary_aim %>%
   filter((decision_point >= 7) & (decision_point <= 54))
 ```
 
+# Analytic Population
+
+## Concurrent analysis
+
+```{r}
+dat_for_analytic_population_concurrent <- dat_for_analysis %>% select(-eligibility_lead1, -substance_is_any_tobacco_lead1) %>% mutate(is_cc = complete.cases(.))
+analytic_population_concurrent_count <- dat_for_analytic_population_concurrent %>% filter(eligibility == 1) %>% summarise(count = sum(eligibility), count_cc_only = sum(is_cc))
+analytic_population_concurrent_count_by_dp <- dat_for_analytic_population_concurrent %>% filter(eligibility == 1) %>% group_by(decision_point) %>% summarise(count = sum(eligibility), count_cc_only = sum(is_cc))
+```
+
+```{r}
+analytic_population_concurrent_count
+```
+
+```{r}
+png(file = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "analytic_population_by_dp_concurrent.png"), width = 10, height = 10, units = "in", res = 600)
+
+plot(analytic_population_concurrent_count_by_dp$decision_point, analytic_population_concurrent_count_by_dp$count, type = "o", ylim = c(0,100), xaxt = "n", xlab = "Decision Point", ylab = "Number of participants", lwd = 4, col = "blue")
+axis(1, at = seq(6,54,6))
+lines(analytic_population_concurrent_count_by_dp$decision_point, analytic_population_concurrent_count_by_dp$count_cc_only, type = "o", lwd = 4, col = "black")
+legend("bottomright", legend = c("Number of participants who were eligible at current decision point", "Among participants who were eligible at current decision point, how many had complete cases"), col = c("blue", "black"), lwd = c(3,3), cex = 0.90)
+title(main = "Concurrent analysis at the momentary level: Tobacco Use")
+
+dev.off()
+```
+
+## Lagged analysis
+
+```{r}
+dat_for_analytic_population_lagged <- dat_for_analysis %>% mutate(is_cc = complete.cases(.))
+analytic_population_lagged_count <- dat_for_analytic_population_lagged %>% filter(eligibility + eligibility_lead1 == 2) %>% summarise(count = sum(1*(eligibility + eligibility_lead1 == 2)), count_cc_only = sum(is_cc))
+analytic_population_lagged_count_by_dp <- dat_for_analytic_population_lagged %>% filter(eligibility + eligibility_lead1 == 2) %>% group_by(decision_point) %>% summarise(count = sum(1*(eligibility + eligibility_lead1 == 2)), count_cc_only = sum(is_cc))
+```
+
+```{r}
+analytic_population_lagged_count
+```
+
+```{r}
+png(file = file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "analytic_population_by_dp_lagged.png"), width = 10, height = 10, units = "in", res = 600)
+
+plot(analytic_population_lagged_count_by_dp$decision_point, analytic_population_lagged_count_by_dp$count, type = "o", ylim = c(0,100), xaxt = "n", xlab = "Decision Point", ylab = "Number of participants", lwd = 4, col = "blue")
+axis(1, at = seq(6,54,6))
+lines(analytic_population_lagged_count_by_dp$decision_point, analytic_population_lagged_count_by_dp$count_cc_only, type = "o", lwd = 4, col = "black")
+legend("bottomright", legend = c("Number of participants who were eligible at current decision point and next decision point", "Among participants who were eligible at current decision point and next decision point, how many had complete cases"), col = c("blue", "black"), lwd = c(3,3), cex = 0.90)
+title(main = "Lagged analysis at the momentary level: Tobacco Use")
+
+dev.off()
+```
+
+
 # Association between engagement in self-regulatory strategies and tobacco use on current person-block
 
 $$
@@ -214,7 +265,7 @@ dat_results_odds_scale %>% round(., 3)
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_odds_scale_concurrent.csv"), row.names = TRUE)
 ```
 
-# Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
+# Time-varying association between engagement in self-regulatory strategies and tobacco use on current person-block
 
 $$
 \text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j} \right) = 1\right) = \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{c_ANY PROMPT} \left(t_{i,j}\right) + \beta_2 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right)
@@ -324,7 +375,7 @@ ggsave(filename = file.path("analysis-complete-case", "formatted-output", "Explo
 # Association between engagement in self-regulatory strategies and tobacco use on next person-block
 
 $$
-\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,j + 1} = 1 \Big| \left\{I_{i, j} = 1\right\} \cap \left\{I_{i, j+1} = 1\right\}, \text{control covariates}, \text{WHETHER ENGAGED}_{i,j} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt}_{i,j}\beta_9 + \text{ANY TOBACCO USE}_{i,j+1}\beta_{10} + \text{WHETHER ENGAGED}_{i,j} \beta_{11}
+\mathrm{logit} Pr \left( \text{ANY TOBACCO USE}_{i,j + 1} = 1 \Big| \left\{I_{i, j} = 1\right\} \cap \left\{I_{i, j+1} = 1\right\}, \text{control covariates}, \text{WHETHER ENGAGED}_{i,j} \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt}_{i,j}\beta_9 + \text{ANY TOBACCO USE}_{i,j}\beta_{10} + \text{WHETHER ENGAGED}_{i,j} \beta_{11}
 $$
 
 ```{r}
@@ -429,7 +480,7 @@ dat_results_odds_scale %>% round(., 3)
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Tobacco-Use", "block_level_odds_scale_lagged.csv"), row.names = TRUE)
 ```
 
-# Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
+# Time-varying association between engagement in self-regulatory strategies and tobacco use on current person-block
 
 $$
 \text{logit} Pr\left(\text{ANY TOBACCO USE}_{i} \left(t_{i,j+1} \right) = 1\right)= \boldsymbol{Z}_c\boldsymbol{\alpha} + \beta_0 \left(t_{i,j}\right) + \beta_1 \left(t_{i,j}\right) \text{c_ANY PROMPT}_{i} \left(t_{i,j} \right) + \beta_2 \left(t_{i,j}\right) \text{c_ANY TOBACCO USE}_{i} \left(t_{i,j} \right) + \beta_3 \left(t_{i,j}\right) \text{WHETHER ENGAGED} \left(t_{i,j}\right)
