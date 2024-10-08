@@ -349,6 +349,8 @@ rrUB95 <- exp(results_contrast$ucl_contrast)
 
 dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
 
+row.names(dat_exp_scale) <- c("High vs. None", "Low vs. None", "High vs. Low")
+
 dat_exp_scale
 
 # Format output to 3 decimal places
@@ -1718,7 +1720,7 @@ rrUB95 <- exp(results_contrast$ucl_contrast)
 
 dat_exp_scale <- data.frame(exp_estimates = exp_estimates, rrLB95 = rrLB95, rrUB95 = rrUB95)
 
-dat_exp_scale
+row.names(dat_exp_scale) <- c("High vs. None", "Low vs. None", "High vs. Low")
 
 # Format output to 3 decimal places
 dat_exp_scale %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "H2", "sensitivity_risk_ratio_scale_contrast_H2.csv"), row.names = TRUE)
