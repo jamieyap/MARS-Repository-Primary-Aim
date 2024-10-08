@@ -111,6 +111,7 @@ fit_pooled[["UCL"]] <- fit_pooled[["Estimate"]] + fit_pooled[["StdErr"]] * qnorm
 fit_pooled[["p_value"]] <- 2*pnorm(abs(fit_pooled[["Estimate"]]/fit_pooled[["StdErr"]]), lower.tail = FALSE)
 
 fit_pooled_contrast <- fit_pooled
+row.names(fit_pooled_contrast) <- results_obj[["contrast"]]
 
 dat_pool_stats_contrast <- bind_rows(list_pool_stats)
 row.names(dat_pool_stats_contrast) <- results_obj[["contrast"]]

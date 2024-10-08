@@ -38,7 +38,20 @@ if(isFALSE(is_dir_exist)){
 # Note that dat_long_completed will contain both the original long dataset and 
 # replicates.
 ###############################################################################
-dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_long_completed.rds"))
+
+if(isTRUE(.__sensitivity_using_deterministically_imputed_proximal_outcome)){
+  dat_long_completed <- readRDS(file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, paste("dat_impute_proximal_outcome_deterministically.rds", sep = "")))
+  
+  if(isTRUE(.__use_deterministic_rule_conservative)){
+    dat_long_completed <- dat_long_completed %>% mutate(Y_origninal = Y) %>% mutate(Y = Y_conservative)
+  }else{
+    dat_long_completed <- dat_long_completed %>% mutate(Y_origninal = Y) %>% mutate(Y = Y_liberal)
+  }
+  
+}else{
+  dat_long_completed <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "sequentially-completed-datasets", mi_dataset_num, "dat_long_completed.rds"))
+}
+
 max_replicate_id <- max(dat_long_completed[["replicate_id"]])
 
 ###############################################################################
@@ -97,9 +110,19 @@ if(class(fit1) == "character"){
   results_obj <- summary(fit1, show_control_fit = TRUE)
 }
 
-if(isTRUE(.__use_all_days)){
+if(isTRUE(.__use_all_days) & isTRUE(!.__sensitivity_using_deterministically_imputed_proximal_outcome)){
   add_prefix <- "sensitivity_"
-}else{
+}
+
+if(isFALSE(.__use_all_days) & isTRUE(.__sensitivity_using_deterministically_imputed_proximal_outcome)){
+  if(isTRUE(.__use_deterministic_rule_conservative)){
+    add_prefix <- "sensitivity2_"
+  }else{
+    add_prefix <- "sensitivity3_"
+  }
+}
+
+if(isFALSE(.__use_all_days) & isTRUE(!.__sensitivity_using_deterministically_imputed_proximal_outcome)){
   add_prefix <- ""
 }
 
@@ -132,9 +155,19 @@ for(idx_replicate in 1:max_replicate_id){
     results_obj <- summary(fit1, show_control_fit = TRUE) 
   }
   
-  if(isTRUE(.__use_all_days)){
+  if(isTRUE(.__use_all_days) & isTRUE(!.__sensitivity_using_deterministically_imputed_proximal_outcome)){
     add_prefix <- "sensitivity_"
-  }else{
+  }
+  
+  if(isFALSE(.__use_all_days) & isTRUE(.__sensitivity_using_deterministically_imputed_proximal_outcome)){
+    if(isTRUE(.__use_deterministic_rule_conservative)){
+      add_prefix <- "sensitivity2_"
+    }else{
+      add_prefix <- "sensitivity3_"
+    }
+  }
+  
+  if(isFALSE(.__use_all_days) & isTRUE(!.__sensitivity_using_deterministically_imputed_proximal_outcome)){
     add_prefix <- ""
   }
   

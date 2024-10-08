@@ -25,7 +25,7 @@ num_participants <- length(all_ids)
 ###############################################################################
 # Workflow: Pool results for secondary aim
 ###############################################################################
-results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", 1, "sensitivity_results_obj_secondary_marginal_risk_difference.rds"))
+results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", 1, "sensitivity3_results_obj_secondary_marginal_risk_difference.rds"))
 these_row_names <- results_obj[["variable"]]
 num_terms <- nrow(results_obj)
 
@@ -38,7 +38,7 @@ for(j in 1:num_terms){
   list_Q <- list()
   list_U <- list()
   for(mi_dataset_num in 1:.__total_imputed_datasets){
-    results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "sensitivity_results_obj_secondary_marginal_risk_difference.rds"))
+    results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "sensitivity3_results_obj_secondary_marginal_risk_difference.rds"))
     
     if(length(results_obj) == 1){
       list_Q[[mi_dataset_num]] <- NULL
@@ -86,7 +86,7 @@ for(j in 1:3){
   list_Q <- list()
   list_U <- list()
   for(mi_dataset_num in 1:.__total_imputed_datasets){
-    results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "sensitivity_contrast_secondary_marginal_risk_difference.rds"))
+    results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "sensitivity3_contrast_secondary_marginal_risk_difference.rds"))
     
     if(length(results_obj) == 1){
       list_Q[[mi_dataset_num]] <- NULL
@@ -117,66 +117,19 @@ dat_pool_stats_contrast <- bind_rows(list_pool_stats)
 row.names(dat_pool_stats_contrast) <- results_obj[["contrast"]]
 
 ###############################################################################
-# Workflow: Posterior predictive check for secondary aim
-###############################################################################
-list_all_comparisons_est <- list()
-list_all_comparisons_stderr <- list()
-
-for(mi_dataset_num in 1:.__total_imputed_datasets){
-  results_obj <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, "sensitivity_contrast_secondary_marginal_risk_difference.rds"))
-  
-  if(length(results_obj) == 1){
-    list_all_comparisons_est <- append(list_all_comparisons_est, list(NULL))
-    list_all_comparisons_stderr <- append(list_all_comparisons_stderr, list(NULL))
-    next
-  }
-  
-  for(idx_replicate in 1:.__par_total_replicates){
-    results_obj_rep <- readRDS(file = file.path(path_multiple_imputation_pipeline_data, "mi-analysis-results", mi_dataset_num, paste("sensitivity_contrast_secondary_marginal_risk_difference", "_replicate_", idx_replicate, ".rds", sep = "")))
-    
-    if((length(results_obj) == 1)| (length(results_obj_rep) == 1)){
-      list_all_comparisons_est <- append(list_all_comparisons_est, list(NULL))
-      list_all_comparisons_stderr <- append(list_all_comparisons_stderr, list(NULL))
-    }else{
-      dat_this_comparison <- (results_obj_rep >= results_obj)
-      dat_this_comparison <- as.data.frame(dat_this_comparison)
-      
-      these_cols <- c("estimates")
-      dat_this_comparison_est <- dat_this_comparison %>% select(all_of(these_cols))
-      list_all_comparisons_est <- append(list_all_comparisons_est, list(dat_this_comparison_est))
-      
-      these_cols <- c("std_err")
-      dat_this_comparison_stderr <- dat_this_comparison %>% select(all_of(these_cols))
-      list_all_comparisons_stderr <- append(list_all_comparisons_stderr, list(dat_this_comparison_stderr)) 
-    }
-  }
-}
-
-dat_all_comparisons_est <- bind_cols(list_all_comparisons_est)
-dat_all_comparisons_stderr <- bind_cols(list_all_comparisons_stderr)
-
-pbcom_est <- rowMeans(dat_all_comparisons_est)
-pbcom_stderr <- rowMeans(dat_all_comparisons_stderr)
-
-dat_pbcom <- data.frame(pbcom_est, pbcom_stderr)
-row.names(dat_pbcom) <- c("High Effort Prompt vs. No Prompt", "Low Effort Prompt vs. No Prompt", "High Effort Prompt vs. Low Effort Prompt")
-
-###############################################################################
 # Save output
 ###############################################################################
 fit_pooled_causal_formatted <- format(round(fit_pooled_causal, 3), nsmall = 3)
 fit_pooled_control_formatted <- format(round(fit_pooled_control, 3), nsmall = 3)
 fit_pooled_contrast_formatted <- format(round(fit_pooled_contrast, 3), nsmall = 3)
 
-dat_pbcom_formatted <- format(round(dat_pbcom, 3), nsmall = 3)
 dat_pool_stats_formatted <- format(round(dat_pool_stats, 5), nsmall = 5)
 dat_pool_stats_contrast_formatted <- format(round(dat_pool_stats_contrast, 5), nsmall = 5)
 
-write.csv(fit_pooled_causal_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pooled_H2_causal_risk_difference_scale.csv"), row.names = TRUE)
-write.csv(fit_pooled_control_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pooled_H2_control_risk_difference_scale.csv"), row.names = TRUE)
-write.csv(fit_pooled_contrast_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pooled_H2_contrast_risk_difference_scale.csv"), row.names = TRUE)
+write.csv(fit_pooled_causal_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity3_pooled_H2_causal_risk_difference_scale.csv"), row.names = TRUE)
+write.csv(fit_pooled_control_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity3_pooled_H2_control_risk_difference_scale.csv"), row.names = TRUE)
+write.csv(fit_pooled_contrast_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity3_pooled_H2_contrast_risk_difference_scale.csv"), row.names = TRUE)
 
-write.csv(dat_pbcom_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pbcom_H2_causal_risk_difference_scale.csv"), row.names = TRUE)
-write.csv(dat_pool_stats_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pool_stats_H2_causal_risk_difference_scale.csv"), row.names = TRUE)
-write.csv(dat_pool_stats_contrast_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity_pool_stats_H2_contrast_risk_difference_scale.csv"), row.names = TRUE)
+write.csv(dat_pool_stats_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity3_pool_stats_H2_causal_risk_difference_scale.csv"), row.names = TRUE)
+write.csv(dat_pool_stats_contrast_formatted, file = file.path("analysis-multiple-imputation", "formatted-output", "sensitivity3_pool_stats_H2_contrast_risk_difference_scale.csv"), row.names = TRUE)
 

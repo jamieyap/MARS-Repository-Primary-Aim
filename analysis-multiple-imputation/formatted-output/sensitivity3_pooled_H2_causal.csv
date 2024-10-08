@@ -1,0 +1,4 @@
+"","Estimate","StdErr","LCL","UCL","p_value"
+"High Effort Prompt vs. No Prompt","0.107","0.029"," 0.050","0.165","0.000"
+"Low Effort Prompt vs. No Prompt","0.023","0.026","-0.028","0.074","0.370"
+"High Effort Prompt vs. Low Effort Prompt","0.084","0.029"," 0.027","0.141","0.004"

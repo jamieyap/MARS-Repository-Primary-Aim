@@ -40,6 +40,7 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 ###############################################################################
 
 .__use_all_days <- FALSE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- FALSE
 
 for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
@@ -67,9 +68,11 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 
 ###############################################################################
 # Data analysis (sensitivity analysis)
+# Use all 10 days to estimate average main effect of prompt vs no prompt
 ###############################################################################
 
 .__use_all_days <- TRUE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- FALSE
 
 
 for(.__current_idx in 1:.__total_imputed_datasets){
@@ -99,6 +102,7 @@ source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity-po
 ###############################################################################
 
 .__use_all_days <- FALSE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- FALSE
 
 for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
@@ -126,9 +130,12 @@ for(.__current_idx in 1:.__total_imputed_datasets){
 
 ###############################################################################
 # Data analysis (sensitivity analysis)
+# Use all 10 days to estimate average main effect of more effortful prompt
+# vs low effort prompt
 ###############################################################################
 
 .__use_all_days <- TRUE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- FALSE
 
 for(.__current_idx in 1:.__total_imputed_datasets){
   source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
@@ -161,5 +168,82 @@ source(file.path("analysis-multiple-imputation", "estimate-time-specific-means-f
 # Pooling estimates across imputed datasets and posterior predictive checking
 ###############################################################################
 source(file.path("analysis-multiple-imputation", "pool-and-ppc", "ppc-time-specific-means.R"))
+
+###############################################################################
+# Data analysis (sensitivity analysis)
+# Impute missing values in the baseline covariates
+# However, for the primary proximal outcome at eligible decision points ... 
+#
+#   - Sensitivity Analysis #1 (Conservative assumption): 
+#     Assume that non-completion of EMA means that the participant did NOT
+#     engage in self-regulatory strategies
+###############################################################################
+
+source(file.path("analysis-multiple-imputation", "generate-multiply-imputed-datasets", "loop-impute-proximal-outcome-deterministically.R"))
+
+.__use_all_days <- FALSE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- TRUE
+.__use_deterministic_rule_conservative <- TRUE
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal-risk-difference-scale.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal-risk-difference-scale.R"))
+}
+
+
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity2-pool-primary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity2-pool-primary-risk-difference-scale.R"))
+
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity2-pool-secondary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity2-pool-secondary-risk-difference-scale.R"))
+
+
+###############################################################################
+# Data analysis (sensitivity analysis)
+# Impute missing values in the baseline covariates
+# However, for the primary proximal outcome at eligible decision points ... 
+#
+#   - Sensitivity Analysis #2 (Liberal assumption):
+#     Assume that non-completion of EMA means that the participant 
+#     engaged in self-regulatory strategies
+###############################################################################
+
+.__use_all_days <- FALSE
+.__sensitivity_using_deterministically_imputed_proximal_outcome <- TRUE
+.__use_deterministic_rule_conservative <- FALSE
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-primary-aim-marginal-risk-difference-scale.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal.R"))
+}
+
+for(.__current_idx in 1:.__total_imputed_datasets){
+  source(file.path("analysis-multiple-imputation", "analyze-one-completed-dataset", "analyze-one-completed-dataset-secondary-aim-marginal-risk-difference-scale.R"))
+}
+
+
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity3-pool-primary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity3-pool-primary-risk-difference-scale.R"))
+
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity3-pool-secondary.R"))
+source(file.path("analysis-multiple-imputation", "pool-and-ppc", "sensitivity3-pool-secondary-risk-difference-scale.R"))
 
 

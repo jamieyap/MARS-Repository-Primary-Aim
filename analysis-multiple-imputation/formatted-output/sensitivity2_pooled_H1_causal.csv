@@ -1,0 +1,2 @@
+"","Estimate","StdErr","LCL","UCL","p_value"
+"Treatment (Prompt = 1, No Prompt = 0)","0.106","0.046","0.016","0.195","0.021"
