@@ -57,6 +57,41 @@ dat_primary_aim <- dat_primary_aim %>%
 
 **H1 Main Analysis** excludes first and last days of the 10-day MRT while **H1 Sensitivity Analysis** includes all days of the 10-day MRT. In **Exploratory Analysis on Moderated Effect of Time**, we investigate whether the effect of prompt (versus no prompt) varies by day in study, where day in study is modeled in a linear or quadratic manner.
 
+# Among decision points which were micro-randomized, the number of decision points assigned to each intervention option
+
+```{r}
+dat_summary <- dat_primary_aim %>%
+  filter(is_include_main == 1) %>%
+  select(participant_id, decision_point, eligibility, coinflip, is_high_effort, is_low_effort) %>%
+  group_by(eligibility) %>%
+  summarise(n_decision_points = n())
+
+dat_summary
+```
+
+```{r}
+dat_summary <- dat_primary_aim %>%
+  filter(is_include_main == 1) %>%
+  select(participant_id, decision_point, eligibility, coinflip, is_high_effort, is_low_effort) %>%
+  filter(eligibility == 1) %>%
+  group_by(coinflip) %>%
+  summarise(n_decision_points = n())
+
+dat_summary
+```
+
+```{r}
+dat_summary <- dat_primary_aim %>%
+  filter(is_include_main == 1) %>%
+  select(participant_id, decision_point, eligibility, coinflip, is_high_effort, is_low_effort) %>%
+  filter(eligibility == 1) %>%
+  group_by(is_high_effort, is_low_effort) %>%
+  summarise(n_decision_points = n())
+
+dat_summary
+```
+
+
 # H1 Main Analysis 
 
 ```{r}

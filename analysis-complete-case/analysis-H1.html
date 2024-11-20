@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-06-25" />
+<meta name="date" content="2024-11-20" />
 
 <title>MARS MRT: H1 and Exploratory Analyses on Moderated Effect of Time</title>
 
@@ -351,42 +351,45 @@ display: none;
 
 <h1 class="title toc-ignore">MARS MRT: H1 and Exploratory Analyses on
 Moderated Effect of Time</h1>
-<h4 class="date">June 25, 2024</h4>
+<h4 class="date">November 20, 2024</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#h1-main-analysis" id="toc-h1-main-analysis"><span class="toc-section-number">1</span> H1 Main Analysis</a>
+<li><a href="#among-decision-points-which-were-micro-randomized-the-number-of-decision-points-assigned-to-each-intervention-option" id="toc-among-decision-points-which-were-micro-randomized-the-number-of-decision-points-assigned-to-each-intervention-option"><span class="toc-section-number">1</span> Among decision points which were
+micro-randomized, the number of decision points assigned to each
+intervention option</a></li>
+<li><a href="#h1-main-analysis" id="toc-h1-main-analysis"><span class="toc-section-number">2</span> H1 Main Analysis</a>
 <ul>
-<li><a href="#estimated-prevalence-by-group-marginal-over-time" id="toc-estimated-prevalence-by-group-marginal-over-time"><span class="toc-section-number">1.1</span> Estimated prevalence by group
+<li><a href="#estimated-prevalence-by-group-marginal-over-time" id="toc-estimated-prevalence-by-group-marginal-over-time"><span class="toc-section-number">2.1</span> Estimated prevalence by group
 (marginal over time)</a></li>
-<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">1.2</span> Estimated effect on the log risk
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale" id="toc-estimated-effect-on-the-log-risk-ratio-scale"><span class="toc-section-number">2.2</span> Estimated effect on the log risk
 ratio scale</a></li>
-<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">1.3</span> Estimated effect on the risk ratio
+<li><a href="#estimated-effect-on-the-risk-ratio-scale" id="toc-estimated-effect-on-the-risk-ratio-scale"><span class="toc-section-number">2.3</span> Estimated effect on the risk ratio
 scale</a></li>
-<li><a href="#estimated-effect-on-the-risk-difference-scale" id="toc-estimated-effect-on-the-risk-difference-scale"><span class="toc-section-number">1.4</span> Estimated effect on the risk
+<li><a href="#estimated-effect-on-the-risk-difference-scale" id="toc-estimated-effect-on-the-risk-difference-scale"><span class="toc-section-number">2.4</span> Estimated effect on the risk
 difference scale</a></li>
 </ul></li>
-<li><a href="#exploratory-analysis-linear-effect-of-time" id="toc-exploratory-analysis-linear-effect-of-time"><span class="toc-section-number">2</span> Exploratory Analysis (Linear Effect
+<li><a href="#exploratory-analysis-linear-effect-of-time" id="toc-exploratory-analysis-linear-effect-of-time"><span class="toc-section-number">3</span> Exploratory Analysis (Linear Effect
 of Time)</a>
 <ul>
-<li><a href="#day-in-study" id="toc-day-in-study"><span class="toc-section-number">2.1</span> Day in study</a></li>
-<li><a href="#hour-of-day" id="toc-hour-of-day"><span class="toc-section-number">2.2</span> Hour of day</a></li>
+<li><a href="#day-in-study" id="toc-day-in-study"><span class="toc-section-number">3.1</span> Day in study</a></li>
+<li><a href="#hour-of-day" id="toc-hour-of-day"><span class="toc-section-number">3.2</span> Hour of day</a></li>
 </ul></li>
-<li><a href="#exploratory-analysis-quadratic-effect-of-time" id="toc-exploratory-analysis-quadratic-effect-of-time"><span class="toc-section-number">3</span> Exploratory Analysis (Quadratic
+<li><a href="#exploratory-analysis-quadratic-effect-of-time" id="toc-exploratory-analysis-quadratic-effect-of-time"><span class="toc-section-number">4</span> Exploratory Analysis (Quadratic
 Effect of Time)</a>
 <ul>
-<li><a href="#day-in-study-1" id="toc-day-in-study-1"><span class="toc-section-number">3.1</span> Day in study</a></li>
-<li><a href="#hour-of-day-1" id="toc-hour-of-day-1"><span class="toc-section-number">3.2</span> Hour of day</a></li>
+<li><a href="#day-in-study-1" id="toc-day-in-study-1"><span class="toc-section-number">4.1</span> Day in study</a></li>
+<li><a href="#hour-of-day-1" id="toc-hour-of-day-1"><span class="toc-section-number">4.2</span> Hour of day</a></li>
 </ul></li>
-<li><a href="#h1-sensitivity-analysis" id="toc-h1-sensitivity-analysis"><span class="toc-section-number">4</span> H1 Sensitivity Analysis</a>
+<li><a href="#h1-sensitivity-analysis" id="toc-h1-sensitivity-analysis"><span class="toc-section-number">5</span> H1 Sensitivity Analysis</a>
 <ul>
-<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">4.1</span> Estimated prevalence by
+<li><a href="#estimated-prevalence-by-group" id="toc-estimated-prevalence-by-group"><span class="toc-section-number">5.1</span> Estimated prevalence by
 group</a></li>
-<li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">4.2</span> Estimated effect on the log risk
+<li><a href="#estimated-effect-on-the-log-risk-ratio-scale-1" id="toc-estimated-effect-on-the-log-risk-ratio-scale-1"><span class="toc-section-number">5.2</span> Estimated effect on the log risk
 ratio scale</a></li>
-<li><a href="#estimated-effect-on-the-risk-difference-scale-1" id="toc-estimated-effect-on-the-risk-difference-scale-1"><span class="toc-section-number">4.3</span> Estimated effect on the risk
+<li><a href="#estimated-effect-on-the-risk-difference-scale-1" id="toc-estimated-effect-on-the-risk-difference-scale-1"><span class="toc-section-number">5.3</span> Estimated effect on the risk
 difference scale</a></li>
 </ul></li>
 </ul>
@@ -405,10 +408,32 @@ days of the 10-day MRT. In <strong>Exploratory Analysis on Moderated
 Effect of Time</strong>, we investigate whether the effect of prompt
 (versus no prompt) varies by day in study, where day in study is modeled
 in a linear or quadratic manner.</p>
-<div id="h1-main-analysis" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> H1 Main Analysis</h1>
-<div id="estimated-prevalence-by-group-marginal-over-time" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Estimated prevalence
+<div id="among-decision-points-which-were-micro-randomized-the-number-of-decision-points-assigned-to-each-intervention-option" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Among decision points
+which were micro-randomized, the number of decision points assigned to
+each intervention option</h1>
+<pre><code>## # A tibble: 2 × 2
+##   eligibility n_decision_points
+##         &lt;dbl&gt;             &lt;int&gt;
+## 1           0               894
+## 2           1              3858</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   coinflip n_decision_points
+##      &lt;dbl&gt;             &lt;int&gt;
+## 1        0              1934
+## 2        1              1924</code></pre>
+<pre><code>## # A tibble: 3 × 3
+## # Groups:   is_high_effort [2]
+##   is_high_effort is_low_effort n_decision_points
+##            &lt;dbl&gt;         &lt;dbl&gt;             &lt;int&gt;
+## 1              0             0              1934
+## 2              0             1               997
+## 3              1             0               927</code></pre>
+</div>
+<div id="h1-main-analysis" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> H1 Main Analysis</h1>
+<div id="estimated-prevalence-by-group-marginal-over-time" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Estimated prevalence
 by group (marginal over time)</h2>
 <pre><code>## # A tibble: 2 × 2
 ##   coinflip  mu_Y
@@ -419,8 +444,8 @@ by group (marginal over time)</h2>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_blocks_elig n_blocks_included_among_elig n_blocks_excluded_among_elig
 ## 1                  99                                 90                                  9          3858                         1724                         2134</code></pre>
 </div>
-<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Estimated effect on
+<div id="estimated-effect-on-the-log-risk-ratio-scale" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Estimated effect on
 the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
@@ -452,14 +477,14 @@ the log risk ratio scale</h2>
 ## any_recent_eligible_dp             -1.0184089637 -1.397027208 -0.639790720 0.190059653 -5.35836485 75 8.899442e-07
 ## engagement_most_recent_eligible     0.8660172640  0.607007988  1.125026540 0.130018069  6.66074545 75 3.986971e-09</code></pre>
 </div>
-<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> Estimated effect on
+<div id="estimated-effect-on-the-risk-ratio-scale" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Estimated effect on
 the risk ratio scale</h2>
 <pre><code>##   exp_estimates   rrLB95   rrUB95
 ## 1      1.111529 1.010736 1.222374</code></pre>
 </div>
-<div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="1.4">
-<h2><span class="header-section-number">1.4</span> Estimated effect on
+<div id="estimated-effect-on-the-risk-difference-scale" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Estimated effect on
 the risk difference scale</h2>
 <pre><code>## $call
 ## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
@@ -492,11 +517,11 @@ the risk difference scale</h2>
 ## engagement_most_recent_eligible     0.4472793124  0.3526276744  0.541930950 0.047513446 88.61853486   1  75 2.442491e-14</code></pre>
 </div>
 </div>
-<div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Exploratory Analysis
+<div id="exploratory-analysis-linear-effect-of-time" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Exploratory Analysis
 (Linear Effect of Time)</h1>
-<div id="day-in-study" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> Day in study</h2>
+<div id="day-in-study" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Day in study</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local, 
@@ -528,8 +553,8 @@ the risk difference scale</h2>
 ## any_recent_eligible_dp             -1.0226590628 -1.460448273 -0.584869853 0.219713753 -4.65450636 74 1.394515e-05
 ## engagement_most_recent_eligible     0.8696540676  0.609132628  1.130175507 0.130748182  6.65136642 74 4.359468e-09</code></pre>
 </div>
-<div id="hour-of-day" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Hour of day</h2>
+<div id="hour-of-day" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Hour of day</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~hour_coinflip_local, 
@@ -562,11 +587,11 @@ the risk difference scale</h2>
 ## engagement_most_recent_eligible     0.867600338  0.607523569  1.127677108 0.130525015  6.64700432 74 4.441051e-09</code></pre>
 </div>
 </div>
-<div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Exploratory Analysis
+<div id="exploratory-analysis-quadratic-effect-of-time" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Exploratory Analysis
 (Quadratic Effect of Time)</h1>
-<div id="day-in-study-1" class="section level2" number="3.1">
-<h2><span class="header-section-number">3.1</span> Day in study</h2>
+<div id="day-in-study-1" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Day in study</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~days_between_v1_and_coinflip_local + 
@@ -602,8 +627,8 @@ the risk difference scale</h2>
 ## any_recent_eligible_dp                                                     -1.055684e+00 -1.544238681 -0.567128459 0.245078525 -4.307531920 72 5.137234e-05
 ## engagement_most_recent_eligible                                             8.646874e-01  0.604432209  1.124942533 0.130554260  6.623203011 72 5.431979e-09</code></pre>
 </div>
-<div id="hour-of-day-1" class="section level2" number="3.2">
-<h2><span class="header-section-number">3.2</span> Hour of day</h2>
+<div id="hour-of-day-1" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Hour of day</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
 ##     treatment = &quot;coinflip&quot;, rand_prob = 0.5, moderator_formula = ~hour_coinflip_local + 
@@ -640,11 +665,11 @@ the risk difference scale</h2>
 ## engagement_most_recent_eligible               0.869582613  0.608870732  1.130294494 0.130783369  6.64903053 72 4.872937e-09</code></pre>
 </div>
 </div>
-<div id="h1-sensitivity-analysis" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> H1 Sensitivity
+<div id="h1-sensitivity-analysis" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> H1 Sensitivity
 Analysis</h1>
-<div id="estimated-prevalence-by-group" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Estimated prevalence
+<div id="estimated-prevalence-by-group" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Estimated prevalence
 by group</h2>
 <pre><code>## # A tibble: 2 × 2
 ##   coinflip  mu_Y
@@ -654,8 +679,8 @@ by group</h2>
 <pre><code>##   n_participants_elig n_participants_included_among_elig n_participants_excluded_among_elig n_blocks_elig n_blocks_included_among_elig n_blocks_excluded_among_elig
 ## 1                  99                                 90                                  9          4549                         2014                         2535</code></pre>
 </div>
-<div id="estimated-effect-on-the-log-risk-ratio-scale-1" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> Estimated effect on
+<div id="estimated-effect-on-the-log-risk-ratio-scale-1" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Estimated effect on
 the log risk ratio scale</h2>
 <pre><code>## $call
 ## emee(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
@@ -689,8 +714,8 @@ the log risk ratio scale</h2>
 <pre><code>##   exp_estimates   rrLB95   rrUB95
 ## 1      1.155853 1.051065 1.271088</code></pre>
 </div>
-<div id="estimated-effect-on-the-risk-difference-scale-1" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Estimated effect on
+<div id="estimated-effect-on-the-risk-difference-scale-1" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Estimated effect on
 the risk difference scale</h2>
 <pre><code>## $call
 ## wcls(data = dat_for_analysis, id = &quot;participant_id&quot;, outcome = &quot;Y&quot;, 
