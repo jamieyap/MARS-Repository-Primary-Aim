@@ -1,12 +1,3 @@
-```{=html}
-<!---
----
-output:
-  pdf_document: default
-urlcolor: magenta
----
---->
-```
 # Mobile Assistance for Regulating Smoking Micro-Randomized Trial
 
 ## Description
