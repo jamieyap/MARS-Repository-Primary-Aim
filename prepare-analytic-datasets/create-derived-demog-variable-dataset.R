@@ -92,6 +92,8 @@ dat_summary_demogs_binary <- dat_analysis %>%
             n_has_partner = sum(has_partner, na.rm = TRUE),
             pct_has_partner = mean(has_partner, na.rm = TRUE) * 100)
 
+dat_summary_income_tabulation <- dat_analysis %>% group_by(income_val) %>% summarise(num_participants = n())
+
 ################################################################################
 # Select only the columns needed
 ################################################################################
@@ -105,10 +107,31 @@ dat_analysis <- dat_analysis %>%
          income_val)
 
 ################################################################################
-# Save output
+# Save output in RDS format
 ################################################################################
 saveRDS(dat_analysis, file = file.path(path_manipulated_data, "dat_mars_coded_demogs.rds"))
+
 saveRDS(dat_summary_missing_demogs, file = file.path(path_manipulated_data, "dat_summary_missing_demogs.rds"))
 saveRDS(dat_summary_demogs_continuous, file = file.path(path_manipulated_data, "dat_summary_demogs_continuous.rds"))
 saveRDS(dat_summary_demogs_binary, file = file.path(path_manipulated_data, "dat_summary_demogs_binary.rds"))
+
+################################################################################
+# Save output in csv format
+################################################################################
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output"))
+}
+
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "summary-statistics"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output", "summary-statistics"))
+}
+
+write.csv(dat_summary_missing_demogs, file.path("analysis-complete-case", "formatted-output", "summary-statistics", "dat_summary_missing_demogs.csv"), row.names = FALSE)
+write.csv(dat_summary_demogs_continuous, file.path("analysis-complete-case", "formatted-output", "summary-statistics", "dat_summary_demogs_continuous.csv"), row.names = FALSE)
+write.csv(dat_summary_demogs_binary, file.path("analysis-complete-case", "formatted-output", "summary-statistics", "dat_summary_demogs_binary.csv"), row.names = FALSE)
+write.csv(dat_summary_income_tabulation, file.path("analysis-complete-case", "formatted-output", "summary-statistics", "dat_summary_income_tabulation.csv"), row.names = FALSE)
 
