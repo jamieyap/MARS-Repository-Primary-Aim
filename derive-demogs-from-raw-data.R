@@ -9,13 +9,49 @@ redcap_metadata <- readRDS(file = file.path(path_demog_data, "redcap_metadata.rd
 redcap_data <- readRDS(file = file.path(path_demog_data, "redcap_data.rds"))
 intake_data_baseline_tobacco_history <- readRDS(file = file.path(path_demog_data, "intake_data_baseline_tobacco_history.rds"))
 
-redcap_crosswalk <- redcap_crosswalk %>% rename(rsr_id = SubjectID, redcap_id = REDCap_ID)
-grafana_crosswalk <- dat_visit_dates %>% select(rsr_id, mars_id)
+is_dir_exist <- file.exists(file.path(path_manipulated_data, "raw-data-sanity-checks"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path(path_manipulated_data, "raw-data-sanity-checks"))
+}
+
+# ------------------------------------------------------------------------------
+# Sanity check raw data
+# ------------------------------------------------------------------------------
+dat_check_gender <- redcap_data %>%
+  group_by(gender, dses1_1) %>%
+  summarise(count = n())
+
+dat_check_ethnicity <- redcap_data %>%
+  group_by(dses4_1) %>%
+  summarise(count = n())
+
+dat_check_gender_ethnicity <- redcap_data %>%
+  group_by(gender, dses1_1, dses4_1) %>%
+  summarise(count = n())
+
+dat_check_race_ethnicity <- redcap_data %>%
+  group_by(dses4_1,
+           dses5_1___1, dses5_1___2, dses5_1___3, dses5_1___4, dses5_1___5, dses5_1___nask,
+           dses5a_1___1, dses5a_1___2, dses5a_1___3, dses5a_1___4, dses5a_1___5, dses5a_1___nask) %>%
+  summarise(count = n())
+
+print(dat_check_gender)
+print(dat_check_ethnicity)
+print(dat_check_gender_ethnicity)
+print(dat_check_race_ethnicity)
+
+write.csv(dat_check_gender, file = file.path(path_manipulated_data, "raw-data-sanity-checks", "dat_check_gender.csv"), row.names = FALSE)
+write.csv(dat_check_ethnicity, file = file.path(path_manipulated_data, "raw-data-sanity-checks", "dat_check_ethnicity.csv"), row.names = FALSE)
+write.csv(dat_check_gender_ethnicity, file = file.path(path_manipulated_data, "raw-data-sanity-checks", "dat_check_gender_ethnicity.csv"), row.names = FALSE)
+write.csv(dat_check_race_ethnicity, file = file.path(path_manipulated_data, "raw-data-sanity-checks", "dat_check_race_ethnicity.csv"), row.names = FALSE)
 
 # ------------------------------------------------------------------------------
 # Create skeleton
 # ------------------------------------------------------------------------------
 
+redcap_crosswalk <- redcap_crosswalk %>% rename(rsr_id = SubjectID, redcap_id = REDCap_ID)
+grafana_crosswalk <- dat_visit_dates %>% select(rsr_id, mars_id)
 dat_demogs <- full_join(x = grafana_crosswalk, y = redcap_crosswalk, by = join_by(rsr_id == rsr_id))
 
 # ------------------------------------------------------------------------------
