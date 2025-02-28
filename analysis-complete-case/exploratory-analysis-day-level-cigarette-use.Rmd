@@ -103,9 +103,19 @@ dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_baseline, by = join_
 ## Concurrent analysis
 
 ```{r}
-dat_for_analytic_population_concurrent <- dat_for_analysis %>% select(-n_elig_lead1, -any_nic_lead1) %>% mutate(is_cc = complete.cases(.))
-analytic_population_concurrent_count <- dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
-analytic_population_concurrent_count_by_day <- dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% group_by(cluster_id) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
+dat_for_analytic_population_concurrent <- dat_for_analysis %>% 
+  select(-n_elig_lead1, -any_nic_lead1) %>% 
+  select(participant_id, cluster_id, 
+       n_elig, n_obs_nic, n_any_prompt,
+       any_nic, n_engaged,
+       age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+       baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(is_cc = complete.cases(.), is_observed_at_all_elig = (n_elig == n_obs_nic)) %>% 
+  mutate(is_cc = replace(is_cc, n_elig != n_obs_nic, FALSE))
+
+analytic_population_concurrent_count <-  dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
+
+analytic_population_concurrent_count_by_day <-  dat_for_analytic_population_concurrent %>% filter(n_elig > 0) %>% group_by(cluster_id) %>% summarise(count = sum(1*(n_elig > 0)), count_cc_only = sum(is_cc))
 ```
 
 ```{r}
@@ -127,8 +137,19 @@ dev.off()
 ## Lagged analysis
 
 ```{r}
-dat_for_analytic_population_lagged <- dat_for_analysis %>% mutate(is_cc = complete.cases(.))
+dat_for_analytic_population_lagged <- dat_for_analysis %>% 
+  select(participant_id, cluster_id, 
+       n_elig, n_obs_nic, n_any_prompt,
+       n_elig_lead1, n_obs_nic_lead1,
+       any_nic, n_engaged,
+       any_nic_lead1,
+       age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
+       baseline_tobacco_history, has_partner, income_val) %>%
+  mutate(is_cc = complete.cases(.), is_observed_at_all_elig = (n_elig == n_obs_nic) & (n_elig_lead1 == n_obs_nic_lead1)) %>% 
+  mutate(is_cc = replace(is_cc, (n_elig != n_obs_nic) | (n_elig_lead1 != n_obs_nic_lead1), FALSE))
+
 analytic_population_lagged_count <- dat_for_analytic_population_lagged %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% summarise(count = sum(1*((n_elig > 0) & (n_elig_lead1 > 0))), count_cc_only = sum(is_cc))
+
 analytic_population_lagged_count_by_day <- dat_for_analytic_population_lagged %>% filter((n_elig > 0) & (n_elig_lead1 > 0)) %>% group_by(cluster_id) %>% summarise(count = sum(1*((n_elig > 0) & (n_elig_lead1 > 0))), count_cc_only = sum(is_cc))
 ```
 
@@ -165,6 +186,13 @@ dat_logreg <- dat_for_analysis %>%
          baseline_tobacco_history, has_partner, income_val) %>%
   mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
   filter(drop_row == 0)
+```
+
+Some summary statistics on the smoking outcome:
+```{r}
+dat_logreg %>%
+  group_by(any_nic) %>%
+  summarise(n_participant_days_any = n())
 ```
 
 ```{r}
@@ -533,6 +561,13 @@ dat_logreg <- dat_for_analysis %>%
          baseline_tobacco_history, has_partner, income_val) %>%
   mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
   filter(drop_row == 0)
+```
+
+Some summary statistics on the smoking outcome:
+```{r}
+dat_logreg %>%
+  group_by(any_nic_lead1) %>%
+  summarise(n_participant_days_any = n())
 ```
 
 ```{r}

@@ -133,6 +133,14 @@ dat_logreg <- dat_for_analysis %>%
   filter(drop_row == 0)
 ```
 
+Some summary statistics on the smoking outcome:
+```{r}
+dat_logreg %>%
+  mutate(any_nic = substance_is_any_nicotine) %>%
+  group_by(any_nic) %>%
+  summarise(n_participant_days_any = n())
+```
+
 ```{r}
 dat_tmp <- dat_logreg %>% 
   select(participant_id,
@@ -387,6 +395,14 @@ dat_logreg <- dat_for_analysis %>%
          baseline_tobacco_history, has_partner, income_val) %>%
   mutate(drop_row = if_else(!complete.cases(.), 1, 0)) %>%
   filter(drop_row == 0)
+```
+
+Some summary statistics on the smoking outcome:
+```{r}
+dat_logreg %>%
+  mutate(any_nic_lead1 = substance_is_any_nicotine_lead1) %>%
+  group_by(any_nic_lead1) %>%
+  summarise(n_participant_days_any = n())
 ```
 
 ```{r}
