@@ -62,6 +62,9 @@ dat_summary_ema$plot_id <- 1:nrow(dat_summary_ema)
 ###############################################################################
 # Plot
 ###############################################################################
+
+png(file = file.path("analysis-complete-case", "formatted-output", "summary-statistics", "ema_fidelity.png"), width = 12, height = 12, units = "in", res = 600)
+
 par(mar=c(6, 6, 6, 6) + 0.1)
 
 plot("n", 
@@ -106,9 +109,12 @@ mtext("# EMA completed",
       line = 4.5,
       cex = 2)
 
-legend(70,50,
+legend(60,50,
        legend=c("Percent EMA Completed\n= # EMA completed divided by\n# Decision Points Eligible for\nMicro-randomization",
                 "# EMA completed"),
        text.col=c("cornflowerblue","red"),pch=c(1,15),col=c("cornflowerblue","red"),
-       cex = 1.4)
+       cex = 1.3)
+
+dev.off()
+
 

@@ -24,13 +24,14 @@ dat_primary_aim <- dat_primary_aim %>% filter((decision_point >= 7) & (decision_
 dat_summary_outcomes <- dat_primary_aim %>%
   summarise(prop_Y = mean(Y, na.rm = TRUE),
             prop_cig = mean(substance_is_cigarettes, na.rm = TRUE),
-            prop_nic = mean(substance_is_any_nicotine, na.rm = TRUE))
+            prop_nic = mean(substance_is_any_nicotine, na.rm = TRUE),
+            prop_tobacco = mean(substance_is_any_tobacco, na.rm = TRUE))
 
 print(dat_summary_outcomes)
 
 # > print(dat_summary_outcomes)
-# prop_Y prop_cig  prop_nic
-# 1 0.6191042 0.334409 0.3440904
+# prop_Y prop_cig  prop_nic prop_tobacco
+# 1 0.6191042 0.334409 0.3440904      0.34167
 
 fit <- geeglm(Y ~ 1, family = binomial, data = dat_primary_aim, id = participant_id, waves = decision_point)
 Vmat <- vcov(fit)
@@ -131,6 +132,33 @@ print(dat_output)
 # > print(dat_output)
 # est_logodds_scale LB90_logodds_scale UB90_logodds_scale est_probability_scale LB90_probability_scale UB90_probability_scale
 # (Intercept)        -0.6451187         -0.8479034         -0.4423341             0.3440904              0.2998729              0.3911849
+
+fit <- geeglm(substance_is_any_tobacco ~ 1, family = binomial, data = dat_primary_aim, id = participant_id, waves = decision_point)
+Vmat <- vcov(fit)
+
+est_logodds_scale <- fit$coefficients
+std_err_logodds_scale <- sqrt(diag(Vmat))
+LB90_logodds_scale <- est_logodds_scale - qnorm(0.95)*std_err_logodds_scale
+UB90_logodds_scale <- est_logodds_scale + qnorm(0.95)*std_err_logodds_scale
+
+est_probability_scale <- expit(fit$coefficients)
+LB90_probability_scale <- expit(LB90_logodds_scale)
+UB90_probability_scale <- expit(UB90_logodds_scale)
+
+dat_output <- data.frame(est_logodds_scale = est_logodds_scale,
+                         LB90_logodds_scale = LB90_logodds_scale,
+                         UB90_logodds_scale = UB90_logodds_scale,
+                         est_probability_scale = est_probability_scale,
+                         LB90_probability_scale = LB90_probability_scale,
+                         UB90_probability_scale = UB90_probability_scale)
+
+print(dat_output)
+
+# > print(dat_output)
+# est_logodds_scale LB90_logodds_scale UB90_logodds_scale est_probability_scale LB90_probability_scale UB90_probability_scale
+# (Intercept)        -0.6558608         -0.8583888         -0.4533329               0.34167              0.2976761              0.3885686
+
+
 
 
 
