@@ -1,0 +1,414 @@
+---
+title: "Seven-Day Cigarette Point Prevalence Abstinence on Day 10"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    toc: TRUE
+    toc_depth: 4
+    number_sections: TRUE
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+options(width = 7000)
+```
+
+```{r}
+source("paths.R")
+library(knitr)
+library(tidyverse)
+library(geepack)
+```
+
+```{r}
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output"))
+}
+
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10"))
+
+if(isFALSE(is_dir_exist)){
+  dir.create(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10"))
+}
+```
+
+```{r}
+n_digits <- 4
+type_one_error_rate <- 0.10
+```
+
+```{r}
+# This first chunk is a common set of data processing steps for analyses involving Visit 3 and Visit 4 outcomes.
+
+# This is the data frame that is the output of the very last step of our data pipeline
+dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds")) 
+dat_primary_aim <- dat_primary_aim %>%
+  mutate(is_include_main = if_else((decision_point >= 7) & (decision_point <= 54), 1, 0),    # Drop the first 6 and last 6 decision points
+         is_include_sensitivity = 1)                                                         # Keep all decision points
+
+these_control_covariates <- c("age", "is_male", "is_latino", "is_not_latino_and_black", "is_not_latino_and_other", "baseline_tobacco_history", "has_partner", "income_val")
+dat_baseline <- dat_primary_aim %>% filter(decision_point == 1) %>% select(mars_id, participant_id, all_of(these_control_covariates))
+
+dat_for_analysis <- dat_primary_aim %>%
+  mutate(engagement_combined = case_when(
+    eligibility == 0 ~ 0,
+    (eligibility == 1) & (!is.na(Y)) ~ Y,
+    (eligibility == 1) & (is.na(Y)) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(tracked_engagement_combined = case_when(
+    eligibility == 0 ~ 0,
+    (eligibility == 1) & (in_mars==1 | in_tips==1) ~ 1,
+    (eligibility == 1) & (in_mars==0 & in_tips==0) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(tracked_engagement_done_combined = case_when(
+    eligibility == 0 ~ 0,
+    (eligibility == 1) & (activ_done==1 | read_tips==1) ~ 1,
+    (eligibility == 1) & (activ_done==0 & read_tips==0) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(tracked_engagement_done_cutoff_combined = case_when(
+    eligibility == 0 ~ 0,
+    (eligibility == 1) & activ_done==1 ~ 1,
+    (eligibility == 1) & (activ_done==0 & read_tips==1 & tips_comp_wps <= 340/60) ~ 1,
+    (eligibility == 1) & (activ_done==0 & read_tips==1 & tips_comp_wps > 340/60) ~ 0,
+    (eligibility == 1) & (activ_done==0 & read_tips==0) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(ema_with_tracked_engagement_combined = if_else((engagement_combined==1)|(tracked_engagement_combined==1), 1, 0),
+         ema_with_tracked_engagement_done_combined = if_else((engagement_combined==1) | (tracked_engagement_done_combined==1), 1, 0),
+         ema_with_tracked_engagement_done_cutoff_combined = if_else((engagement_combined==1) | (tracked_engagement_done_cutoff_combined==1), 1, 0)) %>%
+  filter(is_include_main ==1) %>%
+  group_by(mars_id, participant_id) %>%
+  summarise(total_prompts = sum(coinflip, na.rm = TRUE),
+            total_prompts_prequit = sum((1 - is_postquit_local) * coinflip, na.rm = TRUE),
+            total_prompts_postquit = sum(is_postquit_local * coinflip, na.rm = TRUE),
+            total_prompts_high_effort = sum(is_high_effort, na.rm = TRUE),
+            total_prompts_low_effort = sum(is_low_effort, na.rm = TRUE),
+            total_engagement_combined = sum(engagement_combined),
+            total_tracked_engagement_combined = sum(tracked_engagement_combined),
+            total_tracked_engagement_done_combined = sum(tracked_engagement_done_combined),
+            total_tracked_engagement_done_cutoff_combined = sum(tracked_engagement_done_cutoff_combined),
+            total_ema_with_tracked_engagement_combined = sum(ema_with_tracked_engagement_combined),
+            total_ema_with_tracked_engagement_done_combined = sum(ema_with_tracked_engagement_done_combined),
+            total_ema_with_tracked_engagement_done_cutoff_combined = sum(ema_with_tracked_engagement_done_cutoff_combined),
+            total_eligible_dp = sum(eligibility)) %>%
+  ungroup(.)
+
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_baseline, by = join_by(mars_id == mars_id, participant_id == participant_id))
+
+# Read in datasets for the distal outcomes assessed at Visit 3 and Visit 4
+v3_quest <- readRDS(file.path(path_visit_outcomes, "2025-6-11-MARS_quest_v1.0.1", "v3_quest.rds"))
+v4_quest_6_month <- readRDS(file.path(path_visit_outcomes, "2025-6-11-MARS_quest_v1.0.1", "v4_quest_6_month.rds"))
+
+# Select the columns needed to construct the following distal outcomes using Visit 3 and Visit 4 data:
+# Visit 3:
+#   Cigarette Abstinence: C_V3_7dayPP
+#   Tobacco Abstinence: T_V3_7dayPP
+#   Nicotine Abstinence: N_V3_7dayPP
+#   Cigarette Relapse: C_V3_relapse
+#
+# Visit 4:
+#   Cigarette Abstinence: C_V4_7dayPP
+#   Cigarette Relapse: C_V4_relapse
+
+dat_v3 <- v3_quest %>% select(mars_id, tac_v3_1, tac_v3_2, tac_v3_3, tac_v3_4___1, tac_v3_4___2, tac_v3_4___3, tac_v3_4___4, tac_v3_4___5, tac_v3_4___6, tac_v3_4___7, tac_v3_4___8)
+dat_v4 <- v4_quest_6_month %>% select(mars_id, tac1_1_v5, tac1a_1_v5, tac1b_1_v5, tac2_1_v5, tac3_1_v5___1, tac3_1_v5___2, tac3_1_v5___3, tac3_1_v5___4, tac3_1_v5___5, tac3_1_v5___6, tac3_1_v5___7, tac3_1_v5___8)
+
+# Inputs:
+#   tac_v3_1: Have you smoked any cigarettes, even a puff, since we last saw you? (1 = Yes, 0 = No)
+#   tac_v3_3: Have you used any other tobacco products since we last saw you? (1 = Yes, 0 = No; this item is asked regardless of response to tac_v3_1)
+#   tac_v3_2: On how many days did you smoke? (this item is only asked if the response to tac_v3_1 was 'Yes')
+
+# Variables created:
+#   C_V3_7dayPP: 7-day cigarette abstinence
+#   T_V3_7dayPP: 7-day tobacco abstinence
+#   N_V3_7dayPP: 7-day nicotine abstinence
+#   C_V3_relapse: Cigarette only relapse
+
+dat_v3 <- dat_v3 %>%
+  mutate(C_V3_7dayPP = if_else(tac_v3_1 == 0, 1, 0)) %>%
+  mutate(T_V3_7dayPP = case_when(
+    tac_v3_1 == 1 ~ 0,
+    (tac_v3_1 == 0) & (tac_v3_3 == 0) ~ 1, 
+    (tac_v3_1 == 0) & (tac_v3_3 == 1) & (tac_v3_4___1 + tac_v3_4___2 + tac_v3_4___4 + tac_v3_4___5 + tac_v3_4___6 + tac_v3_4___7 + tac_v3_4___8 == 0) ~ 1,
+    (tac_v3_1 == 0) & (tac_v3_3 == 1) & (tac_v3_4___1 + tac_v3_4___2 + tac_v3_4___4 + tac_v3_4___5 + tac_v3_4___6 + tac_v3_4___7 + tac_v3_4___8 > 0) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(N_V3_7dayPP = case_when(
+    (tac_v3_1 == 0) & (tac_v3_3 == 0) ~ 1,
+    (tac_v3_1 == 0) & (tac_v3_3 == 1) ~ 0,
+    (tac_v3_1 == 1) & (tac_v3_3 == 0) ~ 0,
+    (tac_v3_1 == 1) & (tac_v3_3 == 1) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(C_V3_relapse = case_when(
+    tac_v3_1 == 0 ~ 0,
+    (tac_v3_1 == 1) & (tac_v3_2 < 7) ~ 0,
+    (tac_v3_1 == 1) & (tac_v3_2 >= 7) ~ 1,
+    .default = NULL
+  ))
+
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_v3 %>% select(mars_id, C_V3_7dayPP, T_V3_7dayPP, N_V3_7dayPP, C_V3_relapse), by = join_by(mars_id == mars_id))
+
+# Input:
+#   tac1_1_v5: Have you smoked, even a puff, since we last saw you?
+#   tac1a_1_v5: Have you smoked, even a puff, in the last 7 days? (1 = Yes, 0 = No)
+#   tac1b_1_v5: You said you smoked since we last saw you in the last 7 days, was there a time when you smoked every day for 7 consecutive days? (1 = Yes, 0 = No)
+
+# Variables created:
+#   C_V4_7dayPP: 7-day cigarette abstinence
+#   C_V4_relapse: Cigarette only relapse
+
+dat_v4 <- dat_v4 %>%
+  mutate(C_V4_7dayPP = case_when(
+    (tac1_1_v5 == 0) & (tac1a_1_v5 == -99) ~ 1,
+    (tac1_1_v5 == 1) & (tac1a_1_v5 == 0) ~ 1,
+    (tac1_1_v5 == 1) & (tac1a_1_v5 == 1) ~ 0,
+    .default = NULL
+  )) %>%
+  mutate(C_V4_relapse = case_when(
+    (tac1_1_v5 == 0) & (tac1a_1_v5 == -99) & (tac1b_1_v5 == -99) ~ 0,
+    (tac1_1_v5 == 1) & (tac1a_1_v5 == 0) & (tac1b_1_v5 == 0) ~ 0,
+    (tac1_1_v5 == 1) & (tac1a_1_v5 == 1) & (tac1b_1_v5 == 0) ~ 0,
+    (tac1_1_v5 == 1) & (tac1a_1_v5 == 1) & (tac1b_1_v5 == 1) ~ 1,
+    .default = NULL
+  ))
+
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_v4 %>% select(mars_id, C_V4_7dayPP, C_V4_relapse), by = join_by(mars_id == mars_id))
+```
+
+# Analyses with `C_V3_7dayPP` as the outcome
+
+```{r}
+dat_cc <- dat_for_analysis %>% 
+  select(participant_id, total_engagement_combined, C_V3_7dayPP, all_of(these_control_covariates)) %>% 
+  filter(complete.cases(.))
+```
+
+```{r}
+dat_tmp_summary_engagement <- dat_cc %>%
+  select(C_V3_7dayPP, total_engagement_combined, all_of(these_control_covariates)) %>%
+  filter(complete.cases(.)) %>%
+  summarise(n_participants = n(), 
+            q25_engaged = quantile(total_engagement_combined, p = 0.25),
+            q33_engaged = quantile(total_engagement_combined, p = 0.33),
+            q50_engaged = quantile(total_engagement_combined, p = 0.50),
+            q66_engaged = quantile(total_engagement_combined, p = 0.66),
+            q75_engaged = quantile(total_engagement_combined, p = 0.75),
+            m_engaged = mean(total_engagement_combined),
+            sd_engaged = sd(total_engagement_combined),
+            min_engaged = min(total_engagement_combined),
+            max_engaged = max(total_engagement_combined)) %>%
+  mutate(m_plus_1sd = m_engaged + sd_engaged,
+         m_minus_1sd = m_engaged - sd_engaged)
+
+dat_tmp_summary_engagement
+```
+
+```{r}
+dat_tmp_summary <- dat_cc %>%
+  select(participant_id, all_of(these_control_covariates)) %>%
+  unique(.) %>%
+  summarise(m_age = mean(age),
+            m_is_male = mean(is_male),
+            m_is_latino = mean(is_latino),
+            m_is_not_latino_and_black = mean(is_not_latino_and_black),
+            m_is_not_latino_and_other = mean(is_not_latino_and_other),
+            m_baseline_tobacco_history = mean(baseline_tobacco_history),
+            m_has_partner = mean(has_partner),
+            m_income_val = mean(income_val))
+
+dat_cc <- cbind(dat_cc, dat_tmp_summary)
+dat_cc <- dat_cc %>%
+  mutate(c_age = age - m_age,
+         c_is_male = is_male - m_is_male, 
+         c_is_latino = is_latino - m_is_latino, 
+         c_is_not_latino_and_black = is_not_latino_and_black - m_is_not_latino_and_black, 
+         c_is_not_latino_and_other = is_not_latino_and_other - m_is_not_latino_and_other, 
+         c_baseline_tobacco_history = baseline_tobacco_history - m_baseline_tobacco_history, 
+         c_has_partner = has_partner - m_has_partner, 
+         c_income_val = income_val - m_income_val) 
+```
+
+## Log-Linear Model
+
+### Model with `I(total_engagement_combined >= 6)` as a predictor
+
+```{r}
+fit <- geeglm(C_V3_7dayPP ~ I(total_engagement_combined >= 6) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+              family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),
+                 0, 1, rep(0,8),
+                 0, 0, 1, rep(0, 7),
+                 0, 0, 0, 1, rep(0,6),
+                 0, 0, 0, 0, 1, rep(0, 5),
+                 0, 0, 0, 0, 0, 1, rep(0, 4),
+                 0, 0, 0, 0, 0, 0, 1, rep(0, 3),
+                 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 2),
+                 0, 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 1),
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10", "model_params_log_scale.csv"), row.names = TRUE)
+```
+
+```{r}
+dat_result_probability_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_probability_scale) <- names(fit$coefficients)
+
+dat_result_probability_scale
+
+# Format output to 3 decimal places
+dat_result_probability_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10", "model_params_probability_scale.csv"), row.names = TRUE)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),   # Low
+                 1, 1, rep(0,8)),  # Not low
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+```
+
+```{r}
+dat_result_log_scale <- data.frame(est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+row.names(dat_result_log_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10", "simple_effects_log_scale.csv"), row.names = TRUE)
+
+dat_result_prob_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_prob_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_prob_scale
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Day10", "simple_effects_probability_scale.csv"), row.names = TRUE)
+```
+
+
+### Model with `I(total_engagement_combined >= 6.75)` as a predictor
+
+```{r}
+fit <- geeglm(C_V3_7dayPP ~ I(total_engagement_combined >= 6.75) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+              family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),
+                 0, 1, rep(0,8),
+                 0, 0, 1, rep(0, 7),
+                 0, 0, 0, 1, rep(0,6),
+                 0, 0, 0, 0, 1, rep(0, 5),
+                 0, 0, 0, 0, 0, 1, rep(0, 4),
+                 0, 0, 0, 0, 0, 0, 1, rep(0, 3),
+                 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 2),
+                 0, 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 1),
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+```
+
+```{r}
+dat_result_probability_scale <- data.frame(contrast = names(fit$coefficients), est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+dat_result_probability_scale
+```
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),   # Low
+                 1, 1, rep(0,8)),  # Not low
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+```
+
+```{r}
+dat_result_log_scale <- data.frame(contrast = c("Low Engagement", "High Engagement"), est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+
+dat_result_prob_scale <- data.frame(contrast = c("Low Engagement", "High Engagement"), est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+dat_result_prob_scale
+```
+
