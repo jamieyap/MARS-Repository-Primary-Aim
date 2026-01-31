@@ -79,7 +79,8 @@ dat_ctgov_summary_demogs_continuous <- dat_ctgov %>%
             m_baseline_tobacco_history = mean(baseline_tobacco_history, na.rm = TRUE),
             sd_baseline_tobacco_history = sd(baseline_tobacco_history, na.rm = TRUE),
             m_income = mean(income_val, na.rm = TRUE),
-            sd_income = sd(income_val, na.rm = TRUE))
+            sd_income = sd(income_val, na.rm = TRUE),
+            median_income = median(income_val, na.rm = TRUE))
 
 dat_ctgov_summary_demogs_binary <- dat_ctgov %>%
   summarise(n_male = sum(is_male),

@@ -77,8 +77,11 @@ dat_for_analysis <- dat_primary_aim %>%
 dat_prevalence <- dat_for_analysis %>%
   filter(eligibility == 1) %>%
   group_by(is_high_effort, is_low_effort) %>%
-  summarise(mu_Y = mean(Y, na.rm = TRUE)) %>%
+  summarise(n_dp = n(),
+            mu_Y = mean(Y, na.rm = TRUE)) %>%
   arrange(desc(is_high_effort), desc(is_low_effort))
+
+dat_prevalence <- as.data.frame(dat_prevalence)
 
 dat_prevalence
 ```
