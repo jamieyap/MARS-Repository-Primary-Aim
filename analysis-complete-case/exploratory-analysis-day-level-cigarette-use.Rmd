@@ -356,6 +356,36 @@ dat_results_rate  %>% round(., 3)
 dat_results_rate %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_rate_concurrent.csv"), row.names = TRUE)
 ```
 
+
+$$
+E \left( \text{NO. CIGARETTES SMOKED}_{i,d} \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1, \text{control covariates}, \text{NO. OF TIMES ENGAGED}_{i,d}, \text{NO. CIGARETTES SMOKED}_{i,d} > 0 \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt_counts}_{i,d}\beta_9 + \text{NO. TIMES ENGAGED}_{i,d} \beta_{10}
+$$
+
+
+```{r}
+fit <- geeglm(n_nic ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt_counts + n_engaged, 
+              data = dat_logreg %>% filter(n_nic > 0), 
+              id = participant_id, 
+              waves = cluster_id)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+
+dat_results_mean_scale <- dat_results
+dat_results_mean_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_mean_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_mean_scale_concurrent_among_smokers.csv"), row.names = TRUE)
+```
+
 # Time-varying association between engagement in self-regulatory strategies and cigarette use on current day
 
 $$
@@ -684,6 +714,31 @@ dat_results_mean_scale %>% round(., 3)
 
 # Format output to 3 decimal places
 dat_results_mean_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_mean_scale_lagged.csv"), row.names = TRUE)
+```
+
+
+$$
+E \left( \text{NO. CIGARETTES SMOKED}_{i,d+1} \Bigg| \sum_{b = 1}^6 I_{i, d, b} \geq 1, \text{control covariates}, \text{NO. OF TIMES ENGAGED}_{i,d},  \text{NO. CIGARETTES SMOKED}_{i,d+1} > 0 \right) = \beta_0 + \text{c_age}\beta_1 + \text{c_is_male}\beta_2 + \text{c_is_latino}\beta_3 + \text{c_is_not_latino_and_black}\beta_4 + \text{c_is_not_latino_and_other}\beta_5 + \text{c_baseline_tobacco_history}\beta_6 + \text{c_has_partner}\beta_7 + \text{c_income_val}\beta_8 + \text{c_any_prompt_counts}_{i,d}\beta_9 + \text{c_NO. CIGARETTES SMOKED}\beta_{10} + \text{NO. TIMES ENGAGED}_{i,d} \beta_{11}
+$$
+
+```{r}
+fit <- geeglm(n_nic_lead1 ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt_counts + c_n_nic + n_engaged, data = dat_logreg %>% filter(n_nic_lead1 > 0), id = participant_id, waves = cluster_id)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_mean_scale <- dat_results
+dat_results_mean_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_mean_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "day_level_mean_scale_lagged_among_smokers.csv"), row.names = TRUE)
 ```
 
 # Time-varying association between engagement in self-regulatory strategies and next day cigarette use

@@ -51,19 +51,28 @@ if(isFALSE(is_dir_exist)){
 dat_primary_aim <- readRDS(file = file.path(path_manipulated_data, "dat_primary_aim.rds"))
 ```
 
+
 ```{r}
 dat_for_analysis <- dat_primary_aim %>%
   select(participant_id, cluster_id, decision_point, days_between_v1_and_coinflip_local,
-         Y, substance_is_cigarettes, eligibility, coinflip, is_high_effort, is_low_effort,
+         Y, substance_is_cigarettes, cigarette_counts,
+         eligibility, coinflip, is_high_effort, is_low_effort,
          age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
          baseline_tobacco_history, has_partner, income_val) %>% 
   mutate(coinflip = replace(coinflip, eligibility == 0, 0)) %>% 
   mutate(any_prompt = 1*(coinflip == 1)) %>%
   group_by(participant_id) %>% 
   mutate(substance_is_cigarettes_lead1 = lead(substance_is_cigarettes),
+         cigarette_counts_lead1 = lead(cigarette_counts),
          eligibility_lead1 = lead(eligibility)) %>%
   ungroup(.) %>%
   filter((decision_point >= 7) & (decision_point <= 54))
+```
+
+```{r}
+dat_for_analysis %>%
+  group_by(is.na(substance_is_cigarettes), is.na(cigarette_counts)) %>%
+  summarise(count = n())
 ```
 
 # Analytic Population
@@ -126,7 +135,7 @@ $$
 ```{r}
 dat_logreg <- dat_for_analysis %>% 
   filter(eligibility == 1) %>% 
-  select(participant_id, decision_point, substance_is_cigarettes, Y,
+  select(participant_id, decision_point, substance_is_cigarettes, cigarette_counts, Y,
          coinflip, any_prompt,
          age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
          baseline_tobacco_history, has_partner, income_val) %>%
@@ -275,6 +284,47 @@ dat_results_odds_scale %>% round(., 3)
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_odds_scale_concurrent.csv"), row.names = TRUE)
 ```
 
+```{r}
+fit <- geeglm(cigarette_counts ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + Y, family = "gaussian", data = dat_logreg, id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_mean_scale_concurrent.csv"), row.names = TRUE)
+```
+
+```{r}
+fit <- geeglm(cigarette_counts ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + Y, family = "gaussian", data = dat_logreg %>% filter(cigarette_counts > 0), id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_mean_scale_concurrent_among_smokers.csv"), row.names = TRUE)
+```
+
+
 # Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
 
 $$
@@ -390,7 +440,7 @@ $$
 ```{r}
 dat_logreg <- dat_for_analysis %>% 
   filter((eligibility == 1) & (eligibility_lead1 == 1)) %>% 
-  select(participant_id, decision_point, substance_is_cigarettes_lead1, substance_is_cigarettes, Y,
+  select(participant_id, decision_point, substance_is_cigarettes_lead1, substance_is_cigarettes, cigarette_counts_lead1, cigarette_counts, Y,
          coinflip, any_prompt,
          age, is_male, is_latino, is_not_latino_and_black, is_not_latino_and_other, 
          baseline_tobacco_history, has_partner, income_val) %>%
@@ -432,14 +482,15 @@ dat_logreg <- cbind(dat_logreg, dat_tmp_summary)
 
 ```{r}
 dat_tmp2 <- dat_logreg %>% 
-  select(participant_id, decision_point, substance_is_cigarettes, any_prompt)
+  select(participant_id, decision_point, substance_is_cigarettes, cigarette_counts, any_prompt)
 ```
 
 ```{r}
 dat_tmp2_summary <- dat_tmp2 %>%
   group_by(decision_point) %>%
   summarise(m_any_prompt = mean(any_prompt),
-            m_substance_is_cigarettes = mean(substance_is_cigarettes))
+            m_substance_is_cigarettes = mean(substance_is_cigarettes),
+            m_cigarette_counts = mean(cigarette_counts))
 ```
 
 ```{r}
@@ -457,7 +508,8 @@ dat_logreg <- dat_logreg %>%
          c_has_partner = has_partner - m_has_partner, 
          c_income_val = income_val - m_income_val) %>%
   mutate(c_any_prompt = any_prompt - m_any_prompt) %>%
-  mutate(c_substance_is_cigarettes = substance_is_cigarettes - m_substance_is_cigarettes)
+  mutate(c_substance_is_cigarettes = substance_is_cigarettes - m_substance_is_cigarettes,
+         c_cigarette_counts = cigarette_counts - m_cigarette_counts)
 ```
 
 ```{r}
@@ -496,6 +548,52 @@ dat_results_odds_scale %>% round(., 3)
 # Format output to 3 decimal places
 dat_results_odds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_odds_scale_lagged.csv"), row.names = TRUE)
 ```
+
+```{r}
+fit <- geeglm(cigarette_counts_lead1 ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + c_cigarette_counts + Y, family = "gaussian", data = dat_logreg, id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_mean_scale_lagged.csv"), row.names = TRUE)
+```
+
+```{r}
+fit <- geeglm(cigarette_counts_lead1 ~ c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val + c_any_prompt + c_cigarette_counts + Y, family = "gaussian", data = dat_logreg %>% filter(cigarette_counts_lead1 > 0), id = participant_id, waves = decision_point)
+```
+
+```{r}
+dat_results <- summary(fit)[["coefficients"]]
+
+dat_results[["LB95"]] <- dat_results$Estimate - qnorm(0.975) * dat_results$Std.err
+dat_results[["UB95"]] <- dat_results$Estimate + qnorm(0.975) * dat_results$Std.err
+
+dat_results[["LB90"]] <- dat_results$Estimate - qnorm(0.95) * dat_results$Std.err
+dat_results[["UB90"]] <- dat_results$Estimate + qnorm(0.95) * dat_results$Std.err
+
+dat_results_logodds_scale <- dat_results
+dat_results_logodds_scale %>% round(., 3)
+
+# Format output to 3 decimal places
+dat_results_logodds_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Associational-Cigarette-Use", "block_level_mean_scale_lagged_among_smokers.csv"), row.names = TRUE)
+```
+
+
+
+
+
+
 
 # Time-varying association between engagement in self-regulatory strategies and cigarette use on current person-block
 
