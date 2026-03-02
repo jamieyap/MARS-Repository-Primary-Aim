@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2025-11-21" />
+<meta name="date" content="2026-03-02" />
 
-<title>Extended Seven-Day Cigarette Point Prevalence Abstinence</title>
+<title>Repeated Seven-Day Cigarette Point Prevalence Abstinence</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,17 +349,17 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Extended Seven-Day Cigarette Point
+<h1 class="title toc-ignore">Repeated Seven-Day Cigarette Point
 Prevalence Abstinence</h1>
-<h4 class="date">November 21, 2025</h4>
+<h4 class="date">March 02, 2026</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#analyses-with-sustained_cig_abstinence-extended-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome" id="toc-analyses-with-sustained_cig_abstinence-extended-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome"><span class="toc-section-number">1</span> Analyses with
-<code>sustained_cig_abstinence</code> (Extended Seven-Day Cigarette
-Point Prevalence Abstinence) as the outcome</a>
+<li><a href="#analyses-with-c_repeated_7daypp-repeated-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome" id="toc-analyses-with-c_repeated_7daypp-repeated-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome"><span class="toc-section-number">1</span> Analyses with
+<code>C_repeated_7dayPP</code> (Repeated Seven-Day Cigarette Point
+Prevalence Abstinence) as the outcome</a>
 <ul>
 <li><a href="#log-linear-model" id="toc-log-linear-model"><span class="toc-section-number">1.1</span> Log-Linear Model</a></li>
 </ul></li>
@@ -374,20 +374,20 @@ margin-right: auto;
 }
 </style>
 <pre><code>## # A tibble: 3 × 3
-## # Groups:   sustained_cig_abstinence [3]
-##   sustained_cig_abstinence sustained_cig_abstinence_nomiss `n()`
-##                      &lt;dbl&gt;                           &lt;dbl&gt; &lt;int&gt;
-## 1                        0                               0    62
-## 2                        1                               1    15
-## 3                       NA                               0    22</code></pre>
+## # Groups:   C_repeated_7dayPP [3]
+##   C_repeated_7dayPP C_repeated_7dayPP_nomiss `n()`
+##               &lt;dbl&gt;                    &lt;dbl&gt; &lt;int&gt;
+## 1                 0                        0    62
+## 2                 1                        1    15
+## 3                NA                        0    22</code></pre>
 <pre><code>## # A tibble: 1 × 11
 ##   q25_engaged q33_engaged q50_engaged q66_engaged q75_engaged m_engaged sd_engaged min_engaged max_engaged m_plus_1sd m_minus_1sd
 ##         &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
 ## 1           6           7          12        20.7        23.5      15.9       12.4           0          47       28.3        3.47</code></pre>
-<div id="analyses-with-sustained_cig_abstinence-extended-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome" class="section level1" number="1">
+<div id="analyses-with-c_repeated_7daypp-repeated-seven-day-cigarette-point-prevalence-abstinence-as-the-outcome" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Analyses with
-<code>sustained_cig_abstinence</code> (Extended Seven-Day Cigarette
-Point Prevalence Abstinence) as the outcome</h1>
+<code>C_repeated_7dayPP</code> (Repeated Seven-Day Cigarette Point
+Prevalence Abstinence) as the outcome</h1>
 <pre><code>## # A tibble: 1 × 12
 ##   n_participants q25_engaged q33_engaged q50_engaged q66_engaged q75_engaged m_engaged sd_engaged min_engaged max_engaged m_plus_1sd m_minus_1sd
 ##            &lt;int&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
@@ -396,7 +396,7 @@ Point Prevalence Abstinence) as the outcome</h1>
 <h2><span class="header-section-number">1.1</span> Log-Linear Model</h2>
 <pre><code>## 
 ## Call:
-## geeglm(formula = sustained_cig_abstinence ~ I(total_engagement_combined &gt;= 
+## geeglm(formula = C_repeated_7dayPP ~ I(total_engagement_combined &gt;= 
 ##     6) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + 
 ##     c_is_not_latino_and_other + c_baseline_tobacco_history + 
 ##     c_has_partner + c_income_val, family = &quot;poisson&quot;, data = dat_cc, 
@@ -434,23 +434,23 @@ Point Prevalence Abstinence) as the outcome</h1>
 ## c_baseline_tobacco_history            -0.10354     -0.10354         -0.19675        -0.010324          -0.214611           0.007533
 ## c_has_partner                         -0.71891     -0.71891         -1.44334         0.005515          -1.582118           0.144296
 ## c_income_val                           0.14831      0.14831          0.02006         0.276551          -0.004504           0.301119</code></pre>
-<pre><code>##                                 contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1                            (Intercept)      0.02229          0.00617          0.08054           0.004824             0.1030
-## 2  I(total_engagement_combined &gt;= 6)TRUE      6.60027          2.01812         21.58621           1.608276            27.0871
-## 3                                  c_age      0.95918          0.92763          0.99181           0.921710             0.9982
-## 4                              c_is_male      0.77635          0.31140          1.93550           0.261409             2.3057
-## 5                            c_is_latino      2.78720          0.92999          8.35328           0.753632            10.3081
-## 6              c_is_not_latino_and_black      1.99460          0.61753          6.44247           0.493300             8.0649
-## 7              c_is_not_latino_and_other      2.20438          0.48780          9.96154           0.365391            13.2989
-## 8             c_baseline_tobacco_history      0.90164          0.82139          0.98973           0.806855             1.0076
-## 9                          c_has_partner      0.48728          0.23614          1.00553           0.205539             1.1552
-## 10                          c_income_val      1.15987          1.02027          1.31857           0.995506             1.3514</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement       -3.803           -5.088           -2.519             -5.334             -2.273
-## 2 High Engagement       -1.916           -2.540           -1.293             -2.659             -1.173</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement      0.02229          0.00617          0.08054           0.004824             0.1030
-## 2 High Engagement      0.14714          0.07888          0.27449           0.069996             0.3093</code></pre>
+<pre><code>##                                       est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                0.02229          0.00617          0.08054           0.004824             0.1030
+## I(total_engagement_combined &gt;= 6)TRUE      6.60027          2.01812         21.58621           1.608276            27.0871
+## c_age                                      0.95918          0.92763          0.99181           0.921710             0.9982
+## c_is_male                                  0.77635          0.31140          1.93550           0.261409             2.3057
+## c_is_latino                                2.78720          0.92999          8.35328           0.753632            10.3081
+## c_is_not_latino_and_black                  1.99460          0.61753          6.44247           0.493300             8.0649
+## c_is_not_latino_and_other                  2.20438          0.48780          9.96154           0.365391            13.2989
+## c_baseline_tobacco_history                 0.90164          0.82139          0.98973           0.806855             1.0076
+## c_has_partner                              0.48728          0.23614          1.00553           0.205539             1.1552
+## c_income_val                               1.15987          1.02027          1.31857           0.995506             1.3514</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement        -3.803           -5.088           -2.519             -5.334             -2.273
+## High Engagement       -1.916           -2.540           -1.293             -2.659             -1.173</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement       0.02229          0.00617          0.08054           0.004824             0.1030
+## High Engagement      0.14714          0.07888          0.27449           0.069996             0.3093</code></pre>
 </div>
 </div>
 

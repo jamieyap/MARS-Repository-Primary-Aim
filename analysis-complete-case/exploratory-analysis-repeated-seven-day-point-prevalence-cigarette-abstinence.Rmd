@@ -1,5 +1,5 @@
 ---
-title: "Extended Seven-Day Cigarette Point Prevalence Abstinence"
+title: "Repeated Seven-Day Cigarette Point Prevalence Abstinence"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: 
   html_document:
@@ -37,10 +37,10 @@ if(isFALSE(is_dir_exist)){
   dir.create(file.path("analysis-complete-case", "formatted-output"))
 }
 
-is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence"))
+is_dir_exist <- file.exists(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence"))
 
 if(isFALSE(is_dir_exist)){
-  dir.create(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence"))
+  dir.create(file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence"))
 }
 ```
 
@@ -193,24 +193,24 @@ dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_v4 %>% select(mars_i
 
 ```{r}
 dat_for_analysis <- dat_for_analysis %>%
-  mutate(sustained_cig_abstinence = case_when(
+  mutate(C_repeated_7dayPP = case_when(
     (C_V3_7dayPP == 1) & (C_V4_7dayPP == 1) ~ 1,
     (C_V3_7dayPP != 1) | (C_V4_7dayPP != 1) ~ 0,
     .default = NULL
   )) %>%
-  mutate(sustained_cig_abstinence_nomiss = sustained_cig_abstinence) %>%
-  mutate(sustained_cig_abstinence_nomiss = replace(sustained_cig_abstinence_nomiss, is.na(sustained_cig_abstinence), 0))
+  mutate(C_repeated_7dayPP_nomiss = C_repeated_7dayPP) %>%
+  mutate(C_repeated_7dayPP_nomiss = replace(C_repeated_7dayPP_nomiss, is.na(C_repeated_7dayPP), 0))
 ```
 
 ```{r}
 dat_for_analysis %>%
-  group_by(sustained_cig_abstinence, sustained_cig_abstinence_nomiss) %>%
+  group_by(C_repeated_7dayPP, C_repeated_7dayPP_nomiss) %>%
   summarise(n())
 ```
 
 ```{r}
 dat_tmp_summary_engagement <- dat_for_analysis %>%
-  select(sustained_cig_abstinence, total_engagement_combined, all_of(these_control_covariates)) %>%
+  select(C_repeated_7dayPP, total_engagement_combined, all_of(these_control_covariates)) %>%
   filter(complete.cases(.)) %>%
   summarise(q25_engaged = quantile(total_engagement_combined, p = 0.25),
             q33_engaged = quantile(total_engagement_combined, p = 0.33),
@@ -227,17 +227,17 @@ dat_tmp_summary_engagement <- dat_for_analysis %>%
 dat_tmp_summary_engagement
 ```
 
-# Analyses with `sustained_cig_abstinence` (Extended Seven-Day Cigarette Point Prevalence Abstinence) as the outcome
+# Analyses with `C_repeated_7dayPP` (Repeated Seven-Day Cigarette Point Prevalence Abstinence) as the outcome
 
 ```{r}
 dat_cc <- dat_for_analysis %>% 
-  select(participant_id, total_engagement_combined, sustained_cig_abstinence, all_of(these_control_covariates)) %>% 
+  select(participant_id, total_engagement_combined, C_repeated_7dayPP, all_of(these_control_covariates)) %>% 
   filter(complete.cases(.))
 ```
 
 ```{r}
 dat_tmp_summary_engagement <- dat_cc %>%
-  select(sustained_cig_abstinence, total_engagement_combined) %>%
+  select(C_repeated_7dayPP, total_engagement_combined) %>%
   filter(complete.cases(.)) %>%
   summarise(n_participants = n(), 
             q25_engaged = quantile(total_engagement_combined, p = 0.25),
@@ -283,7 +283,7 @@ dat_cc <- dat_cc %>%
 ## Log-Linear Model
 
 ```{r}
-fit <- geeglm(sustained_cig_abstinence ~ I(total_engagement_combined >= 6) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+fit <- geeglm(C_repeated_7dayPP ~ I(total_engagement_combined >= 6) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
               family = "poisson", 
               data = dat_cc, 
               id = participant_id, 
@@ -319,7 +319,7 @@ dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = e
 dat_result_log_scale
 
 # Format output to 3 decimal places
-dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "model_params_log_scale.csv"), row.names = TRUE)
+dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "model_params_log_scale.csv"), row.names = TRUE)
 ```
 
 ```{r}
@@ -331,7 +331,7 @@ row.names(dat_result_probability_scale) <- names(fit$coefficients)
 dat_result_probability_scale
 
 # Format output to 3 decimal places
-dat_result_probability_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "model_params_probability_scale.csv"), row.names = TRUE)
+dat_result_probability_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "model_params_probability_scale.csv"), row.names = TRUE)
 ```
 
 ```{r}
@@ -358,7 +358,7 @@ row.names(dat_result_log_scale) <- c("Low Engagement", "High Engagement")
 dat_result_log_scale
 
 # Format output to 3 decimal places
-dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "simple_effects_log_scale.csv"), row.names = TRUE)
+dat_result_log_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "simple_effects_log_scale.csv"), row.names = TRUE)
 
 
 dat_result_prob_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
@@ -370,7 +370,7 @@ row.names(dat_result_prob_scale) <- c("Low Engagement", "High Engagement")
 dat_result_prob_scale
 
 # Format output to 3 decimal places
-dat_result_prob_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Extended-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "simple_effects_probability_scale.csv"), row.names = TRUE)
+dat_result_prob_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Repeated-Seven-Day-Point-Prevalence-Cigarette-Abstinence", "simple_effects_probability_scale.csv"), row.names = TRUE)
 ```
 
 
