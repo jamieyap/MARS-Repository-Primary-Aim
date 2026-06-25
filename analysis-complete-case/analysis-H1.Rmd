@@ -113,7 +113,8 @@ dat_prevalence <- dat_for_analysis %>%
   filter(eligibility == 1) %>%
   group_by(coinflip) %>%
   summarise(n_dp = n(),
-            mu_Y = mean(Y, na.rm = TRUE)) %>%
+            mu_Y = mean(Y, na.rm = TRUE),
+            num_engaged = sum(Y, na.rm = TRUE)) %>%
   arrange(desc(coinflip))
 
 dat_prevalence <- as.data.frame(dat_prevalence)
