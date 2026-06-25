@@ -28,6 +28,7 @@ source("paths.R")
 library(knitr)
 library(tidyverse)
 library(geepack)
+library(psych)
 ```
 
 ```{r}
@@ -189,9 +190,53 @@ dat_v4 <- dat_v4 %>%
   ))
 
 dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_v4 %>% select(mars_id, C_V4_7dayPP, C_V4_relapse), by = join_by(mars_id == mars_id))
+
+dat_for_analysis2 <- dat_primary_aim %>%
+  mutate(engagement_combined = case_when(
+    eligibility == 0 ~ 0,
+    (eligibility == 1) & (!is.na(Y)) ~ Y,
+    (eligibility == 1) & (is.na(Y)) ~ 0,
+    .default = NULL
+  )) %>%
+  filter(is_include_main ==1) %>%
+  group_by(mars_id, participant_id, cluster_id) %>%
+  summarise(total_engagement_combined = sum(engagement_combined),
+            total_eligible_dp = sum(eligibility)) %>%
+  ungroup(.) %>% 
+  group_by(mars_id) %>% 
+  summarise(total_days_with_engagement = sum(total_engagement_combined > 0))%>%
+  ungroup(.) 
+
+dat_for_analysis <- left_join(x = dat_for_analysis, y = dat_for_analysis2, by = join_by(mars_id == mars_id))
 ```
 
 # Analyses with `C_V4_7dayPP` as the outcome
+
+```{r}
+dat_cc_unadjusted <- dat_for_analysis %>% 
+  select(participant_id, total_engagement_combined, C_V4_7dayPP) %>% 
+  filter(complete.cases(.))
+```
+
+```{r}
+dat_tmp_summary_engagement_unadjusted <- dat_cc_unadjusted %>%
+  select(C_V4_7dayPP, total_engagement_combined) %>%
+  filter(complete.cases(.)) %>%
+  summarise(n_participants = n(), 
+            q25_engaged = quantile(total_engagement_combined, p = 0.25),
+            q33_engaged = quantile(total_engagement_combined, p = 0.33),
+            q50_engaged = quantile(total_engagement_combined, p = 0.50),
+            q66_engaged = quantile(total_engagement_combined, p = 0.66),
+            q75_engaged = quantile(total_engagement_combined, p = 0.75),
+            m_engaged = mean(total_engagement_combined),
+            sd_engaged = sd(total_engagement_combined),
+            min_engaged = min(total_engagement_combined),
+            max_engaged = max(total_engagement_combined)) %>%
+  mutate(m_plus_1sd = m_engaged + sd_engaged,
+         m_minus_1sd = m_engaged - sd_engaged)
+
+dat_tmp_summary_engagement_unadjusted
+```
 
 ```{r}
 dat_cc <- dat_for_analysis %>% 
@@ -246,7 +291,272 @@ dat_cc <- dat_cc %>%
 
 ## Log-Linear Model
 
-### Model with `I(total_engagement_combined >= 6)` as a predictor
+### Unadjusted; Model with `total_engagement_combined` as a predictor
+
+```{r}
+cor.test(dat_cc_unadjusted[["total_engagement_combined"]], dat_cc_unadjusted[["C_V4_7dayPP"]])
+```
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ total_engagement_combined, 
+              family = "poisson", 
+              data = dat_cc_unadjusted, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0,
+                 0, 1),
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+dat_result_prob_scale <- data.frame(est_contrast_exp = exp(dat_result_log_scale[["est_contrast"]]),
+                                    conf_interval_LB_exp = exp(dat_result_log_scale[["conf_interval_LB"]]),
+                                    conf_interval_UB_exp = exp(dat_result_log_scale[["conf_interval_UB"]]))
+
+row.names(dat_result_prob_scale) <- row.names(dat_result_log_scale)
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3)
+```
+
+### Unadjusted; Model with `I(total_engagement_combined >= 6)` as a predictor
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ I(total_engagement_combined >= 6), 
+              family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0,
+                 0, 1),
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+```
+
+```{r}
+dat_result_probability_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_probability_scale) <- names(fit$coefficients)
+
+dat_result_probability_scale
+
+# Format output to 3 decimal places
+dat_result_probability_scale %>% round(., 3)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0,   # Low
+                 1, 1),  # Not low
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+```
+
+```{r}
+dat_result_log_scale <- data.frame(est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+row.names(dat_result_log_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+
+
+dat_result_prob_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_prob_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_prob_scale
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3)
+```
+
+### Unadjusted; Model with `I(total_engagement_combined >= 12)` as a predictor
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ I(total_engagement_combined >= 12), 
+              family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0,
+                 0, 1),
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+```
+
+```{r}
+dat_result_probability_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_probability_scale) <- names(fit$coefficients)
+
+dat_result_probability_scale
+
+# Format output to 3 decimal places
+dat_result_probability_scale %>% round(., 3)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0,   # Low
+                 1, 1),  # Not low
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+```
+
+```{r}
+dat_result_log_scale <- data.frame(est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+row.names(dat_result_log_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+
+
+dat_result_prob_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_prob_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_prob_scale
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3)
+```
+
+### Adjusted; Model with `total_engagement_combined` as a predictor
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ total_engagement_combined + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+              family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),
+                 0, 1, rep(0,8),
+                 0, 0, 1, rep(0, 7),
+                 0, 0, 0, 1, rep(0,6),
+                 0, 0, 0, 0, 1, rep(0, 5),
+                 0, 0, 0, 0, 0, 1, rep(0, 4),
+                 0, 0, 0, 0, 0, 0, 1, rep(0, 3),
+                 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 2),
+                 0, 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 1),
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+dat_result_prob_scale <- data.frame(est_contrast_exp = exp(dat_result_log_scale[["est_contrast"]]),
+                                    conf_interval_LB_exp = exp(dat_result_log_scale[["conf_interval_LB"]]),
+                                    conf_interval_UB_exp = exp(dat_result_log_scale[["conf_interval_UB"]]))
+
+row.names(dat_result_prob_scale) <- row.names(dat_result_log_scale)
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3)
+```
+
+
+### Adjusted; Model with `I(total_engagement_combined >= 6)` as a predictor
 
 ```{r}
 fit <- geeglm(C_V4_7dayPP ~ I(total_engagement_combined >= 6) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
@@ -340,12 +650,147 @@ dat_result_prob_scale
 dat_result_prob_scale %>% round(., 3) %>% format(., nsmall = 3) %>% write.csv(., file.path("analysis-complete-case", "formatted-output", "Exploratory-Analysis-Seven-Day-Point-Prevalence-Cigarette-Abstinence-Month6", "simple_effects_probability_scale.csv"), row.names = TRUE)
 ```
 
-
-### Model with `I(total_engagement_combined >= 6.75)` as a predictor
+### Adjusted; Model with `I(total_engagement_combined >= 12)` as a predictor
 
 ```{r}
-fit <- geeglm(C_V4_7dayPP ~ I(total_engagement_combined >= 6.75) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+fit <- geeglm(C_V4_7dayPP ~ I(total_engagement_combined >= 12) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
               family = "poisson", 
+              data = dat_cc, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),
+                 0, 1, rep(0,8),
+                 0, 0, 1, rep(0, 7),
+                 0, 0, 0, 1, rep(0,6),
+                 0, 0, 0, 0, 1, rep(0, 5),
+                 0, 0, 0, 0, 0, 1, rep(0, 4),
+                 0, 0, 0, 0, 0, 0, 1, rep(0, 3),
+                 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 2),
+                 0, 0, 0, 0, 0, 0, 0, 0, 1, rep(0, 1),
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+```
+
+```{r}
+dat_result_probability_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_probability_scale) <- names(fit$coefficients)
+
+dat_result_probability_scale
+
+# Format output to 3 decimal places
+dat_result_probability_scale %>% round(., 3)
+```
+
+
+```{r}
+Lmat <- matrix(c(1, 0, rep(0,8),   # Low
+                 1, 1, rep(0,8)),  # Not low
+               ncol = 10, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+```
+
+```{r}
+dat_result_log_scale <- data.frame(est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+row.names(dat_result_log_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_log_scale
+
+# Format output to 3 decimal places
+dat_result_log_scale %>% round(., 3)
+
+
+dat_result_prob_scale <- data.frame(est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
+                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
+
+row.names(dat_result_prob_scale) <- c("Low Engagement", "High Engagement")
+
+dat_result_prob_scale
+
+# Format output to 3 decimal places
+dat_result_prob_scale %>% round(., 3)
+```
+
+## Logistic Regression Model
+
+### Unadjusted; Model with `total_engagement_combined` as a predictor
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ total_engagement_combined, 
+              family = "binomial", 
+              data = dat_cc_unadjusted, 
+              id = participant_id, 
+              waves = NULL)
+
+summary(fit)
+```
+
+```{r}
+Lmat <- matrix(c(1, 0,
+                 0, 1),
+               ncol = 2, byrow = TRUE)
+est_contrast <- Lmat %*% as.matrix(fit$coefficients)
+est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
+est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
+conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
+
+conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
+conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
+
+dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
+                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
+
+dat_result_log_scale
+
+dat_result_odds_scale <- data.frame(est_contrast_exp = exp(dat_result_log_scale[["est_contrast"]]),
+                                    conf_interval_LB_exp = exp(dat_result_log_scale[["conf_interval_LB"]]),
+                                    conf_interval_UB_exp = exp(dat_result_log_scale[["conf_interval_UB"]]))
+
+row.names(dat_result_odds_scale) <- row.names(dat_result_log_scale)
+
+# Format output to 3 decimal places
+dat_result_odds_scale %>% round(., 3)
+```
+
+### Adjusted; Model with `total_engagement_combined` as a predictor
+
+```{r}
+fit <- geeglm(C_V4_7dayPP ~ total_engagement_combined + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + c_baseline_tobacco_history + c_has_partner + c_income_val, 
+              family = "binomial", 
               data = dat_cc, 
               id = participant_id, 
               waves = NULL)
@@ -378,40 +823,15 @@ dat_result_log_scale <- data.frame(contrast = fit$coefficients, est_contrast = e
                                    conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
 
 dat_result_log_scale
+
+dat_result_odds_scale <- data.frame(est_contrast_exp = exp(dat_result_log_scale[["est_contrast"]]),
+                                    conf_interval_LB_exp = exp(dat_result_log_scale[["conf_interval_LB"]]),
+                                    conf_interval_UB_exp = exp(dat_result_log_scale[["conf_interval_UB"]]))
+
+row.names(dat_result_odds_scale) <- row.names(dat_result_log_scale)
+
+# Format output to 3 decimal places
+dat_result_odds_scale %>% round(., 3)
 ```
 
-```{r}
-dat_result_probability_scale <- data.frame(contrast = names(fit$coefficients), est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
-                                           conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
-
-dat_result_probability_scale
-```
-
-```{r}
-Lmat <- matrix(c(1, 0, rep(0,8),   # Low
-                 1, 1, rep(0,8)),  # Not low
-               ncol = 10, byrow = TRUE)
-est_contrast <- Lmat %*% as.matrix(fit$coefficients)
-est_vcov_contrast <- Lmat %*% vcov(fit) %*% t(Lmat)
-est_stderr_contrast <- sqrt(diag(est_vcov_contrast))
-conf_interval_LB <- c(est_contrast) - qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
-conf_interval_UB <- c(est_contrast) + qnorm(1 - type_one_error_rate/2) * est_stderr_contrast
-
-
-conf_interval_LB95 <- c(est_contrast) - qnorm(1 - 0.05/2) * est_stderr_contrast
-conf_interval_UB95 <- c(est_contrast) + qnorm(1 - 0.05/2) * est_stderr_contrast
-```
-
-```{r}
-dat_result_log_scale <- data.frame(contrast = c("Low Engagement", "High Engagement"), est_contrast = est_contrast, conf_interval_LB = conf_interval_LB, conf_interval_UB = conf_interval_UB,
-                                   conf_interval_LB95 = conf_interval_LB95, conf_interval_UB95 = conf_interval_UB95)
-
-dat_result_log_scale
-
-
-dat_result_prob_scale <- data.frame(contrast = c("Low Engagement", "High Engagement"), est_contrast = exp(est_contrast), conf_interval_LB = exp(conf_interval_LB), conf_interval_UB = exp(conf_interval_UB),
-                                    conf_interval_LB95 = exp(conf_interval_LB95), conf_interval_UB95 = exp(conf_interval_UB95))
-
-dat_result_prob_scale
-```
 

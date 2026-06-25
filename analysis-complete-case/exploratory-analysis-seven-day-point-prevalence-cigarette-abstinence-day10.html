@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2025-11-21" />
+<meta name="date" content="2026-06-25" />
 
 <title>Seven-Day Cigarette Point Prevalence Abstinence on Day 10</title>
 
@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">Seven-Day Cigarette Point Prevalence
 Abstinence on Day 10</h1>
-<h4 class="date">November 21, 2025</h4>
+<h4 class="date">June 25, 2026</h4>
 
 </div>
 
@@ -362,12 +362,29 @@ Abstinence on Day 10</h1>
 <ul>
 <li><a href="#log-linear-model" id="toc-log-linear-model"><span class="toc-section-number">1.1</span> Log-Linear Model</a>
 <ul>
-<li><a href="#model-with-itotal_engagement_combined-6-as-a-predictor" id="toc-model-with-itotal_engagement_combined-6-as-a-predictor"><span class="toc-section-number">1.1.1</span> Model with
+<li><a href="#unadjusted-model-with-total_engagement_combined-as-a-predictor" id="toc-unadjusted-model-with-total_engagement_combined-as-a-predictor"><span class="toc-section-number">1.1.1</span> Unadjusted; Model with
+<code>total_engagement_combined</code> as a predictor</a></li>
+<li><a href="#unadjusted-model-with-itotal_engagement_combined-6-as-a-predictor" id="toc-unadjusted-model-with-itotal_engagement_combined-6-as-a-predictor"><span class="toc-section-number">1.1.2</span> Unadjusted; Model with
 <code>I(total_engagement_combined &gt;= 6)</code> as a
 predictor</a></li>
-<li><a href="#model-with-itotal_engagement_combined-6.75-as-a-predictor" id="toc-model-with-itotal_engagement_combined-6.75-as-a-predictor"><span class="toc-section-number">1.1.2</span> Model with
-<code>I(total_engagement_combined &gt;= 6.75)</code> as a
+<li><a href="#unadjusted-model-with-itotal_engagement_combined-12-as-a-predictor" id="toc-unadjusted-model-with-itotal_engagement_combined-12-as-a-predictor"><span class="toc-section-number">1.1.3</span> Unadjusted; Model with
+<code>I(total_engagement_combined &gt;= 12)</code> as a
 predictor</a></li>
+<li><a href="#adjusted-model-with-total_engagement_combined-as-a-predictor" id="toc-adjusted-model-with-total_engagement_combined-as-a-predictor"><span class="toc-section-number">1.1.4</span> Adjusted; Model with
+<code>total_engagement_combined</code> as a predictor</a></li>
+<li><a href="#adjusted-model-with-itotal_engagement_combined-6-as-a-predictor" id="toc-adjusted-model-with-itotal_engagement_combined-6-as-a-predictor"><span class="toc-section-number">1.1.5</span> Adjusted; Model with
+<code>I(total_engagement_combined &gt;= 6)</code> as a
+predictor</a></li>
+<li><a href="#adjusted-model-with-itotal_engagement_combined-12-as-a-predictor" id="toc-adjusted-model-with-itotal_engagement_combined-12-as-a-predictor"><span class="toc-section-number">1.1.6</span> Adjusted; Model with
+<code>I(total_engagement_combined &gt;= 12)</code> as a
+predictor</a></li>
+</ul></li>
+<li><a href="#logistic-regression-model" id="toc-logistic-regression-model"><span class="toc-section-number">1.2</span> Logistic Regression Model</a>
+<ul>
+<li><a href="#unadjusted-model-with-total_engagement_combined-as-a-predictor-1" id="toc-unadjusted-model-with-total_engagement_combined-as-a-predictor-1"><span class="toc-section-number">1.2.1</span> Unadjusted; Model with
+<code>total_engagement_combined</code> as a predictor</a></li>
+<li><a href="#adjusted-model-with-total_engagement_combined-as-a-predictor-1" id="toc-adjusted-model-with-total_engagement_combined-as-a-predictor-1"><span class="toc-section-number">1.2.2</span> Adjusted; Model with
+<code>total_engagement_combined</code> as a predictor</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -386,12 +403,215 @@ margin-right: auto;
 <pre><code>## # A tibble: 1 × 12
 ##   n_participants q25_engaged q33_engaged q50_engaged q66_engaged q75_engaged m_engaged sd_engaged min_engaged max_engaged m_plus_1sd m_minus_1sd
 ##            &lt;int&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
+## 1             85           7           8          12          21          25      16.2       12.3           0          47       28.4        3.91</code></pre>
+<pre><code>## # A tibble: 1 × 12
+##   n_participants q25_engaged q33_engaged q50_engaged q66_engaged q75_engaged m_engaged sd_engaged min_engaged max_engaged m_plus_1sd m_minus_1sd
+##            &lt;int&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;
 ## 1             80        6.75           8          12          21        23.5      16.2       12.4           0          47       28.6        3.78</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   n_participants
+##            &lt;int&gt;
+## 1             54</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  dat_cc_V3_and_V4[[&quot;C_V3_7dayPP&quot;]] and dat_cc_V3_and_V4[[&quot;C_V4_7dayPP&quot;]]
+## t = 3.1429, df = 52, p-value = 0.002762
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.1475748 0.6028168
+## sample estimates:
+##       cor 
+## 0.3995474</code></pre>
 <div id="log-linear-model" class="section level2" number="1.1">
 <h2><span class="header-section-number">1.1</span> Log-Linear Model</h2>
-<div id="model-with-itotal_engagement_combined-6-as-a-predictor" class="section level3" number="1.1.1">
-<h3><span class="header-section-number">1.1.1</span> Model with
-<code>I(total_engagement_combined &gt;= 6)</code> as a predictor</h3>
+<div id="unadjusted-model-with-total_engagement_combined-as-a-predictor" class="section level3" number="1.1.1">
+<h3><span class="header-section-number">1.1.1</span> Unadjusted; Model
+with <code>total_engagement_combined</code> as a predictor</h3>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  dat_cc_unadjusted[[&quot;total_engagement_combined&quot;]] and dat_cc_unadjusted[[&quot;C_V3_7dayPP&quot;]]
+## t = -0.34955, df = 83, p-value = 0.7276
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.2494255  0.1762245
+## sample estimates:
+##         cor 
+## -0.03833951</code></pre>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ total_engagement_combined, family = &quot;poisson&quot;, 
+##     data = dat_cc_unadjusted, id = participant_id, waves = NULL)
+## 
+##  Coefficients:
+##                            Estimate   Std.err   Wald Pr(&gt;|W|)    
+## (Intercept)               -0.941546  0.233191 16.303  5.4e-05 ***
+## total_engagement_combined -0.004233  0.012109  0.122    0.727    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)   0.6353  0.1127
+## Number of clusters:   85  Maximum cluster size: 1</code></pre>
+<pre><code>##                            contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)               -0.941546    -0.941546         -1.32511         -0.55798           -1.39859            -0.4845
+## total_engagement_combined -0.004233    -0.004233         -0.02415          0.01568           -0.02797             0.0195</code></pre>
+<pre><code>##                           est_contrast_exp conf_interval_LB_exp conf_interval_UB_exp
+## (Intercept)                          0.390                0.266                0.572
+## total_engagement_combined            0.996                0.976                1.016</code></pre>
+</div>
+<div id="unadjusted-model-with-itotal_engagement_combined-6-as-a-predictor" class="section level3" number="1.1.2">
+<h3><span class="header-section-number">1.1.2</span> Unadjusted; Model
+with <code>I(total_engagement_combined &gt;= 6)</code> as a
+predictor</h3>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ I(total_engagement_combined &gt;= 
+##     6), family = &quot;poisson&quot;, data = dat_cc_unadjusted, id = participant_id, 
+##     waves = NULL)
+## 
+##  Coefficients:
+##                                       Estimate Std.err  Wald Pr(&gt;|W|)   
+## (Intercept)                             -1.224   0.376 10.61   0.0011 **
+## I(total_engagement_combined &gt;= 6)TRUE    0.262   0.406  0.42   0.5183   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)    0.635   0.116
+## Number of clusters:   85  Maximum cluster size: 1</code></pre>
+<pre><code>##                                       contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                             -1.224       -1.224           -1.842           -0.606             -1.960             -0.487
+## I(total_engagement_combined &gt;= 6)TRUE    0.262        0.262           -0.406            0.930             -0.534              1.058</code></pre>
+<pre><code>##                                       est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                  0.294            0.159            0.546              0.141              0.614
+## I(total_engagement_combined &gt;= 6)TRUE        1.300            0.667            2.535              0.586              2.882</code></pre>
+<pre><code>##                                       est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                  0.294            0.159            0.546              0.141              0.614
+## I(total_engagement_combined &gt;= 6)TRUE        1.300            0.667            2.535              0.586              2.882</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement        -1.224            -1.84           -0.606              -1.96             -0.487
+## High Engagement       -0.961            -1.21           -0.708              -1.26             -0.659</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement        -1.224            -1.84           -0.606              -1.96             -0.487
+## High Engagement       -0.961            -1.22           -0.708              -1.26             -0.659</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.294            0.159            0.546              0.141              0.614
+## High Engagement        0.382            0.297            0.493              0.283              0.517</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.294            0.159            0.546              0.141              0.614
+## High Engagement        0.382            0.297            0.493              0.283              0.517</code></pre>
+</div>
+<div id="unadjusted-model-with-itotal_engagement_combined-12-as-a-predictor" class="section level3" number="1.1.3">
+<h3><span class="header-section-number">1.1.3</span> Unadjusted; Model
+with <code>I(total_engagement_combined &gt;= 12)</code> as a
+predictor</h3>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ I(total_engagement_combined &gt;= 
+##     12), family = &quot;poisson&quot;, data = dat_cc_unadjusted, id = participant_id, 
+##     waves = NULL)
+## 
+##  Coefficients:
+##                                        Estimate Std.err  Wald Pr(&gt;|W|)    
+## (Intercept)                             -0.9808  0.2041 23.09  1.5e-06 ***
+## I(total_engagement_combined &gt;= 12)TRUE  -0.0532  0.2863  0.03     0.85    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)    0.635   0.112
+## Number of clusters:   85  Maximum cluster size: 1</code></pre>
+<pre><code>##                                        contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                              -0.981       -0.981           -1.317           -0.645             -1.381             -0.581
+## I(total_engagement_combined &gt;= 12)TRUE   -0.053       -0.053           -0.524            0.418             -0.614              0.508</code></pre>
+<pre><code>##                                        est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                   0.375            0.268            0.525              0.251              0.559
+## I(total_engagement_combined &gt;= 12)TRUE        0.948            0.592            1.518              0.541              1.662</code></pre>
+<pre><code>##                                        est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                   0.375            0.268            0.525              0.251              0.559
+## I(total_engagement_combined &gt;= 12)TRUE        0.948            0.592            1.518              0.541              1.662</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement        -0.981            -1.32           -0.645              -1.38             -0.581
+## High Engagement       -1.034            -1.36           -0.704              -1.43             -0.641</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement        -0.981            -1.32           -0.645              -1.38             -0.581
+## High Engagement       -1.034            -1.36           -0.704              -1.43             -0.641</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.375            0.268            0.525              0.251              0.559
+## High Engagement        0.356            0.256            0.495              0.240              0.527</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.375            0.268            0.525              0.251              0.559
+## High Engagement        0.356            0.256            0.495              0.240              0.527</code></pre>
+</div>
+<div id="adjusted-model-with-total_engagement_combined-as-a-predictor" class="section level3" number="1.1.4">
+<h3><span class="header-section-number">1.1.4</span> Adjusted; Model
+with <code>total_engagement_combined</code> as a predictor</h3>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ total_engagement_combined + c_age + 
+##     c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + 
+##     c_baseline_tobacco_history + c_has_partner + c_income_val, 
+##     family = &quot;poisson&quot;, data = dat_cc, id = participant_id, waves = NULL)
+## 
+##  Coefficients:
+##                            Estimate  Std.err  Wald Pr(&gt;|W|)    
+## (Intercept)                -1.25009  0.24772 25.47  4.5e-07 ***
+## total_engagement_combined   0.00317  0.01197  0.07   0.7913    
+## c_age                      -0.02327  0.01355  2.95   0.0860 .  
+## c_is_male                   0.21105  0.30957  0.46   0.4954    
+## c_is_latino                 0.63225  0.47506  1.77   0.1832    
+## c_is_not_latino_and_black   0.99429  0.43626  5.19   0.0227 *  
+## c_is_not_latino_and_other   0.86727  0.49576  3.06   0.0802 .  
+## c_baseline_tobacco_history -0.04482  0.02282  3.86   0.0495 *  
+## c_has_partner              -0.41910  0.29087  2.08   0.1496    
+## c_income_val                0.13664  0.04551  9.02   0.0027 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)     0.52   0.108
+## Number of clusters:   80  Maximum cluster size: 1</code></pre>
+<pre><code>##                            contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                -1.25009     -1.25009          -1.6575        -0.842632            -1.7356          -7.65e-01
+## total_engagement_combined   0.00317      0.00317          -0.0165         0.022849            -0.0203           2.66e-02
+## c_age                      -0.02327     -0.02327          -0.0456        -0.000978            -0.0498           3.29e-03
+## c_is_male                   0.21105      0.21105          -0.2981         0.720248            -0.3957           8.18e-01
+## c_is_latino                 0.63225      0.63225          -0.1492         1.413650            -0.2989           1.56e+00
+## c_is_not_latino_and_black   0.99429      0.99429           0.2767         1.711882             0.1392           1.85e+00
+## c_is_not_latino_and_other   0.86727      0.86727           0.0518         1.682726            -0.1044           1.84e+00
+## c_baseline_tobacco_history -0.04482     -0.04482          -0.0824        -0.007285            -0.0895          -9.45e-05
+## c_has_partner              -0.41910     -0.41910          -0.8975         0.059342            -0.9892           1.51e-01
+## c_income_val                0.13664      0.13664           0.0618         0.211491             0.0475           2.26e-01</code></pre>
+<pre><code>##                            est_contrast_exp conf_interval_LB_exp conf_interval_UB_exp
+## (Intercept)                           0.286                0.191                0.431
+## total_engagement_combined             1.003                0.984                1.023
+## c_age                                 0.977                0.955                0.999
+## c_is_male                             1.235                0.742                2.055
+## c_is_latino                           1.882                0.861                4.111
+## c_is_not_latino_and_black             2.703                1.319                5.539
+## c_is_not_latino_and_other             2.380                1.053                5.380
+## c_baseline_tobacco_history            0.956                0.921                0.993
+## c_has_partner                         0.658                0.408                1.061
+## c_income_val                          1.146                1.064                1.236</code></pre>
+</div>
+<div id="adjusted-model-with-itotal_engagement_combined-6-as-a-predictor" class="section level3" number="1.1.5">
+<h3><span class="header-section-number">1.1.5</span> Adjusted; Model
+with <code>I(total_engagement_combined &gt;= 6)</code> as a
+predictor</h3>
 <pre><code>## 
 ## Call:
 ## geeglm(formula = C_V3_7dayPP ~ I(total_engagement_combined &gt;= 
@@ -401,17 +621,17 @@ margin-right: auto;
 ##     id = participant_id, waves = NULL)
 ## 
 ##  Coefficients:
-##                                       Estimate  Std.err   Wald Pr(&gt;|W|)    
-## (Intercept)                           -1.56906  0.42192 13.830  0.00020 ***
-## I(total_engagement_combined &gt;= 6)TRUE  0.44277  0.43759  1.024  0.31162    
-## c_age                                 -0.02683  0.01394  3.704  0.05429 .  
-## c_is_male                              0.26615  0.29404  0.819  0.36540    
-## c_is_latino                            0.69688  0.44618  2.439  0.11832    
-## c_is_not_latino_and_black              1.02861  0.43743  5.529  0.01870 *  
-## c_is_not_latino_and_other              0.94357  0.48043  3.857  0.04953 *  
-## c_baseline_tobacco_history            -0.04372  0.02257  3.751  0.05278 .  
-## c_has_partner                         -0.44942  0.28857  2.426  0.11937    
-## c_income_val                           0.12736  0.04485  8.063  0.00452 ** 
+##                                       Estimate Std.err  Wald Pr(&gt;|W|)    
+## (Intercept)                            -1.5691  0.4219 13.83   0.0002 ***
+## I(total_engagement_combined &gt;= 6)TRUE   0.4428  0.4376  1.02   0.3116    
+## c_age                                  -0.0268  0.0139  3.70   0.0543 .  
+## c_is_male                               0.2661  0.2940  0.82   0.3654    
+## c_is_latino                             0.6969  0.4462  2.44   0.1183    
+## c_is_not_latino_and_black               1.0286  0.4374  5.53   0.0187 *  
+## c_is_not_latino_and_other               0.9436  0.4804  3.86   0.0495 *  
+## c_baseline_tobacco_history             -0.0437  0.0226  3.75   0.0528 .  
+## c_has_partner                          -0.4494  0.2886  2.43   0.1194    
+## c_income_val                            0.1274  0.0449  8.06   0.0045 ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -419,60 +639,61 @@ margin-right: auto;
 ## Estimated Scale Parameters:
 ## 
 ##             Estimate Std.err
-## (Intercept)   0.5197  0.1167
+## (Intercept)     0.52   0.117
 ## Number of clusters:   80  Maximum cluster size: 1</code></pre>
 <pre><code>##                                       contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## (Intercept)                           -1.56906     -1.56906         -2.26306        -0.875062          -2.396009         -0.7421106
-## I(total_engagement_combined &gt;= 6)TRUE  0.44277      0.44277         -0.27700         1.162532          -0.414890          1.3004207
-## c_age                                 -0.02683     -0.02683         -0.04975        -0.003898          -0.054146          0.0004947
-## c_is_male                              0.26615      0.26615         -0.21751         0.749806          -0.310170          0.8424619
-## c_is_latino                            0.69688      0.69688         -0.03702         1.430787          -0.177617          1.5713838
-## c_is_not_latino_and_black              1.02861      1.02861          0.30909         1.748122           0.171255          1.8859621
-## c_is_not_latino_and_other              0.94357      0.94357          0.15334         1.733807           0.001949          1.8851954
-## c_baseline_tobacco_history            -0.04372     -0.04372         -0.08085        -0.006588          -0.087963          0.0005249
-## c_has_partner                         -0.44942     -0.44942         -0.92406         0.025234          -1.014995          0.1161641
-## c_income_val                           0.12736      0.12736          0.05358         0.201139           0.039449          0.2152734</code></pre>
-<pre><code>##                                 contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1                            (Intercept)       0.2082           0.1040           0.4168            0.09108             0.4761
-## 2  I(total_engagement_combined &gt;= 6)TRUE       1.5570           0.7581           3.1980            0.66041             3.6708
-## 3                                  c_age       0.9735           0.9515           0.9961            0.94729             1.0005
-## 4                              c_is_male       1.3049           0.8045           2.1166            0.73332             2.3221
-## 5                            c_is_latino       2.0075           0.9637           4.1820            0.83726             4.8133
-## 6              c_is_not_latino_and_black       2.7972           1.3622           5.7438            1.18679             6.5927
-## 7              c_is_not_latino_and_other       2.5691           1.1657           5.6622            1.00195             6.5876
-## 8             c_baseline_tobacco_history       0.9572           0.9223           0.9934            0.91579             1.0005
-## 9                          c_has_partner       0.6380           0.3969           1.0256            0.36240             1.1232
-## 10                          c_income_val       1.1358           1.0550           1.2228            1.04024             1.2402</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement       -1.569           -2.263          -0.8751             -2.396            -0.7421
-## 2 High Engagement       -1.126           -1.403          -0.8498             -1.456            -0.7969</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement       0.2082           0.1040           0.4168            0.09108             0.4761
-## 2 High Engagement       0.3242           0.2459           0.4275            0.23323             0.4507</code></pre>
+## (Intercept)                            -1.5691      -1.5691          -2.2631         -0.87506           -2.39601          -0.742111
+## I(total_engagement_combined &gt;= 6)TRUE   0.4428       0.4428          -0.2770          1.16253           -0.41489           1.300421
+## c_age                                  -0.0268      -0.0268          -0.0498         -0.00390           -0.05415           0.000495
+## c_is_male                               0.2661       0.2661          -0.2175          0.74981           -0.31017           0.842462
+## c_is_latino                             0.6969       0.6969          -0.0370          1.43079           -0.17762           1.571384
+## c_is_not_latino_and_black               1.0286       1.0286           0.3091          1.74812            0.17126           1.885962
+## c_is_not_latino_and_other               0.9436       0.9436           0.1533          1.73381            0.00195           1.885195
+## c_baseline_tobacco_history             -0.0437      -0.0437          -0.0808         -0.00659           -0.08796           0.000525
+## c_has_partner                          -0.4494      -0.4494          -0.9241          0.02523           -1.01499           0.116164
+## c_income_val                            0.1274       0.1274           0.0536          0.20114            0.03945           0.215273</code></pre>
+<pre><code>##                                       est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                  0.208            0.104            0.417             0.0911              0.476
+## I(total_engagement_combined &gt;= 6)TRUE        1.557            0.758            3.198             0.6604              3.671
+## c_age                                        0.974            0.951            0.996             0.9473              1.000
+## c_is_male                                    1.305            0.805            2.117             0.7333              2.322
+## c_is_latino                                  2.007            0.964            4.182             0.8373              4.813
+## c_is_not_latino_and_black                    2.797            1.362            5.744             1.1868              6.593
+## c_is_not_latino_and_other                    2.569            1.166            5.662             1.0020              6.588
+## c_baseline_tobacco_history                   0.957            0.922            0.993             0.9158              1.001
+## c_has_partner                                0.638            0.397            1.026             0.3624              1.123
+## c_income_val                                 1.136            1.055            1.223             1.0402              1.240</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         -1.57            -2.26           -0.875              -2.40             -0.742
+## High Engagement        -1.13            -1.40           -0.850              -1.46             -0.797</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.208            0.104            0.417             0.0911              0.476
+## High Engagement        0.324            0.246            0.427             0.2332              0.451</code></pre>
 </div>
-<div id="model-with-itotal_engagement_combined-6.75-as-a-predictor" class="section level3" number="1.1.2">
-<h3><span class="header-section-number">1.1.2</span> Model with
-<code>I(total_engagement_combined &gt;= 6.75)</code> as a predictor</h3>
+<div id="adjusted-model-with-itotal_engagement_combined-12-as-a-predictor" class="section level3" number="1.1.6">
+<h3><span class="header-section-number">1.1.6</span> Adjusted; Model
+with <code>I(total_engagement_combined &gt;= 12)</code> as a
+predictor</h3>
 <pre><code>## 
 ## Call:
 ## geeglm(formula = C_V3_7dayPP ~ I(total_engagement_combined &gt;= 
-##     6.75) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + 
+##     12) + c_age + c_is_male + c_is_latino + c_is_not_latino_and_black + 
 ##     c_is_not_latino_and_other + c_baseline_tobacco_history + 
 ##     c_has_partner + c_income_val, family = &quot;poisson&quot;, data = dat_cc, 
 ##     id = participant_id, waves = NULL)
 ## 
 ##  Coefficients:
-##                                          Estimate Std.err  Wald Pr(&gt;|W|)    
-## (Intercept)                               -1.2648  0.2895 19.09  1.2e-05 ***
-## I(total_engagement_combined &gt;= 6.75)TRUE   0.0890  0.3310  0.07    0.788    
-## c_age                                     -0.0231  0.0135  2.95    0.086 .  
-## c_is_male                                  0.2237  0.3109  0.52    0.472    
-## c_is_latino                                0.6588  0.4606  2.05    0.153    
-## c_is_not_latino_and_black                  1.0065  0.4423  5.18    0.023 *  
-## c_is_not_latino_and_other                  0.8812  0.4961  3.16    0.076 .  
-## c_baseline_tobacco_history                -0.0441  0.0223  3.92    0.048 *  
-## c_has_partner                             -0.4229  0.2905  2.12    0.146    
-## c_income_val                               0.1325  0.0472  7.86    0.005 ** 
+##                                        Estimate Std.err  Wald Pr(&gt;|W|)    
+## (Intercept)                             -1.2252  0.2058 35.46  2.6e-09 ***
+## I(total_engagement_combined &gt;= 12)TRUE   0.0522  0.2748  0.04   0.8494    
+## c_age                                   -0.0230  0.0133  3.00   0.0835 .  
+## c_is_male                                0.2101  0.3103  0.46   0.4983    
+## c_is_latino                              0.6413  0.4659  1.89   0.1687    
+## c_is_not_latino_and_black                0.9970  0.4306  5.36   0.0206 *  
+## c_is_not_latino_and_other                0.8694  0.4972  3.06   0.0803 .  
+## c_baseline_tobacco_history              -0.0443  0.0225  3.86   0.0494 *  
+## c_has_partner                           -0.4231  0.2933  2.08   0.1491    
+## c_income_val                             0.1348  0.0452  8.92   0.0028 ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -480,36 +701,149 @@ margin-right: auto;
 ## Estimated Scale Parameters:
 ## 
 ##             Estimate Std.err
-## (Intercept)     0.52   0.107
+## (Intercept)     0.52   0.109
 ## Number of clusters:   80  Maximum cluster size: 1</code></pre>
-<pre><code>##                                          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## (Intercept)                               -1.2648      -1.2648          -1.7409        -0.788658            -1.8321          -0.697444
-## I(total_engagement_combined &gt;= 6.75)TRUE   0.0890       0.0890          -0.4555         0.633537            -0.5598           0.737853
-## c_age                                     -0.0231      -0.0231          -0.0453        -0.000989            -0.0496           0.003256
-## c_is_male                                  0.2237       0.2237          -0.2877         0.735063            -0.3856           0.833027
-## c_is_latino                                0.6588       0.6588          -0.0988         1.416458            -0.2439           1.561597
-## c_is_not_latino_and_black                  1.0065       1.0065           0.2790         1.733951             0.1397           1.873314
-## c_is_not_latino_and_other                  0.8812       0.8812           0.0652         1.697261            -0.0911           1.853591
-## c_baseline_tobacco_history                -0.0441      -0.0441          -0.0807        -0.007457            -0.0877          -0.000444
-## c_has_partner                             -0.4229      -0.4229          -0.9008         0.055008            -0.9924           0.146563
-## c_income_val                               0.1325       0.1325           0.0548         0.210220             0.0399           0.225108</code></pre>
-<pre><code>##                                    contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1                               (Intercept)        0.282            0.175            0.454              0.160              0.498
-## 2  I(total_engagement_combined &gt;= 6.75)TRUE        1.093            0.634            1.884              0.571              2.091
-## 3                                     c_age        0.977            0.956            0.999              0.952              1.003
-## 4                                 c_is_male        1.251            0.750            2.086              0.680              2.300
-## 5                               c_is_latino        1.933            0.906            4.122              0.784              4.766
-## 6                 c_is_not_latino_and_black        2.736            1.322            5.663              1.150              6.510
-## 7                 c_is_not_latino_and_other        2.414            1.067            5.459              0.913              6.383
-## 8                c_baseline_tobacco_history        0.957            0.923            0.993              0.916              1.000
-## 9                             c_has_partner        0.655            0.406            1.057              0.371              1.158
-## 10                             c_income_val        1.142            1.056            1.234              1.041              1.252</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement        -1.26            -1.74           -0.789              -1.83             -0.697
-## 2 High Engagement        -1.18            -1.48           -0.872              -1.54             -0.814</code></pre>
-<pre><code>##          contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
-## 1  Low Engagement        0.282            0.175            0.454              0.160              0.498
-## 2 High Engagement        0.309            0.228            0.418              0.215              0.443</code></pre>
+<pre><code>##                                        contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                             -1.2252      -1.2252          -1.5636         -0.88674            -1.6285          -0.821907
+## I(total_engagement_combined &gt;= 12)TRUE   0.0522       0.0522          -0.3998          0.50422            -0.4864           0.590811
+## c_age                                   -0.0230      -0.0230          -0.0448         -0.00114            -0.0490           0.003040
+## c_is_male                                0.2101       0.2101          -0.3003          0.72040            -0.3980           0.818159
+## c_is_latino                              0.6413       0.6413          -0.1250          1.40755            -0.2718           1.554348
+## c_is_not_latino_and_black                0.9970       0.9970           0.2887          1.70530             0.1530           1.840990
+## c_is_not_latino_and_other                0.8694       0.8694           0.0516          1.68712            -0.1050           1.843781
+## c_baseline_tobacco_history              -0.0443      -0.0443          -0.0813         -0.00721            -0.0884          -0.000118
+## c_has_partner                           -0.4231      -0.4231          -0.9055          0.05925            -0.9979           0.151664
+## c_income_val                             0.1348       0.1348           0.0606          0.20911             0.0464           0.223342</code></pre>
+<pre><code>##                                        contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                              -1.225       -1.225           -1.564           -0.887             -1.628             -0.822
+## I(total_engagement_combined &gt;= 12)TRUE    0.052        0.052           -0.400            0.504             -0.486              0.591
+## c_age                                    -0.023       -0.023           -0.045           -0.001             -0.049              0.003
+## c_is_male                                 0.210        0.210           -0.300            0.720             -0.398              0.818
+## c_is_latino                               0.641        0.641           -0.125            1.408             -0.272              1.554
+## c_is_not_latino_and_black                 0.997        0.997            0.289            1.705              0.153              1.841
+## c_is_not_latino_and_other                 0.869        0.869            0.052            1.687             -0.105              1.844
+## c_baseline_tobacco_history               -0.044       -0.044           -0.081           -0.007             -0.088              0.000
+## c_has_partner                            -0.423       -0.423           -0.906            0.059             -0.998              0.152
+## c_income_val                              0.135        0.135            0.061            0.209              0.046              0.223</code></pre>
+<pre><code>##                                        est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                   0.294            0.209            0.412              0.196               0.44
+## I(total_engagement_combined &gt;= 12)TRUE        1.054            0.670            1.656              0.615               1.81
+## c_age                                         0.977            0.956            0.999              0.952               1.00
+## c_is_male                                     1.234            0.741            2.055              0.672               2.27
+## c_is_latino                                   1.899            0.883            4.086              0.762               4.73
+## c_is_not_latino_and_black                     2.710            1.335            5.503              1.165               6.30
+## c_is_not_latino_and_other                     2.385            1.053            5.404              0.900               6.32
+## c_baseline_tobacco_history                    0.957            0.922            0.993              0.915               1.00
+## c_has_partner                                 0.655            0.404            1.061              0.369               1.16
+## c_income_val                                  1.144            1.062            1.233              1.047               1.25</code></pre>
+<pre><code>##                                        est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                                   0.294            0.209            0.412              0.196               0.44
+## I(total_engagement_combined &gt;= 12)TRUE        1.054            0.670            1.656              0.615               1.80
+## c_age                                         0.977            0.956            0.999              0.952               1.00
+## c_is_male                                     1.234            0.741            2.055              0.672               2.27
+## c_is_latino                                   1.899            0.883            4.086              0.762               4.73
+## c_is_not_latino_and_black                     2.710            1.335            5.503              1.165               6.30
+## c_is_not_latino_and_other                     2.385            1.053            5.404              0.900               6.32
+## c_baseline_tobacco_history                    0.957            0.922            0.993              0.915               1.00
+## c_has_partner                                 0.655            0.404            1.061              0.369               1.16
+## c_income_val                                  1.144            1.062            1.233              1.047               1.25</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         -1.23            -1.56           -0.887              -1.63             -0.822
+## High Engagement        -1.17            -1.53           -0.816              -1.60             -0.748</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         -1.23            -1.56           -0.887              -1.63             -0.822
+## High Engagement        -1.17            -1.53           -0.816              -1.60             -0.748</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.294            0.209            0.412              0.196              0.440
+## High Engagement        0.309            0.217            0.442              0.202              0.473</code></pre>
+<pre><code>##                 est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## Low Engagement         0.294            0.209            0.412              0.196              0.440
+## High Engagement        0.309            0.217            0.442              0.202              0.473</code></pre>
+</div>
+</div>
+<div id="logistic-regression-model" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Logistic Regression
+Model</h2>
+<div id="unadjusted-model-with-total_engagement_combined-as-a-predictor-1" class="section level3" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Unadjusted; Model
+with <code>total_engagement_combined</code> as a predictor</h3>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ total_engagement_combined, family = &quot;binomial&quot;, 
+##     data = dat_cc_unadjusted, id = participant_id, waves = NULL)
+## 
+##  Coefficients:
+##                           Estimate Std.err Wald Pr(&gt;|W|)
+## (Intercept)                -0.4492  0.3730 1.45     0.23
+## total_engagement_combined  -0.0066  0.0187 0.12     0.72
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)        1  0.0672
+## Number of clusters:   85  Maximum cluster size: 1</code></pre>
+<pre><code>##                           contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                -0.4492      -0.4492          -1.0627           0.1643            -1.1803             0.2818
+## total_engagement_combined  -0.0066      -0.0066          -0.0374           0.0242            -0.0433             0.0301</code></pre>
+<pre><code>##                           est_contrast_exp conf_interval_LB_exp conf_interval_UB_exp
+## (Intercept)                          0.638                0.346                 1.18
+## total_engagement_combined            0.993                0.963                 1.02</code></pre>
+</div>
+<div id="adjusted-model-with-total_engagement_combined-as-a-predictor-1" class="section level3" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Adjusted; Model
+with <code>total_engagement_combined</code> as a predictor</h3>
+<pre><code>## 
+## Call:
+## geeglm(formula = C_V3_7dayPP ~ total_engagement_combined + c_age + 
+##     c_is_male + c_is_latino + c_is_not_latino_and_black + c_is_not_latino_and_other + 
+##     c_baseline_tobacco_history + c_has_partner + c_income_val, 
+##     family = &quot;binomial&quot;, data = dat_cc, id = participant_id, 
+##     waves = NULL)
+## 
+##  Coefficients:
+##                            Estimate Std.err Wald Pr(&gt;|W|)   
+## (Intercept)                 -0.7532  0.4298 3.07   0.0797 . 
+## total_engagement_combined    0.0035  0.0223 0.02   0.8756   
+## c_age                       -0.0471  0.0285 2.73   0.0984 . 
+## c_is_male                    0.6202  0.6939 0.80   0.3715   
+## c_is_latino                  1.0813  0.7209 2.25   0.1337   
+## c_is_not_latino_and_black    1.7292  0.7406 5.45   0.0196 * 
+## c_is_not_latino_and_other    1.6071  0.8622 3.47   0.0623 . 
+## c_baseline_tobacco_history  -0.0858  0.0385 4.98   0.0257 * 
+## c_has_partner               -1.0347  0.6434 2.59   0.1078   
+## c_income_val                 0.2823  0.1004 7.91   0.0049 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = independence 
+## Estimated Scale Parameters:
+## 
+##             Estimate Std.err
+## (Intercept)    0.918   0.313
+## Number of clusters:   80  Maximum cluster size: 1</code></pre>
+<pre><code>##                            contrast est_contrast conf_interval_LB conf_interval_UB conf_interval_LB95 conf_interval_UB95
+## (Intercept)                 -0.7532      -0.7532          -1.4601        -0.046306            -1.5955            0.08912
+## total_engagement_combined    0.0035       0.0035          -0.0332         0.040231            -0.0403            0.04727
+## c_age                       -0.0471      -0.0471          -0.0939        -0.000224            -0.1029            0.00875
+## c_is_male                    0.6202       0.6202          -0.5212         1.761632            -0.7399            1.98030
+## c_is_latino                  1.0813       1.0813          -0.1046         2.267107            -0.3317            2.49428
+## c_is_not_latino_and_black    1.7292       1.7292           0.5110         2.947425             0.2776            3.18081
+## c_is_not_latino_and_other    1.6071       1.6071           0.1888         3.025317            -0.0829            3.29702
+## c_baseline_tobacco_history  -0.0858      -0.0858          -0.1490        -0.022533            -0.1612           -0.01041
+## c_has_partner               -1.0347      -1.0347          -2.0929         0.023581            -2.2957            0.22632
+## c_income_val                 0.2823       0.2823           0.1172         0.447359             0.0856            0.47898</code></pre>
+<pre><code>##                            est_contrast_exp conf_interval_LB_exp conf_interval_UB_exp
+## (Intercept)                           0.471                0.232                0.955
+## total_engagement_combined             1.004                0.967                1.041
+## c_age                                 0.954                0.910                1.000
+## c_is_male                             1.859                0.594                5.822
+## c_is_latino                           2.948                0.901                9.651
+## c_is_not_latino_and_black             5.636                1.667               19.057
+## c_is_not_latino_and_other             4.988                1.208               20.601
+## c_baseline_tobacco_history            0.918                0.862                0.978
+## c_has_partner                         0.355                0.123                1.024
+## c_income_val                          1.326                1.124                1.564</code></pre>
 </div>
 </div>
 </div>
